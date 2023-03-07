@@ -1,11 +1,12 @@
 #ifndef _TILE_MAP_INCLUDE
 #define _TILE_MAP_INCLUDE
 
+#include <map>
 
 #include <glm/glm.hpp>
 #include "Texture.h"
 #include "ShaderProgram.h"
-
+#include "Sprite.h"
 
 // Class Tilemap is capable of loading a tile map from a text file in a very
 // simple format (see level01.txt for an example). With this information
@@ -32,7 +33,7 @@ public:
 
 	bool collisionMoveLeft(const glm::ivec2 &pos, const glm::ivec2 &size) const;
 	bool collisionMoveRight(const glm::ivec2 &pos, const glm::ivec2 &size) const;
-	bool collisionMoveDown(const glm::ivec2 &pos, const glm::ivec2 &size, int *posY) const;
+	bool collisionMoveDown(const glm::ivec2 &pos, const glm::ivec2 &size, int *posY);
 	
 private:
 	bool loadLevel(const string &levelFile);
@@ -49,6 +50,9 @@ private:
 	glm::vec2 tileTexSize;
 	int *map;
 
+	glm::vec2 offset;
+	Sprite* changableSprite;
+	std::map<std::pair<int, int>, bool> changableTiles;
 };
 
 

@@ -20,6 +20,13 @@ TileMap::TileMap(const string &levelFile, const glm::vec2 &minCoords, ShaderProg
 {
 	loadLevel(levelFile);
 	prepareArrays(minCoords, program);
+
+	offset = minCoords;
+
+	Texture* texture = new Texture();
+	texture->loadFromFile("images/rock_example.jpg", PixelFormat::TEXTURE_PIXEL_FORMAT_RGBA);
+
+	changableSprite = Sprite::createSprite(glm::vec2(tileSize), glm::vec2(1.0f), texture, &program);
 }
 
 TileMap::~TileMap()
@@ -37,6 +44,16 @@ void TileMap::render() const
 	glEnableVertexAttribArray(posLocation);
 	glEnableVertexAttribArray(texCoordLocation);
 	glDrawArrays(GL_TRIANGLES, 0, 6 * nTiles);
+
+	// Draw stepped on tiles
+	for (const auto& [position, isChanged] : changableTiles) {
+		if (isChanged) {
+			auto& [y, x] = position;
+			changableSprite->setPosition({offset.x + x*tileSize, offset.y + y*tileSize});
+			changableSprite->render();
+		}
+	}
+
 	glDisable(GL_TEXTURE_2D);
 }
 
@@ -84,6 +101,10 @@ bool TileMap::loadLevel(const string &levelFile)
 		{
 			int value;
 			fin >> value;
+
+			if (value >= 61 && value <= 63) {
+				changableTiles.insert({{j, i}, false});
+			}
 
 			if (value == -1) {
 				map[j*mapSize.x + i] = 0;
@@ -186,7 +207,7 @@ bool TileMap::collisionMoveRight(const glm::ivec2 &pos, const glm::ivec2 &size) 
 	return false;
 }
 
-bool TileMap::collisionMoveDown(const glm::ivec2 &pos, const glm::ivec2 &size, int *posY) const
+bool TileMap::collisionMoveDown(const glm::ivec2 &pos, const glm::ivec2 &size, int *posY)
 {
 	int x0, x1, y;
 	
@@ -200,8 +221,18 @@ bool TileMap::collisionMoveDown(const glm::ivec2 &pos, const glm::ivec2 &size, i
 			if(*posY - tileSize * y + size.y <= 4)
 			{
 				*posY = tileSize * y - size.y;
+
+
+				if (changableTiles.find({y, x}) != changableTiles.end()) {
+					changableTiles[{y, x}] = true;
+				}
+				if (changableTiles.find({y, x+1}) != changableTiles.end()) {
+					changableTiles[{y, x+1}] = true;
+				}
+
 				return true;
 			}
+
 		}
 	}
 	
