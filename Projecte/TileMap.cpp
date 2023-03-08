@@ -239,32 +239,13 @@ bool TileMap::collisionMoveDown(const glm::ivec2 &pos, const glm::ivec2 &size, i
 	return false;
 }
 
+bool TileMap::isCompleted() const
+{
+	for (const auto& [_, pressed] : changableTiles)
+	{
+		if (!pressed) return false;
+	}
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+	return true;
+}
 

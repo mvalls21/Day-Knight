@@ -33,6 +33,8 @@ private:
 	float currentTime;
 	glm::mat4 projection;
 
+	bool showKey = false;
+	Sprite *keySprite;
 };
 
 
