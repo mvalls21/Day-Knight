@@ -38,10 +38,9 @@ void Scene::init()
 	Texture *keyTexture = new Texture();
 	keyTexture->loadFromFile("images/castle-tileset.png", PixelFormat::TEXTURE_PIXEL_FORMAT_RGBA);
 
-	keySprite = Sprite::createSprite(glm::vec2(16.0f, 16.0f), glm::vec2(1.0f / 8.0f, 1.0f / 16.0f), keyTexture, &texProgram);
-	keySprite->setNumberAnimations(1);
-	keySprite->addKeyframe(0, glm::vec2(2.0f / 8.0f, 11.0f / 16.0f));
-	keySprite->changeAnimation(0);
+	keySprite = StaticSprite::createSprite(glm::vec2(16.0f), glm::vec2(1.0f / 8.0f, 1.0f / 16.0f), keyTexture, &texProgram);
+	keySprite->setPosition({SCREEN_X + 20 * 16, SCREEN_Y + 18 * 16});
+	keySprite->setSpritesheetCoords(glm::vec2(2.0f / 8.0f, 11.0f / 16.0f));
 }
 
 void Scene::update(int deltaTime)
@@ -70,7 +69,6 @@ void Scene::render()
 
 	if (showKey)
 	{
-		keySprite->setPosition({SCREEN_X + 20 * 16, SCREEN_Y + 18 * 16});
 		keySprite->render();
 	}
 }

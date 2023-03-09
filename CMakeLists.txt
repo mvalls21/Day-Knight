@@ -13,6 +13,7 @@ target_sources(${PROJECT_NAME} PRIVATE
     Projecte/Shader.cpp
     Projecte/ShaderProgram.cpp
     Projecte/Sprite.cpp
+    Projecte/StaticSprite.cpp
     Projecte/Texture.cpp
     Projecte/TileMap.cpp
     Projecte/main.cpp
