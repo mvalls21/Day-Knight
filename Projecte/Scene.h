@@ -36,6 +36,9 @@ private:
 
 	bool showKey = false;
 	StaticSprite *keySprite;
+
+	bool isDoorOpen = false;
+	Sprite *doorSprite;
 };
 
 

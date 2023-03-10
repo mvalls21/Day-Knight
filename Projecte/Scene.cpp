@@ -10,6 +10,9 @@
 #define INIT_PLAYER_X_TILES 4
 #define INIT_PLAYER_Y_TILES 18
 
+#define KEY_POSITION_X_TILES 20
+#define KEY_POSITION_Y_TILES 18
+
 Scene::Scene()
 {
 	map = NULL;
@@ -35,12 +38,18 @@ void Scene::init()
 	projection = glm::ortho(0.f, float(SCREEN_WIDTH - 1), float(SCREEN_HEIGHT - 1), 0.f);
 	currentTime = 0.0f;
 
-	Texture *keyTexture = new Texture();
-	keyTexture->loadFromFile("images/castle-tileset.png", PixelFormat::TEXTURE_PIXEL_FORMAT_RGBA);
+	Texture *tileset = new Texture();
+	tileset->loadFromFile("images/castle-tileset.png", PixelFormat::TEXTURE_PIXEL_FORMAT_RGBA);
 
-	keySprite = StaticSprite::createSprite(glm::vec2(16.0f), glm::vec2(1.0f / 8.0f, 1.0f / 16.0f), keyTexture, &texProgram);
-	keySprite->setPosition({SCREEN_X + 20 * 16, SCREEN_Y + 18 * 16});
+	keySprite = StaticSprite::createSprite(glm::vec2(16.0f), glm::vec2(1.0f / 8.0f, 1.0f / 16.0f), tileset, &texProgram);
+	keySprite->setPosition({SCREEN_X + KEY_POSITION_X_TILES * 16.0f, SCREEN_Y + KEY_POSITION_Y_TILES * 16.0f});
 	keySprite->setSpritesheetCoords(glm::vec2(2.0f / 8.0f, 11.0f / 16.0f));
+
+	doorSprite = Sprite::createSprite(glm::vec2(32.0f, 32.0f), glm::vec2(1.0f / 4.0f, 1.0f / 8.0f), tileset, &texProgram);
+	doorSprite->setPosition({SCREEN_X + 10 * 16, SCREEN_Y + 18.0 * 16.0});
+	doorSprite->setNumberAnimations(2);
+	doorSprite->addKeyframe(0, {2.0f / 8.0f, 9.0f / 16.0f});
+	doorSprite->addKeyframe(1, {5.0f / 8.0f, 9.0f / 16.0f});
 }
 
 void Scene::update(int deltaTime)
@@ -48,9 +57,24 @@ void Scene::update(int deltaTime)
 	currentTime += deltaTime;
 	player->update(deltaTime);
 
-	if (!showKey && map->isCompleted())
+	if (!showKey && !isDoorOpen && map->isCompleted())
 	{
 		showKey = true;
+	}
+
+	const auto &posPlayer = player->getPosition();
+	const glm::ivec2 tilePosition = {
+		posPlayer.x / map->getTileSize(),
+		posPlayer.y / map->getTileSize(),
+	};
+
+	if (showKey && !isDoorOpen)
+	{
+		if ((tilePosition.x == KEY_POSITION_X_TILES || tilePosition.x + 1 == KEY_POSITION_X_TILES) && (tilePosition.y == KEY_POSITION_Y_TILES || tilePosition.y == KEY_POSITION_Y_TILES - 1))
+		{
+			isDoorOpen = true;
+			showKey = false;
+		}
 	}
 }
 
@@ -64,6 +88,7 @@ void Scene::render()
 	modelview = glm::mat4(1.0f);
 	texProgram.setUniformMatrix4f("modelview", modelview);
 	texProgram.setUniform2f("texCoordDispl", 0.f, 0.f);
+
 	map->render();
 	player->render();
 
@@ -71,6 +96,16 @@ void Scene::render()
 	{
 		keySprite->render();
 	}
+
+	if (!isDoorOpen)
+	{
+		doorSprite->changeAnimation(0);
+	}
+	else
+	{
+		doorSprite->changeAnimation(1);
+	}
+	doorSprite->render();
 }
 
 void Scene::initShaders()
