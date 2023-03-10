@@ -47,7 +47,7 @@ void TileMap::render() const
 	{
 		if (isChanged)
 		{
-			auto &[y, x] = position;
+			const auto &[y, x] = position;
 			changableSprite->setPosition({offset.x + x * tileSize, offset.y + y * tileSize});
 			changableSprite->render();
 		}

@@ -93,18 +93,13 @@ void Scene::render()
 	player->render();
 
 	if (showKey)
-	{
 		keySprite->render();
-	}
 
 	if (!isDoorOpen)
-	{
 		doorSprite->changeAnimation(0);
-	}
 	else
-	{
 		doorSprite->changeAnimation(1);
-	}
+
 	doorSprite->render();
 }
 
