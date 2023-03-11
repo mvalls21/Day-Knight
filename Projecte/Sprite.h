@@ -1,17 +1,14 @@
 #ifndef _SPRITE_INCLUDE
 #define _SPRITE_INCLUDE
 
-
 #include <vector>
 #include <glm/glm.hpp>
 #include "Texture.h"
 #include "ShaderProgram.h"
 #include "AnimKeyframes.h"
 
-
 // This class is derived from code seen earlier in TexturedQuad but it is also
-// able to manage animations stored as a spritesheet. 
-
+// able to manage animations stored as a spritesheet.
 
 class Sprite
 {
@@ -32,7 +29,7 @@ public:
 	void addKeyframe(int animId, const glm::vec2 &frame);
 	void changeAnimation(int animId);
 	int animation() const;
-	
+
 	void setPosition(const glm::vec2 &pos);
 
 private:
@@ -46,9 +43,6 @@ private:
 	float timeAnimation;
 	glm::vec2 texCoordDispl;
 	vector<AnimKeyframes> animations;
-
 };
 
-
 #endif // _SPRITE_INCLUDE
-

@@ -20,6 +20,8 @@ public:
 	
 	void setTileMap(TileMap *tileMap);
 	void setPosition(const glm::vec2 &pos);
+
+	const glm::ivec2& getPosition() const;
 	
 private:
 	bool bJumping;

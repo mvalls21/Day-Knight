@@ -6,6 +6,7 @@
 #include "ShaderProgram.h"
 #include "TileMap.h"
 #include "Player.h"
+#include "StaticSprite.h"
 
 
 // Scene contains all the entities of our game.
@@ -33,6 +34,11 @@ private:
 	float currentTime;
 	glm::mat4 projection;
 
+	bool showKey = false;
+	StaticSprite *keySprite;
+
+	bool isDoorOpen = false;
+	Sprite *doorSprite;
 };
 
 
