@@ -6,6 +6,10 @@
 
 using namespace std;
 
+#define WALL 251
+#define PURPLE_PLATFORM 139
+#define PINK_PLATFORM 141
+
 TileMap *TileMap::createTileMap(const string &levelFile, const glm::vec2 &minCoords, ShaderProgram &program)
 {
 	TileMap *map = new TileMap(levelFile, minCoords, program);
@@ -101,7 +105,7 @@ bool TileMap::loadLevel(const string &levelFile)
 			int value;
 			fin >> value;
 
-			if (value >= 61 && value <= 63)
+			if (value == PURPLE_PLATFORM - 1)
 			{
 				changableTiles.insert({{j, i}, false});
 			}
@@ -199,7 +203,7 @@ bool TileMap::collisionMoveLeft(const glm::ivec2 &pos, const glm::ivec2 &size) c
 	y1 = (pos.y + size.y - 1) / tileSize;
 	for (int y = y0; y <= y1; y++)
 	{
-		if (map[y * mapSize.x + x] != 0)
+		if (map[y * mapSize.x + x] == WALL)
 			return true;
 	}
 
@@ -215,8 +219,26 @@ bool TileMap::collisionMoveRight(const glm::ivec2 &pos, const glm::ivec2 &size) 
 	y1 = (pos.y + size.y - 1) / tileSize;
 	for (int y = y0; y <= y1; y++)
 	{
-		if (map[y * mapSize.x + x] != 0)
+		if (map[y * mapSize.x + x] == WALL)
 			return true;
+	}
+
+	return false;
+}
+
+bool TileMap::collisionMoveUp(const glm::ivec2 &pos, const glm::ivec2 &size) const
+{
+	int x0, x1, y;
+
+	x0 = pos.x / tileSize;
+	x1 = (pos.x + size.x - 1) / tileSize;
+	y = pos.y / tileSize;
+	for (int x = x0; x <= x1; x++)
+	{
+		if (map[y * mapSize.x + x] == WALL)
+		{
+			return true;
+		}
 	}
 
 	return false;
@@ -231,7 +253,7 @@ bool TileMap::collisionMoveDown(const glm::ivec2 &pos, const glm::ivec2 &size, i
 	y = (pos.y + size.y - 1) / tileSize;
 	for (int x = x0; x <= x1; x++)
 	{
-		if (map[y * mapSize.x + x] != 0)
+		if (map[y * mapSize.x + x] == WALL or map[y * mapSize.x + x] == PURPLE_PLATFORM or map[y * mapSize.x + x] == PINK_PLATFORM)
 		{
 			if (*posY - tileSize * y + size.y <= 4)
 			{
