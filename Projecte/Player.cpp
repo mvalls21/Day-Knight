@@ -6,8 +6,8 @@
 #include "Game.h"
 
 
-#define JUMP_ANGLE_STEP 6
-#define JUMP_HEIGHT 96
+#define JUMP_ANGLE_STEP 4
+#define JUMP_HEIGHT 72
 #define FALL_STEP 4
 
 
@@ -89,9 +89,15 @@ void Player::update(int deltaTime)
 		}
 		else
 		{
-			posPlayer.y = int(startY - 72 * sin(3.14159f * jumpAngle / 180.f));
+			posPlayer.y = int(startY - JUMP_HEIGHT * sin(3.14159f * jumpAngle / 180.f));
 			if(jumpAngle > 90)
+			{
 				bJumping = !map->collisionMoveDown(posPlayer, glm::ivec2(32, 32), &posPlayer.y);
+			}
+			else if (map->collisionMoveUp(posPlayer, glm::ivec2(32, 32)))
+			{
+				jumpAngle = 180 - jumpAngle;
+			}
 		}
 	}
 	else

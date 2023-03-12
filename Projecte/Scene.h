@@ -29,6 +29,7 @@ private:
 
 private:
 	TileMap *map;
+	StaticSprite *background;
 	Player *player;
 	ShaderProgram texProgram;
 	float currentTime;
