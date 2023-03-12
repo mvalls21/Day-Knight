@@ -105,7 +105,7 @@ void Scene::render()
 	else
 		doorSprite->changeAnimation(1);
 
-	//doorSprite->render();
+	doorSprite->render();
 }
 
 void Scene::initShaders()
