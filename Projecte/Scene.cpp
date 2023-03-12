@@ -30,7 +30,7 @@ Scene::~Scene()
 void Scene::init()
 {
 	initShaders();
-	map = TileMap::createTileMap("levels/level01.txt", glm::vec2(SCREEN_X, SCREEN_Y), mapProgram);
+	map = TileMap::createTileMap("levels/level01.txt", glm::vec2(SCREEN_X, SCREEN_Y), texProgram);
 	player = new Player();
 	player->init(glm::ivec2(SCREEN_X, SCREEN_Y), texProgram);
 	player->setPosition(glm::vec2(INIT_PLAYER_X_TILES * map->getTileSize(), INIT_PLAYER_Y_TILES * map->getTileSize()));
@@ -107,7 +107,6 @@ void Scene::initShaders()
 {
 	Shader vShader, fShader;
 
-	// TEX PROGRAM
 	vShader.initFromFile(VERTEX_SHADER, "shaders/texture.vert");
 	if (!vShader.isCompiled())
 	{
@@ -133,35 +132,6 @@ void Scene::initShaders()
 			 << endl;
 	}
 	texProgram.bindFragmentOutput("outColor");
-	vShader.free();
-	fShader.free();
-
-	// DOUBLE TEX PROGRAM - MAP WITH BACKGROUND
-	vShader.initFromFile(VERTEX_SHADER, "shaders/map.vert");
-	if (!vShader.isCompiled())
-	{
-		cout << "Vertex Shader Error" << endl;
-		cout << "" << vShader.log() << endl
-			 << endl;
-	}
-	fShader.initFromFile(FRAGMENT_SHADER, "shaders/map.frag");
-	if (!fShader.isCompiled())
-	{
-		cout << "Fragment Shader Error" << endl;
-		cout << "" << fShader.log() << endl
-			 << endl;
-	}
-	mapProgram.init();
-	mapProgram.addShader(vShader);
-	mapProgram.addShader(fShader);
-	mapProgram.link();
-	if (!mapProgram.isLinked())
-	{
-		cout << "Shader Linking Error" << endl;
-		cout << "" << mapProgram.log() << endl
-			 << endl;
-	}
-	mapProgram.bindFragmentOutput("outColor");
 	vShader.free();
 	fShader.free();
 }
