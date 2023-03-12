@@ -25,10 +25,10 @@ TileMap::TileMap(const string &levelFile, const glm::vec2 &minCoords, ShaderProg
 	offset = minCoords;
 
 	Texture *texture = new Texture();
-	texture->loadFromFile("images/rock_example.jpg", PixelFormat::TEXTURE_PIXEL_FORMAT_RGBA);
+	texture->loadFromFile("images/tileset.png", PixelFormat::TEXTURE_PIXEL_FORMAT_RGBA);
 
-	changableSprite = StaticSprite::createSprite(glm::vec2(tileSize), glm::vec2(1.0f), texture, &program);
-	changableSprite->setSpritesheetCoords(glm::vec2(0.0f, 0.0f));
+	changableSprite = StaticSprite::createSprite(glm::vec2(tileSize), glm::vec2(1.0f/38.0f, 1.0f/16.0f), texture, &program);
+	changableSprite->setSpritesheetCoords(glm::vec2(26.0f/38.0f, 3.0f/16.0f));
 }
 
 TileMap::~TileMap()
