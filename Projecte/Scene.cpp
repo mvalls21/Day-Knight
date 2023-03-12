@@ -82,14 +82,19 @@ void Scene::render()
 {
 	glm::mat4 modelview;
 
+	mapProgram.use();
+	mapProgram.setUniformMatrix4f("projection", projection);
+	mapProgram.setUniform4f("color", 1.0f, 1.0f, 1.0f, 1.0f);
+	modelview = glm::mat4(1.0f);
+	mapProgram.setUniformMatrix4f("modelview", modelview);
+	mapProgram.setUniform2f("texCoordDispl", 0.f, 0.f);
+	map->render();
+
 	texProgram.use();
 	texProgram.setUniformMatrix4f("projection", projection);
 	texProgram.setUniform4f("color", 1.0f, 1.0f, 1.0f, 1.0f);
-	modelview = glm::mat4(1.0f);
 	texProgram.setUniformMatrix4f("modelview", modelview);
 	texProgram.setUniform2f("texCoordDispl", 0.f, 0.f);
-
-	map->render();
 	player->render();
 
 	if (showKey)
