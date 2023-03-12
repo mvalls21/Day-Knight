@@ -125,6 +125,7 @@ void TileMap::prepareArrays(const glm::vec2 &minCoords, ShaderProgram &program)
 	vector<float> vertices;
 
 	nTiles = 0;
+	halfTexel = glm::vec2(0.5f / tilesheet.width(), 0.5f / tilesheet.height());
 	for (int j = 0; j < mapSize.y; j++)
 	{
 		for (int i = 0; i < mapSize.x; i++)
@@ -140,6 +141,8 @@ void TileMap::prepareArrays(const glm::vec2 &minCoords, ShaderProgram &program)
 			{
 				texCoordTile[0] = glm::vec2(float((tile - 1) % tilesheetSize.x) / tilesheetSize.x, float((tile - 1) / tilesheetSize.x) / tilesheetSize.y);
 				texCoordTile[1] = texCoordTile[0] + tileTexSize;
+				// texCoordTile[0] += halfTexel;
+				texCoordTile[1] -= halfTexel;
 			}
 			else 
 			{
@@ -147,8 +150,10 @@ void TileMap::prepareArrays(const glm::vec2 &minCoords, ShaderProgram &program)
 			}
 
 			// BACKGROUND PART
-			texCoordTile2[0] = glm::vec2(float((tile2) % tilesheetSize.x) / tilesheetSize.x, float((tile2) / tilesheetSize.x) / tilesheetSize.y);
+			texCoordTile2[0] = glm::vec2(float((tile2 - 1) % tilesheetSize.x) / tilesheetSize.x, float((tile2 - 1) / tilesheetSize.x) / tilesheetSize.y);
 			texCoordTile2[1] = texCoordTile2[0] + tileTexSize;
+			// texCoordTile2[0] += halfTexel;
+			texCoordTile2[1] -= halfTexel;
 
 			// First triangle
 			vertices.push_back(posTile.x);
