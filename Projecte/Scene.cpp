@@ -31,10 +31,17 @@ void Scene::init()
 {
 	initShaders();
 	map = TileMap::createTileMap("levels/level01.txt", glm::vec2(SCREEN_X, SCREEN_Y), texProgram);
+
 	player = new Player();
 	player->init(glm::ivec2(SCREEN_X, SCREEN_Y), texProgram);
 	player->setPosition(glm::vec2(INIT_PLAYER_X_TILES * map->getTileSize(), INIT_PLAYER_Y_TILES * map->getTileSize()));
 	player->setTileMap(map);
+
+	skeleton = new Skeleton();
+	skeleton->init(glm::ivec2(SCREEN_X, SCREEN_Y), texProgram);
+	skeleton->setTileMap(map);
+	skeleton->setMovementRange({19, 18}, {28, 18});
+
 	projection = glm::ortho(0.f, float(SCREEN_WIDTH - 1), float(SCREEN_HEIGHT - 1), 0.f);
 	currentTime = 0.0f;
 
@@ -56,6 +63,7 @@ void Scene::update(int deltaTime)
 {
 	currentTime += deltaTime;
 	player->update(deltaTime);
+	skeleton->update(deltaTime);
 
 	if (!showKey && !isDoorOpen && map->isCompleted())
 	{
@@ -91,6 +99,7 @@ void Scene::render()
 
 	map->render();
 	player->render();
+	skeleton->render();
 
 	if (showKey)
 		keySprite->render();

@@ -16,21 +16,21 @@ void Player::init(const glm::ivec2 &tileMapPos, ShaderProgram &shaderProgram)
 	sprite = Sprite::createSprite(glm::ivec2(32, 32), glm::vec2(0.25, 0.25), &spritesheet, &shaderProgram);
 	sprite->setNumberAnimations(4);
 
-	sprite->setAnimationSpeed(CharacterAnims::STAND_LEFT, 8);
-	sprite->addKeyframe(CharacterAnims::STAND_LEFT, glm::vec2(0.f, 0.f));
+	sprite->setAnimationSpeed(STAND_LEFT, 8);
+	sprite->addKeyframe(STAND_LEFT, glm::vec2(0.f, 0.f));
 
-	sprite->setAnimationSpeed(CharacterAnims::STAND_RIGHT, 8);
-	sprite->addKeyframe(CharacterAnims::STAND_RIGHT, glm::vec2(0.25f, 0.f));
+	sprite->setAnimationSpeed(STAND_RIGHT, 8);
+	sprite->addKeyframe(STAND_RIGHT, glm::vec2(0.25f, 0.f));
 
-	sprite->setAnimationSpeed(CharacterAnims::MOVE_LEFT, 8);
-	sprite->addKeyframe(CharacterAnims::MOVE_LEFT, glm::vec2(0.f, 0.f));
-	sprite->addKeyframe(CharacterAnims::MOVE_LEFT, glm::vec2(0.f, 0.25f));
-	sprite->addKeyframe(CharacterAnims::MOVE_LEFT, glm::vec2(0.f, 0.5f));
+	sprite->setAnimationSpeed(MOVE_LEFT, 8);
+	sprite->addKeyframe(MOVE_LEFT, glm::vec2(0.f, 0.f));
+	sprite->addKeyframe(MOVE_LEFT, glm::vec2(0.f, 0.25f));
+	sprite->addKeyframe(MOVE_LEFT, glm::vec2(0.f, 0.5f));
 
-	sprite->setAnimationSpeed(CharacterAnims::MOVE_RIGHT, 8);
-	sprite->addKeyframe(CharacterAnims::MOVE_RIGHT, glm::vec2(0.25, 0.f));
-	sprite->addKeyframe(CharacterAnims::MOVE_RIGHT, glm::vec2(0.25, 0.25f));
-	sprite->addKeyframe(CharacterAnims::MOVE_RIGHT, glm::vec2(0.25, 0.5f));
+	sprite->setAnimationSpeed(MOVE_RIGHT, 8);
+	sprite->addKeyframe(MOVE_RIGHT, glm::vec2(0.25, 0.f));
+	sprite->addKeyframe(MOVE_RIGHT, glm::vec2(0.25, 0.25f));
+	sprite->addKeyframe(MOVE_RIGHT, glm::vec2(0.25, 0.5f));
 
 	sprite->changeAnimation(0);
 	tileMapDispl = tileMapPos;
@@ -42,32 +42,32 @@ void Player::update(int deltaTime)
 	sprite->update(deltaTime);
 	if (Game::instance().getSpecialKey(GLUT_KEY_LEFT))
 	{
-		if (sprite->animation() != CharacterAnims::MOVE_LEFT)
-			sprite->changeAnimation(CharacterAnims::MOVE_LEFT);
+		if (sprite->animation() != MOVE_LEFT)
+			sprite->changeAnimation(MOVE_LEFT);
 		position.x -= 2;
 		if (map->collisionMoveLeft(position, glm::ivec2(32, 32)))
 		{
 			position.x += 2;
-			sprite->changeAnimation(CharacterAnims::STAND_LEFT);
+			sprite->changeAnimation(STAND_LEFT);
 		}
 	}
 	else if (Game::instance().getSpecialKey(GLUT_KEY_RIGHT))
 	{
-		if (sprite->animation() != CharacterAnims::MOVE_RIGHT)
-			sprite->changeAnimation(CharacterAnims::MOVE_RIGHT);
+		if (sprite->animation() != MOVE_RIGHT)
+			sprite->changeAnimation(MOVE_RIGHT);
 		position.x += 2;
 		if (map->collisionMoveRight(position, glm::ivec2(32, 32)))
 		{
 			position.x -= 2;
-			sprite->changeAnimation(CharacterAnims::STAND_RIGHT);
+			sprite->changeAnimation(STAND_RIGHT);
 		}
 	}
 	else
 	{
-		if (sprite->animation() == CharacterAnims::MOVE_LEFT)
-			sprite->changeAnimation(CharacterAnims::STAND_LEFT);
-		else if (sprite->animation() == CharacterAnims::MOVE_RIGHT)
-			sprite->changeAnimation(CharacterAnims::STAND_RIGHT);
+		if (sprite->animation() == MOVE_LEFT)
+			sprite->changeAnimation(STAND_LEFT);
+		else if (sprite->animation() == MOVE_RIGHT)
+			sprite->changeAnimation(STAND_RIGHT);
 	}
 
 	if (bJumping)

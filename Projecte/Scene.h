@@ -1,17 +1,15 @@
-#ifndef _SCENE_INCLUDE
-#define _SCENE_INCLUDE
-
+#pragma once
 
 #include <glm/glm.hpp>
 #include "ShaderProgram.h"
 #include "TileMap.h"
-#include "Player.h"
 #include "StaticSprite.h"
 
+#include "Player.h"
+#include "Skeleton.h"
 
 // Scene contains all the entities of our game.
 // It is responsible for updating and render them.
-
 
 class Scene
 {
@@ -30,6 +28,7 @@ private:
 private:
 	TileMap *map;
 	Player *player;
+	Skeleton *skeleton;
 	ShaderProgram texProgram;
 	float currentTime;
 	glm::mat4 projection;
@@ -40,7 +39,3 @@ private:
 	bool isDoorOpen = false;
 	Sprite *doorSprite;
 };
-
-
-#endif // _SCENE_INCLUDE
-
