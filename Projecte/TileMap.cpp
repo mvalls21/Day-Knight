@@ -147,7 +147,7 @@ void TileMap::prepareArrays(const glm::vec2 &minCoords, ShaderProgram &program)
 			}
 
 			// BACKGROUND PART
-			texCoordTile2[0] = glm::vec2(float((tile2) % tilesheetSize.x) / tilesheetSize.x, float((tile2) / tilesheetSize.x) / tilesheetSize.y);
+			texCoordTile2[0] = glm::vec2(float((tile2 - 1) % tilesheetSize.x) / tilesheetSize.x, float((tile2 - 1) / tilesheetSize.x) / tilesheetSize.y);
 			texCoordTile2[1] = texCoordTile2[0] + tileTexSize;
 
 			// First triangle
