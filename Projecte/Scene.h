@@ -7,6 +7,7 @@
 
 #include "Player.h"
 #include "Skeleton.h"
+#include "Vampire.h"
 
 // Scene contains all the entities of our game.
 // It is responsible for updating and render them.
@@ -27,8 +28,11 @@ private:
 
 private:
 	TileMap *map;
+
 	Player *player;
 	Skeleton *skeleton;
+	Vampire *vampire;
+
 	ShaderProgram texProgram;
 	float currentTime;
 	glm::mat4 projection;

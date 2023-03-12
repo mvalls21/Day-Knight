@@ -42,6 +42,11 @@ void Scene::init()
 	skeleton->setTileMap(map);
 	skeleton->setMovementRange({19, 18}, {28, 18});
 
+	vampire = new Vampire();
+	vampire->init(glm::ivec2(SCREEN_X, SCREEN_Y), texProgram);
+	vampire->setTileMap(map);
+	vampire->setMovementRange({3, 9}, {12, 9}, {7, 2}, {22, 2});
+
 	projection = glm::ortho(0.f, float(SCREEN_WIDTH - 1), float(SCREEN_HEIGHT - 1), 0.f);
 	currentTime = 0.0f;
 
@@ -64,6 +69,7 @@ void Scene::update(int deltaTime)
 	currentTime += deltaTime;
 	player->update(deltaTime);
 	skeleton->update(deltaTime);
+	vampire->update(deltaTime);
 
 	if (!showKey && !isDoorOpen && map->isCompleted())
 	{
@@ -100,6 +106,7 @@ void Scene::render()
 	map->render();
 	player->render();
 	skeleton->render();
+	vampire->render();
 
 	if (showKey)
 		keySprite->render();

@@ -12,11 +12,11 @@ public:
 	void init(const glm::ivec2 &tileMapPos, ShaderProgram &shaderProgram) override;
 	void update(int deltaTime) override;
 
-	void setDirection(CharacterAnims direction);
 	void setMovementRange(const glm::ivec2 &tileStart, const glm::ivec2 &tileEnd);
 
 private:
 	void changeDirection();
+	void setDirection(CharacterAnims direction);
 
 	CharacterAnims currentDirection;
 	glm::ivec2 tileStart;
