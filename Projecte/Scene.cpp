@@ -55,21 +55,33 @@ void Scene::init()
 	vampire->setMovementRange({3, 9}, {12, 9}, {7, 2}, {22, 2});
 
 	projection = glm::ortho(0.f, float(SCREEN_WIDTH - 1), float(SCREEN_HEIGHT - 1), 0.f);
-	projection = glm::ortho(0.f, float(SCREEN_WIDTH - 1)/2.5f, float(SCREEN_HEIGHT - 1)/2.5f, 0.f);
+	projection = glm::ortho(0.f, float(SCREEN_WIDTH - 1) / 2.5f, float(SCREEN_HEIGHT - 1) / 2.5f, 0.f);
 	currentTime = 0.0f;
 
 	Texture *tileset = new Texture();
-	tileset->loadFromFile("images/castle-tileset.png", PixelFormat::TEXTURE_PIXEL_FORMAT_RGBA);
+	tileset->loadFromFile("images/tileset.png", PixelFormat::TEXTURE_PIXEL_FORMAT_RGBA);
 
-	keySprite = StaticSprite::createSprite(glm::vec2(16.0f), glm::vec2(1.0f / 8.0f, 1.0f / 16.0f), tileset, &texProgram);
+	keySprite = StaticSprite::createSprite(glm::vec2(20.0f), glm::vec2(1.0f / 38.0f, 1.0f / 16.0f), tileset, &texProgram);
 	keySprite->setPosition({SCREEN_X + KEY_POSITION_X_TILES * 16.0f, SCREEN_Y + KEY_POSITION_Y_TILES * 16.0f});
-	keySprite->setSpritesheetCoords(glm::vec2(2.0f / 8.0f, 11.0f / 16.0f));
+	keySprite->setSpritesheetCoords(glm::vec2(5.0f / 38.0f, 10.0f / 16.0f));
 
-	doorSprite = Sprite::createSprite(glm::vec2(32.0f, 32.0f), glm::vec2(1.0f / 4.0f, 1.0f / 8.0f), tileset, &texProgram);
+	doorSprite = Sprite::createSprite(glm::vec2(32.0f), glm::vec2(1.0f / 38.0f * 2, 1.0f / 16.0f * 2), tileset, &texProgram);
 	doorSprite->setPosition({SCREEN_X + 10 * 16, SCREEN_Y + 18.0 * 16.0});
 	doorSprite->setNumberAnimations(2);
-	doorSprite->addKeyframe(0, {2.0f / 8.0f, 9.0f / 16.0f});
-	doorSprite->addKeyframe(1, {5.0f / 8.0f, 9.0f / 16.0f});
+
+	doorSprite->setAnimationSpeed(0, 1);
+	doorSprite->addKeyframe(0, {1.0f / 38.0f, 1.0f / 16.0f});
+
+	doorSprite->setAnimationSpeed(1, 3);
+	// doorSprite->addKeyframe(1, {3.0f / 38.0f, 1.0f / 16.0f});
+	// doorSprite->addKeyframe(1, {5.0f / 38.0f, 1.0f / 16.0f});
+	// doorSprite->addKeyframe(1, {7.0f / 38.0f, 1.0f / 16.0f});
+
+	// doorSprite->addKeyframe(1, {1.0f / 38.0f, 4.0f / 16.0f});
+	// doorSprite->addKeyframe(1, {3.0f / 38.0f, 4.0f / 16.0f});
+	doorSprite->addKeyframe(1, {5.0f / 38.0f, 4.0f / 16.0f});
+
+	doorSprite->changeAnimation(0);
 }
 
 void Scene::update(int deltaTime)
@@ -78,6 +90,8 @@ void Scene::update(int deltaTime)
 	player->update(deltaTime);
 	skeleton->update(deltaTime);
 	vampire->update(deltaTime);
+
+	// doorSprite->update(deltaTime);
 
 	if (!showKey && !isDoorOpen && map->isCompleted())
 	{
@@ -96,6 +110,7 @@ void Scene::update(int deltaTime)
 		{
 			isDoorOpen = true;
 			showKey = false;
+			doorSprite->changeAnimation(1);
 		}
 	}
 }
@@ -112,20 +127,17 @@ void Scene::render()
 	modelview = glm::mat4(1.0f);
 	texProgram.setUniformMatrix4f("modelview", modelview);
 	texProgram.setUniform2f("texCoordDispl", 0.f, 0.f);
+
 	map->render();
-	player->render();
 	skeleton->render();
 	vampire->render();
 
 	if (showKey)
 		keySprite->render();
 
-	if (!isDoorOpen)
-		doorSprite->changeAnimation(0);
-	else
-		doorSprite->changeAnimation(1);
-
 	doorSprite->render();
+
+	player->render();
 }
 
 void Scene::initShaders()
