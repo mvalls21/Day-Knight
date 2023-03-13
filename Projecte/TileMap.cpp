@@ -9,6 +9,7 @@ using namespace std;
 #define WALL 251
 #define PURPLE_PLATFORM 139
 #define PINK_PLATFORM 141
+#define SPIKES 388
 
 TileMap *TileMap::createTileMap(const string &levelFile, const glm::vec2 &minCoords, ShaderProgram &program)
 {
@@ -203,7 +204,7 @@ bool TileMap::collisionMoveLeft(const glm::ivec2 &pos, const glm::ivec2 &size) c
 	y1 = (pos.y + size.y - 1) / tileSize;
 	for (int y = y0; y <= y1; y++)
 	{
-		if (map[y * mapSize.x + x] == WALL)
+		if (map[y * mapSize.x + x] == WALL or map[y * mapSize.x + x] == PURPLE_PLATFORM or map[y * mapSize.x + x] == PINK_PLATFORM)
 			return true;
 	}
 
@@ -219,7 +220,7 @@ bool TileMap::collisionMoveRight(const glm::ivec2 &pos, const glm::ivec2 &size) 
 	y1 = (pos.y + size.y - 1) / tileSize;
 	for (int y = y0; y <= y1; y++)
 	{
-		if (map[y * mapSize.x + x] == WALL)
+		if (map[y * mapSize.x + x] == WALL or map[y * mapSize.x + x] == PURPLE_PLATFORM or map[y * mapSize.x + x] == PINK_PLATFORM)
 			return true;
 	}
 
@@ -253,7 +254,7 @@ bool TileMap::collisionMoveDown(const glm::ivec2 &pos, const glm::ivec2 &size, i
 	y = (pos.y + size.y - 1) / tileSize;
 	for (int x = x0; x <= x1; x++)
 	{
-		if (map[y * mapSize.x + x] == WALL or map[y * mapSize.x + x] == PURPLE_PLATFORM or map[y * mapSize.x + x] == PINK_PLATFORM)
+		if (map[y * mapSize.x + x] == WALL or map[y * mapSize.x + x] == PURPLE_PLATFORM or map[y * mapSize.x + x] == PINK_PLATFORM or map[y * mapSize.x + x] == SPIKES)
 		{
 			if (*posY - tileSize * y + size.y <= 4)
 			{
@@ -271,13 +272,16 @@ bool TileMap::collisionMoveDown(const glm::ivec2 &pos, const glm::ivec2 &size, i
 
 void TileMap::checkCollisionChangableTile(int tileX, int tileY)
 {
-	if (changableTiles.find({tileY, tileX}) != changableTiles.end())
+	auto it = changableTiles.find({tileY, tileX});
+	if (it != changableTiles.end())
 	{
-		changableTiles[{tileY, tileX}] = true;
+		it->second = true;
 	}
-	if (changableTiles.find({tileY, tileX + 1}) != changableTiles.end())
+
+	it = changableTiles.find({tileY, tileX + 1});
+	if (it != changableTiles.end())
 	{
-		changableTiles[{tileY, tileX + 1}] = true;
+		it->second = true;
 	}
 }
 
@@ -286,7 +290,9 @@ bool TileMap::isCompleted() const
 	for (const auto &[_, pressed] : changableTiles)
 	{
 		if (!pressed)
+		{
 			return false;
+		}
 	}
 
 	return true;
