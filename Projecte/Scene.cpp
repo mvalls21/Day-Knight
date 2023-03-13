@@ -30,7 +30,14 @@ Scene::~Scene()
 void Scene::init()
 {
 	initShaders();
-	map = TileMap::createTileMap("levels/level01.txt", glm::vec2(SCREEN_X, SCREEN_Y), texProgram);
+
+	map = TileMap::createTileMap("levels/level01.txt", {SCREEN_X, SCREEN_Y}, texProgram);
+
+	Texture *back = new Texture();
+	back->loadFromFile("images/background.png", PixelFormat::TEXTURE_PIXEL_FORMAT_RGBA);
+	background = StaticSprite::createSprite(16.0f * glm::vec2(32.0f, 22.0f), glm::vec2(1.0f), back, &texProgram);
+	background->setPosition({SCREEN_X, SCREEN_Y});
+	background->setSpritesheetCoords(glm::vec2(0.0f));
 
 	player = new Player();
 	player->init(glm::ivec2(SCREEN_X, SCREEN_Y), texProgram);
@@ -48,6 +55,7 @@ void Scene::init()
 	vampire->setMovementRange({3, 9}, {12, 9}, {7, 2}, {22, 2});
 
 	projection = glm::ortho(0.f, float(SCREEN_WIDTH - 1), float(SCREEN_HEIGHT - 1), 0.f);
+	projection = glm::ortho(0.f, float(SCREEN_WIDTH - 1)/2.5f, float(SCREEN_HEIGHT - 1)/2.5f, 0.f);
 	currentTime = 0.0f;
 
 	Texture *tileset = new Texture();
@@ -97,12 +105,13 @@ void Scene::render()
 	glm::mat4 modelview;
 
 	texProgram.use();
+	background->render();
+
 	texProgram.setUniformMatrix4f("projection", projection);
 	texProgram.setUniform4f("color", 1.0f, 1.0f, 1.0f, 1.0f);
 	modelview = glm::mat4(1.0f);
 	texProgram.setUniformMatrix4f("modelview", modelview);
 	texProgram.setUniform2f("texCoordDispl", 0.f, 0.f);
-
 	map->render();
 	player->render();
 	skeleton->render();

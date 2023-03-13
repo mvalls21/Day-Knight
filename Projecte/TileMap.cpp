@@ -6,6 +6,11 @@
 
 using namespace std;
 
+#define WALL 251
+#define PURPLE_PLATFORM 139
+#define PINK_PLATFORM 141
+#define SPIKES 388
+
 TileMap *TileMap::createTileMap(const string &levelFile, const glm::vec2 &minCoords, ShaderProgram &program)
 {
 	TileMap *map = new TileMap(levelFile, minCoords, program);
@@ -21,10 +26,10 @@ TileMap::TileMap(const string &levelFile, const glm::vec2 &minCoords, ShaderProg
 	offset = minCoords;
 
 	Texture *texture = new Texture();
-	texture->loadFromFile("images/rock_example.jpg", PixelFormat::TEXTURE_PIXEL_FORMAT_RGBA);
+	texture->loadFromFile("images/tileset.png", PixelFormat::TEXTURE_PIXEL_FORMAT_RGBA);
 
-	changableSprite = StaticSprite::createSprite(glm::vec2(tileSize), glm::vec2(1.0f), texture, &program);
-	changableSprite->setSpritesheetCoords(glm::vec2(0.0f, 0.0f));
+	changableSprite = StaticSprite::createSprite(glm::vec2(tileSize), glm::vec2(1.0f/38.0f, 1.0f/16.0f), texture, &program);
+	changableSprite->setSpritesheetCoords(glm::vec2(26.0f/38.0f, 3.0f/16.0f));
 }
 
 TileMap::~TileMap()
@@ -101,7 +106,7 @@ bool TileMap::loadLevel(const string &levelFile)
 			int value;
 			fin >> value;
 
-			if (value >= 61 && value <= 63)
+			if (value == PURPLE_PLATFORM - 1)
 			{
 				changableTiles.insert({{j, i}, false});
 			}
@@ -199,7 +204,7 @@ bool TileMap::collisionMoveLeft(const glm::ivec2 &pos, const glm::ivec2 &size) c
 	y1 = (pos.y + size.y - 1) / tileSize;
 	for (int y = y0; y <= y1; y++)
 	{
-		if (map[y * mapSize.x + x] != 0)
+		if (map[y * mapSize.x + x] == WALL or map[y * mapSize.x + x] == PURPLE_PLATFORM or map[y * mapSize.x + x] == PINK_PLATFORM)
 			return true;
 	}
 
@@ -215,8 +220,26 @@ bool TileMap::collisionMoveRight(const glm::ivec2 &pos, const glm::ivec2 &size) 
 	y1 = (pos.y + size.y - 1) / tileSize;
 	for (int y = y0; y <= y1; y++)
 	{
-		if (map[y * mapSize.x + x] != 0)
+		if (map[y * mapSize.x + x] == WALL or map[y * mapSize.x + x] == PURPLE_PLATFORM or map[y * mapSize.x + x] == PINK_PLATFORM)
 			return true;
+	}
+
+	return false;
+}
+
+bool TileMap::collisionMoveUp(const glm::ivec2 &pos, const glm::ivec2 &size) const
+{
+	int x0, x1, y;
+
+	x0 = pos.x / tileSize;
+	x1 = (pos.x + size.x - 1) / tileSize;
+	y = pos.y / tileSize;
+	for (int x = x0; x <= x1; x++)
+	{
+		if (map[y * mapSize.x + x] == WALL)
+		{
+			return true;
+		}
 	}
 
 	return false;
@@ -231,7 +254,7 @@ bool TileMap::collisionMoveDown(const glm::ivec2 &pos, const glm::ivec2 &size, i
 	y = (pos.y + size.y - 1) / tileSize;
 	for (int x = x0; x <= x1; x++)
 	{
-		if (map[y * mapSize.x + x] != 0)
+		if (map[y * mapSize.x + x] == WALL or map[y * mapSize.x + x] == PURPLE_PLATFORM or map[y * mapSize.x + x] == PINK_PLATFORM or map[y * mapSize.x + x] == SPIKES)
 		{
 			if (*posY - tileSize * y + size.y <= 4)
 			{
@@ -249,13 +272,16 @@ bool TileMap::collisionMoveDown(const glm::ivec2 &pos, const glm::ivec2 &size, i
 
 void TileMap::checkCollisionChangableTile(int tileX, int tileY)
 {
-	if (changableTiles.find({tileY, tileX}) != changableTiles.end())
+	auto it = changableTiles.find({tileY, tileX});
+	if (it != changableTiles.end())
 	{
-		changableTiles[{tileY, tileX}] = true;
+		it->second = true;
 	}
-	if (changableTiles.find({tileY, tileX + 1}) != changableTiles.end())
+
+	it = changableTiles.find({tileY, tileX + 1});
+	if (it != changableTiles.end())
 	{
-		changableTiles[{tileY, tileX + 1}] = true;
+		it->second = true;
 	}
 }
 
@@ -264,7 +290,9 @@ bool TileMap::isCompleted() const
 	for (const auto &[_, pressed] : changableTiles)
 	{
 		if (!pressed)
+		{
 			return false;
+		}
 	}
 
 	return true;
