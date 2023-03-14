@@ -46,7 +46,7 @@ void Player::update(int deltaTime)
 		if (sprite->animation() != MOVE_LEFT)
 			sprite->changeAnimation(MOVE_LEFT);
 		position.x -= 2;
-		if (map->collisionMoveLeft(position, glm::ivec2(32, 32)))
+		if (map->collisionMoveLeft(position, glm::ivec2(32, 32), bJumping))
 		{
 			position.x += 2;
 			sprite->changeAnimation(STAND_LEFT);
@@ -57,7 +57,7 @@ void Player::update(int deltaTime)
 		if (sprite->animation() != MOVE_RIGHT)
 			sprite->changeAnimation(MOVE_RIGHT);
 		position.x += 2;
-		if (map->collisionMoveRight(position, glm::ivec2(32, 32)))
+		if (map->collisionMoveRight(position, glm::ivec2(32, 32), bJumping))
 		{
 			position.x -= 2;
 			sprite->changeAnimation(STAND_RIGHT);
