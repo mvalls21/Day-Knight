@@ -12,7 +12,7 @@ void Skeleton::init(const glm::ivec2 &tileMapPos, ShaderProgram &shaderProgram)
     // TODO: Change sprite
     spritesheet.loadFromFile("images/bub.png", TEXTURE_PIXEL_FORMAT_RGBA);
 
-    sprite = Sprite::createSprite(glm::ivec2(32, 32), glm::vec2(0.25, 0.25), &spritesheet, &shaderProgram);
+    sprite = Sprite::createSprite(glm::ivec2(32), glm::vec2(0.25, 0.25), &spritesheet, &shaderProgram);
     sprite->setNumberAnimations(4);
 
     sprite->setAnimationSpeed(STAND_LEFT, 8);

@@ -91,6 +91,16 @@ void Scene::update(int deltaTime)
 	skeleton->update(deltaTime);
 	vampire->update(deltaTime);
 
+	if (player->isColliding(*skeleton))
+	{
+		exit(0);
+	}
+
+	if (player->isColliding(*vampire))
+	{
+		exit(0);
+	}
+
 	// doorSprite->update(deltaTime);
 
 	if (!showKey && !isDoorOpen && map->isCompleted())
