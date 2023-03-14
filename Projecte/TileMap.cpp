@@ -28,8 +28,8 @@ TileMap::TileMap(const string &levelFile, const glm::vec2 &minCoords, ShaderProg
 	Texture *texture = new Texture();
 	texture->loadFromFile("images/tileset.png", PixelFormat::TEXTURE_PIXEL_FORMAT_RGBA);
 
-	changableSprite = StaticSprite::createSprite(glm::vec2(tileSize), glm::vec2(1.0f/38.0f, 1.0f/16.0f), texture, &program);
-	changableSprite->setSpritesheetCoords(glm::vec2(26.0f/38.0f, 3.0f/16.0f));
+	changableSprite = StaticSprite::createSprite(glm::vec2(tileSize), glm::vec2(1.0f / 38.0f, 1.0f / 16.0f), texture, &program);
+	changableSprite->setSpritesheetCoords(glm::vec2(26.0f / 38.0f, 3.0f / 16.0f));
 }
 
 TileMap::~TileMap()
@@ -48,7 +48,7 @@ void TileMap::render() const
 	glDrawArrays(GL_TRIANGLES, 0, 6 * nTiles);
 
 	// Draw stepped on tiles
-	for (const auto &[position, isChanged] : changableTiles)
+	for (const auto &[position, isChanged] : changeableTiles)
 	{
 		if (isChanged)
 		{
@@ -108,7 +108,7 @@ bool TileMap::loadLevel(const string &levelFile)
 
 			if (value == PURPLE_PLATFORM - 1)
 			{
-				changableTiles.insert({{j, i}, false});
+				changeableTiles.insert({{j, i}, false});
 			}
 
 			if (value == -1)
@@ -249,6 +249,8 @@ bool TileMap::collisionMoveDown(const glm::ivec2 &pos, const glm::ivec2 &size, i
 {
 	int x0, x1, y;
 
+	bool result = false;
+
 	x0 = pos.x / tileSize;
 	x1 = (pos.x + size.x - 1) / tileSize;
 	y = (pos.y + size.y - 1) / tileSize;
@@ -260,26 +262,20 @@ bool TileMap::collisionMoveDown(const glm::ivec2 &pos, const glm::ivec2 &size, i
 			{
 				*posY = tileSize * y - size.y;
 
-				checkCollisionChangableTile(x, y);
+				checkCollisionChangeableTile(x, y);
 
-				return true;
+				result = true;
 			}
 		}
 	}
 
-	return false;
+	return result;
 }
 
-void TileMap::checkCollisionChangableTile(int tileX, int tileY)
+void TileMap::checkCollisionChangeableTile(int tileX, int tileY)
 {
-	auto it = changableTiles.find({tileY, tileX});
-	if (it != changableTiles.end())
-	{
-		it->second = true;
-	}
-
-	it = changableTiles.find({tileY, tileX + 1});
-	if (it != changableTiles.end())
+	auto it = changeableTiles.find({tileY, tileX});
+	if (it != changeableTiles.end())
 	{
 		it->second = true;
 	}
@@ -287,7 +283,7 @@ void TileMap::checkCollisionChangableTile(int tileX, int tileY)
 
 bool TileMap::isCompleted() const
 {
-	for (const auto &[_, pressed] : changableTiles)
+	for (const auto &[_, pressed] : changeableTiles)
 	{
 		if (!pressed)
 		{

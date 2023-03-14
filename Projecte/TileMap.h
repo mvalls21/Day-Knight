@@ -42,7 +42,7 @@ private:
 	bool loadLevel(const string &levelFile);
 	void prepareArrays(const glm::vec2 &minCoords, ShaderProgram &program);
 
-	void checkCollisionChangableTile(int tileX, int tileY);
+	void checkCollisionChangeableTile(int tileX, int tileY);
 
 private:
 	GLuint vao;
@@ -57,7 +57,7 @@ private:
 
 	glm::vec2 offset;
 	StaticSprite *changableSprite;
-	std::map<std::pair<int, int>, bool> changableTiles;
+	std::map<std::pair<int, int>, bool> changeableTiles;
 };
 
 #endif // _TILE_MAP_INCLUDE
