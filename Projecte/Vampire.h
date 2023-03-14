@@ -20,6 +20,9 @@ public:
     void init(const glm::ivec2 &tileMapPos, ShaderProgram &shaderProgram) override;
     void update(int deltaTime) override;
 
+    void updateFlying(int deltaTime);
+    void updateWalking(int deltaTime);
+
     void setMovementRange(const glm::ivec2 &tileStartOrigin, const glm::ivec2 &tileEndOrigin,
                           const glm::ivec2 &tileStartDest, const glm::ivec2 &tileEndDest);
 

@@ -93,15 +93,13 @@ void Scene::update(int deltaTime)
 
 	if (player->isColliding(*skeleton))
 	{
-		exit(0);
+		player->setPosition(glm::vec2(INIT_PLAYER_X_TILES * map->getTileSize(), INIT_PLAYER_Y_TILES * map->getTileSize()));
 	}
 
 	if (player->isColliding(*vampire))
 	{
-		exit(0);
+		player->setPosition(glm::vec2(INIT_PLAYER_X_TILES * map->getTileSize(), INIT_PLAYER_Y_TILES * map->getTileSize()));
 	}
-
-	// doorSprite->update(deltaTime);
 
 	if (!showKey && !isDoorOpen && map->isCompleted())
 	{

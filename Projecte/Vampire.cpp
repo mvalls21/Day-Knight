@@ -9,7 +9,6 @@
 
 void Vampire::init(const glm::ivec2 &tileMapPos, ShaderProgram &shaderProgram)
 {
-    // TODO: Change sprite
     spritesheet.loadFromFile("images/bub.png", TEXTURE_PIXEL_FORMAT_RGBA);
 
     sprite = Sprite::createSprite(glm::ivec2(32), glm::vec2(0.25, 0.25), &spritesheet, &shaderProgram);
@@ -42,31 +41,48 @@ void Vampire::update(int deltaTime)
 
     if (flying)
     {
-        const glm::ivec2 tilePosition = position / map->getTileSize();
-
-        MovementRange &otherRange = currentMovementStage == 0 ? rangeStage2 : rangeStage1;
-        if (tilePosition == otherRange.tileStart)
-        {
-            flying = false;
-            currentMovementStage = (currentMovementStage + 1) % 2;
-        }
-        else
-        {
-            auto movement = otherRange.tileStart - tilePosition;
-
-            auto div = std::max(std::abs(movement.x), std::abs(movement.y));
-
-            if (div != 0)
-            {
-                movement = movement / div;
-                position += movement;
-            }
-        }
-
-        sprite->setPosition(glm::vec2(float(tileMapDispl.x + position.x), float(tileMapDispl.y + position.y)));
-        return;
+        updateFlying(deltaTime);
+    }
+    else
+    {
+        updateWalking(deltaTime);
     }
 
+    sprite->setPosition(glm::vec2(float(tileMapDispl.x + position.x), float(tileMapDispl.y + position.y)));
+}
+
+void Vampire::updateFlying(int deltaTime)
+{
+    const glm::ivec2 tilePosition = position / map->getTileSize();
+
+    MovementRange &otherRange = currentMovementStage == 0 ? rangeStage2 : rangeStage1;
+    if (tilePosition == otherRange.tileStart)
+    {
+        flying = false;
+
+        if (otherRange.tileEnd.x > otherRange.tileStart.x)
+            sprite->changeAnimation(MOVE_RIGHT);
+        else
+            sprite->changeAnimation(MOVE_LEFT);
+
+        currentMovementStage = (currentMovementStage + 1) % 2;
+    }
+    else
+    {
+        auto movement = otherRange.tileStart - tilePosition;
+
+        auto div = std::max(std::abs(movement.x), std::abs(movement.y));
+
+        if (div != 0)
+        {
+            movement = movement / div;
+            position += movement;
+        }
+    }
+}
+
+void Vampire::updateWalking(int deltaTime)
+{
     position.x += movementSpeed;
 
     const glm::ivec2 tilePosition = position / map->getTileSize();
@@ -95,8 +111,6 @@ void Vampire::update(int deltaTime)
     //     tileEnd = tileStart;
     //     tileStart = tmp;
     // }
-
-    sprite->setPosition(glm::vec2(float(tileMapDispl.x + position.x), float(tileMapDispl.y + position.y)));
 }
 
 void Vampire::changeDirection()

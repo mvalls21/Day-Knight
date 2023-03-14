@@ -67,8 +67,8 @@ protected:
     BoundingBoxInfo boundingBoxInfo{
         .xoffset = 3,
         .yoffset = 3,
-        .width = 26,
-        .height = 26};
+        .width = 24,
+        .height = 24};
 
     Texture spritesheet;
     Sprite *sprite;
