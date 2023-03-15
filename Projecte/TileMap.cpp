@@ -6,10 +6,26 @@
 
 using namespace std;
 
-#define WALL 251
-#define PURPLE_PLATFORM 139
-#define PINK_PLATFORM 141
-#define SPIKES 388
+// REMEMBER: Plus 1 because tiles in map are saved as +1
+#define SPIKES 41 + 1
+
+#define CHANGEABLE_PLATFORM_RANGE_START 20 + 1
+#define CHANGEABLE_PLATFORM_RANGE_END 22 + 1
+
+inline bool isChangeableTile(int x)
+{
+	return x >= CHANGEABLE_PLATFORM_RANGE_START && x <= CHANGEABLE_PLATFORM_RANGE_END;
+}
+
+#define WALL 0 + 1
+
+inline bool isCollisionTile(int x)
+{
+	return x == WALL || (x >= (23 + 1) && x <= (26 + 1)) || (x >= (34 + 1) && x <= (37 + 1));
+}
+
+// inline bool isChangeableTileActive(int x) {
+// }
 
 TileMap *TileMap::createTileMap(const string &levelFile, const glm::vec2 &minCoords, ShaderProgram &program)
 {
@@ -106,7 +122,7 @@ bool TileMap::loadLevel(const string &levelFile)
 			int value;
 			fin >> value;
 
-			if (value == PURPLE_PLATFORM - 1)
+			if (isChangeableTile(value + 1))
 			{
 				changeableTiles.insert({{j, i}, false});
 			}
@@ -195,7 +211,7 @@ void TileMap::prepareArrays(const glm::vec2 &minCoords, ShaderProgram &program)
 // Method collisionMoveDown also corrects Y coordinate if the box is
 // already intersecting a tile below.
 
-bool TileMap::collisionMoveLeft(const glm::ivec2 &pos, const glm::ivec2 &size, const bool& bJumping) const
+bool TileMap::collisionMoveLeft(const glm::ivec2 &pos, const glm::ivec2 &size, const bool &bJumping) const
 {
 	int x, y0, y1;
 
@@ -204,14 +220,15 @@ bool TileMap::collisionMoveLeft(const glm::ivec2 &pos, const glm::ivec2 &size, c
 	y1 = (pos.y + size.y - 1) / tileSize;
 	for (int y = y0; y <= y1; y++)
 	{
-		if (map[y * mapSize.x + x] == WALL or (not bJumping and (map[y * mapSize.x + x] == PURPLE_PLATFORM or map[y * mapSize.x + x] == PINK_PLATFORM)))
+		const int tile = map[y * mapSize.x + x];
+		if (isCollisionTile(tile) or (not bJumping and isChangeableTile(tile)))
 			return true;
 	}
 
 	return false;
 }
 
-bool TileMap::collisionMoveRight(const glm::ivec2 &pos, const glm::ivec2 &size, const bool& bJumping) const
+bool TileMap::collisionMoveRight(const glm::ivec2 &pos, const glm::ivec2 &size, const bool &bJumping) const
 {
 	int x, y0, y1;
 
@@ -220,7 +237,8 @@ bool TileMap::collisionMoveRight(const glm::ivec2 &pos, const glm::ivec2 &size, 
 	y1 = (pos.y + size.y - 1) / tileSize;
 	for (int y = y0; y <= y1; y++)
 	{
-        if (map[y * mapSize.x + x] == WALL or (not bJumping and (map[y * mapSize.x + x] == PURPLE_PLATFORM or map[y * mapSize.x + x] == PINK_PLATFORM)))
+		const int tile = map[y * mapSize.x + x];
+		if (isCollisionTile(tile) or (not bJumping and isChangeableTile(tile)))
 			return true;
 	}
 
@@ -236,7 +254,8 @@ bool TileMap::collisionMoveUp(const glm::ivec2 &pos, const glm::ivec2 &size) con
 	y = pos.y / tileSize;
 	for (int x = x0; x <= x1; x++)
 	{
-		if (map[y * mapSize.x + x] == WALL)
+		const int tile = map[y * mapSize.x + x];
+		if (isCollisionTile(tile))
 		{
 			return true;
 		}
@@ -256,7 +275,8 @@ bool TileMap::collisionMoveDown(const glm::ivec2 &pos, const glm::ivec2 &size, i
 	y = (pos.y + size.y - 1) / tileSize;
 	for (int x = x0; x <= x1; x++)
 	{
-		if (map[y * mapSize.x + x] == WALL or map[y * mapSize.x + x] == PURPLE_PLATFORM or map[y * mapSize.x + x] == PINK_PLATFORM or map[y * mapSize.x + x] == SPIKES)
+		const int tile = map[y * mapSize.x + x];
+		if (isCollisionTile(tile) or isChangeableTile(tile) or tile == SPIKES)
 		{
 			if (*posY - tileSize * y + size.y <= 4)
 			{
