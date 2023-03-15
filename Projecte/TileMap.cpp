@@ -17,15 +17,15 @@ inline bool isChangeableTile(int x)
 	return x >= CHANGEABLE_PLATFORM_RANGE_START && x <= CHANGEABLE_PLATFORM_RANGE_END;
 }
 
+// inline bool isChangeableTileActive(int x) {
+// }
+
 #define WALL 0 + 1
 
 inline bool isCollisionTile(int x)
 {
 	return x == WALL || (x >= (23 + 1) && x <= (26 + 1)) || (x >= (34 + 1) && x <= (37 + 1));
 }
-
-// inline bool isChangeableTileActive(int x) {
-// }
 
 TileMap *TileMap::createTileMap(const string &levelFile, const glm::vec2 &minCoords, ShaderProgram &program)
 {
