@@ -1,17 +1,21 @@
 #include <iostream>
 #include <cmath>
 #include <glm/gtc/matrix_transform.hpp>
+#include <algorithm>
 #include "Scene.h"
 #include "Game.h"
 
 #define SCREEN_X 16
 #define SCREEN_Y 16
 
-#define INIT_PLAYER_X_TILES 4
-#define INIT_PLAYER_Y_TILES 18
+#define INIT_PLAYER_X_TILES 8
+#define INIT_PLAYER_Y_TILES 3
 
-#define KEY_POSITION_X_TILES 20
+#define KEY_POSITION_X_TILES 8
 #define KEY_POSITION_Y_TILES 18
+
+#define DOOR_POSITION_X_TILES 21
+#define DOOR_POSITION_Y_TILES 4
 
 Scene::Scene()
 {
@@ -33,12 +37,6 @@ void Scene::init()
 
 	map = TileMap::createTileMap("levels/level01.txt", {SCREEN_X, SCREEN_Y}, texProgram);
 
-	Texture *back = new Texture();
-	back->loadFromFile("images/background.png", PixelFormat::TEXTURE_PIXEL_FORMAT_RGBA);
-	background = StaticSprite::createSprite(16.0f * glm::vec2(32.0f, 22.0f), glm::vec2(1.0f), back, &texProgram);
-	background->setPosition({SCREEN_X, SCREEN_Y});
-	background->setSpritesheetCoords(glm::vec2(0.0f));
-
 	player = new Player();
 	player->init(glm::ivec2(SCREEN_X, SCREEN_Y), texProgram);
 	player->setPosition(glm::vec2(INIT_PLAYER_X_TILES * map->getTileSize(), INIT_PLAYER_Y_TILES * map->getTileSize()));
@@ -59,34 +57,43 @@ void Scene::init()
 	currentTime = 0.0f;
 
 	Texture *tileset = new Texture();
-	tileset->loadFromFile("images/tileset.png", PixelFormat::TEXTURE_PIXEL_FORMAT_RGBA);
+	tileset->loadFromFile("images/nuevo_tileset.png", PixelFormat::TEXTURE_PIXEL_FORMAT_RGBA);
 
-	keySprite = StaticSprite::createSprite(glm::vec2(20.0f), glm::vec2(1.0f / 38.0f, 1.0f / 16.0f), tileset, &texProgram);
+	keySprite = StaticSprite::createSprite(glm::vec2(20.0f), glm::vec2(1.0f / 10.0f, 1.0f / 10.0f), tileset, &texProgram);
 	keySprite->setPosition({SCREEN_X + KEY_POSITION_X_TILES * 16.0f, SCREEN_Y + KEY_POSITION_Y_TILES * 16.0f});
-	keySprite->setSpritesheetCoords(glm::vec2(5.0f / 38.0f, 10.0f / 16.0f));
+	keySprite->setSpritesheetCoords(glm::vec2(0.0f, 4.0f / 10.0f));
 
-	doorSprite = Sprite::createSprite(glm::vec2(32.0f), glm::vec2(1.0f / 38.0f * 2, 1.0f / 16.0f * 2), tileset, &texProgram);
-	doorSprite->setPosition({SCREEN_X + 10 * 16, SCREEN_Y + 18.0 * 16.0});
-	doorSprite->setNumberAnimations(2);
+	// Door sprites
+	{
+		auto doorSprite1 = AnimatedSprite::createSprite(glm::vec2(16.0f), glm::vec2(1.0f / 10.0f, 1.0f / 10.0f), tileset, &texProgram);
+		doorSprite1->setPosition({SCREEN_X + DOOR_POSITION_X_TILES * 16, SCREEN_Y + DOOR_POSITION_Y_TILES * 16.0});
 
-	doorSprite->setAnimationSpeed(0, 1);
-	doorSprite->addKeyframe(0, {1.0f / 38.0f, 1.0f / 16.0f});
+		doorSprite1->setNumberAnimations(2);
+		doorSprite1->addKeyframe(0, {0.0f / 10.0f, 3.0f / 10.0f});
+		doorSprite1->addKeyframe(1, {2.0f / 10.0f, 3.0f / 10.0f});
 
-	doorSprite->setAnimationSpeed(1, 3);
-	// doorSprite->addKeyframe(1, {3.0f / 38.0f, 1.0f / 16.0f});
-	// doorSprite->addKeyframe(1, {5.0f / 38.0f, 1.0f / 16.0f});
-	// doorSprite->addKeyframe(1, {7.0f / 38.0f, 1.0f / 16.0f});
+		doorSprite1->changeAnimation(0);
 
-	// doorSprite->addKeyframe(1, {1.0f / 38.0f, 4.0f / 16.0f});
-	// doorSprite->addKeyframe(1, {3.0f / 38.0f, 4.0f / 16.0f});
-	doorSprite->addKeyframe(1, {5.0f / 38.0f, 4.0f / 16.0f});
+		auto doorSprite2 = AnimatedSprite::createSprite(glm::vec2(16.0f), glm::vec2(1.0f / 10.0f, 1.0f / 10.0f), tileset, &texProgram);
+		doorSprite2->setPosition({SCREEN_X + DOOR_POSITION_X_TILES * 16, SCREEN_Y + (DOOR_POSITION_Y_TILES - 1) * 16.0});
 
-	doorSprite->changeAnimation(0);
+		doorSprite2->setNumberAnimations(2);
+		doorSprite2->addKeyframe(0, {1.0f / 10.0f, 3.0f / 10.0f});
+		doorSprite2->addKeyframe(1, {3.0f / 10.0f, 3.0f / 10.0f});
+
+		doorSprite2->changeAnimation(0);
+
+		doorSprites.push_back(doorSprite1);
+		doorSprites.push_back(doorSprite2);
+	}
 }
 
 void Scene::update(int deltaTime)
 {
 	currentTime += deltaTime;
+
+	map->update(deltaTime);
+
 	player->update(deltaTime);
 	skeleton->update(deltaTime);
 	vampire->update(deltaTime);
@@ -118,7 +125,8 @@ void Scene::update(int deltaTime)
 		{
 			isDoorOpen = true;
 			showKey = false;
-			doorSprite->changeAnimation(1);
+			std::for_each(doorSprites.begin(), doorSprites.end(), [](const auto &sprite)
+						  { sprite->changeAnimation(1); });
 		}
 	}
 }
@@ -128,7 +136,6 @@ void Scene::render()
 	glm::mat4 modelview;
 
 	texProgram.use();
-	background->render();
 
 	texProgram.setUniformMatrix4f("projection", projection);
 	texProgram.setUniform4f("color", 1.0f, 1.0f, 1.0f, 1.0f);
@@ -143,7 +150,8 @@ void Scene::render()
 	if (showKey)
 		keySprite->render();
 
-	doorSprite->render();
+	std::for_each(doorSprites.begin(), doorSprites.end(), [](const auto &sprite)
+				  { sprite->render(); });
 
 	player->render();
 }

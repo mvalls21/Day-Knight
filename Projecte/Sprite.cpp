@@ -3,13 +3,6 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include "Sprite.h"
 
-Sprite *Sprite::createSprite(const glm::vec2 &quadSize, const glm::vec2 &sizeInSpritesheet, Texture *spritesheet, ShaderProgram *program)
-{
-	Sprite *quad = new Sprite(quadSize, sizeInSpritesheet, spritesheet, program);
-
-	return quad;
-}
-
 Sprite::Sprite(const glm::vec2 &quadSize, const glm::vec2 &sizeInSpritesheet, Texture *spritesheet, ShaderProgram *program)
 {
 	float vertices[24] = {0.f, 0.f, 0.f, 0.f,
@@ -28,22 +21,7 @@ Sprite::Sprite(const glm::vec2 &quadSize, const glm::vec2 &sizeInSpritesheet, Te
 	texCoordLocation = program->bindVertexAttribute("texCoord", 2, 4 * sizeof(float), (void *)(2 * sizeof(float)));
 	texture = spritesheet;
 	shaderProgram = program;
-	currentAnimation = -1;
 	position = glm::vec2(0.f);
-}
-
-void Sprite::update(int deltaTime)
-{
-	if (currentAnimation >= 0)
-	{
-		timeAnimation += deltaTime;
-		while (timeAnimation > animations[currentAnimation].millisecsPerKeyframe)
-		{
-			timeAnimation -= animations[currentAnimation].millisecsPerKeyframe;
-			currentKeyframe = (currentKeyframe + 1) % animations[currentAnimation].keyframeDispl.size();
-		}
-		texCoordDispl = animations[currentAnimation].keyframeDispl[currentKeyframe];
-	}
 }
 
 void Sprite::render() const
@@ -63,40 +41,6 @@ void Sprite::render() const
 void Sprite::free()
 {
 	glDeleteBuffers(1, &vbo);
-}
-
-void Sprite::setNumberAnimations(int nAnimations)
-{
-	animations.clear();
-	animations.resize(nAnimations);
-}
-
-void Sprite::setAnimationSpeed(int animId, int keyframesPerSec)
-{
-	if (animId < int(animations.size()))
-		animations[animId].millisecsPerKeyframe = 1000.f / keyframesPerSec;
-}
-
-void Sprite::addKeyframe(int animId, const glm::vec2 &displacement)
-{
-	if (animId < int(animations.size()))
-		animations[animId].keyframeDispl.push_back(displacement);
-}
-
-void Sprite::changeAnimation(int animId)
-{
-	if (animId < int(animations.size()))
-	{
-		currentAnimation = animId;
-		currentKeyframe = 0;
-		timeAnimation = 0.f;
-		texCoordDispl = animations[animId].keyframeDispl[0];
-	}
-}
-
-int Sprite::animation() const
-{
-	return currentAnimation;
 }
 
 void Sprite::setPosition(const glm::vec2 &pos)

@@ -7,7 +7,9 @@
 #include "Texture.h"
 #include "ShaderProgram.h"
 #include "Sprite.h"
+
 #include "StaticSprite.h"
+#include "AnimatedSprite.h"
 
 // Class Tilemap is capable of loading a tile map from a text file in a very
 // simple format (see level01.txt for an example). With this information
@@ -27,12 +29,13 @@ public:
 	~TileMap();
 
 	void render() const;
+	void update(int deltaTime);
 	void free();
 
 	int getTileSize() const { return tileSize; }
 
-	bool collisionMoveLeft(const glm::ivec2 &pos, const glm::ivec2 &size, const bool& bJumping) const;
-	bool collisionMoveRight(const glm::ivec2 &pos, const glm::ivec2 &size, const bool& bJumping) const;
+	bool collisionMoveLeft(const glm::ivec2 &pos, const glm::ivec2 &size, const bool &bJumping) const;
+	bool collisionMoveRight(const glm::ivec2 &pos, const glm::ivec2 &size, const bool &bJumping) const;
 	bool collisionMoveUp(const glm::ivec2 &pos, const glm::ivec2 &size) const;
 	bool collisionMoveDown(const glm::ivec2 &pos, const glm::ivec2 &size, int *posY);
 
@@ -42,11 +45,13 @@ private:
 	bool loadLevel(const string &levelFile);
 	void prepareArrays(const glm::vec2 &minCoords, ShaderProgram &program);
 
+	StaticSprite *getActiveChangeableTile(const int tile) const;
 	void checkCollisionChangeableTile(int tileX, int tileY);
 
 private:
 	GLuint vao;
 	GLuint vbo;
+	ShaderProgram *shaderProgram;
 	GLint posLocation, texCoordLocation;
 	int nTiles;
 	glm::ivec2 position, mapSize, tilesheetSize;
@@ -55,9 +60,14 @@ private:
 	glm::vec2 tileTexSize;
 	int *map;
 
+	StaticSprite *background;
+
 	glm::vec2 offset;
-	StaticSprite *changableSprite;
 	std::map<std::pair<int, int>, bool> changeableTiles;
+	std::vector<StaticSprite *> changeableToActive;
+
+	AnimatedSprite *torchSprite;
+	std::vector<std::pair<int, int>> torchPositions;
 };
 
 #endif // _TILE_MAP_INCLUDE
