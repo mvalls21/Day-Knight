@@ -8,11 +8,14 @@
 #define SCREEN_X 16
 #define SCREEN_Y 16
 
-#define INIT_PLAYER_X_TILES 4
-#define INIT_PLAYER_Y_TILES 18
+#define INIT_PLAYER_X_TILES 8
+#define INIT_PLAYER_Y_TILES 3
 
-#define KEY_POSITION_X_TILES 20
+#define KEY_POSITION_X_TILES 8
 #define KEY_POSITION_Y_TILES 18
+
+#define DOOR_POSITION_X_TILES 21
+#define DOOR_POSITION_Y_TILES 4
 
 Scene::Scene()
 {
@@ -69,7 +72,7 @@ void Scene::init()
 	// Door sprites
 	{
 		auto doorSprite1 = AnimatedSprite::createSprite(glm::vec2(16.0f), glm::vec2(1.0f / 10.0f, 1.0f / 10.0f), tileset, &texProgram);
-		doorSprite1->setPosition({SCREEN_X + 10 * 16, SCREEN_Y + 19.0 * 16.0});
+		doorSprite1->setPosition({SCREEN_X + DOOR_POSITION_X_TILES * 16, SCREEN_Y + DOOR_POSITION_Y_TILES * 16.0});
 
 		doorSprite1->setNumberAnimations(2);
 		doorSprite1->addKeyframe(0, {0.0f / 10.0f, 3.0f / 10.0f});
@@ -78,7 +81,7 @@ void Scene::init()
 		doorSprite1->changeAnimation(0);
 
 		auto doorSprite2 = AnimatedSprite::createSprite(glm::vec2(16.0f), glm::vec2(1.0f / 10.0f, 1.0f / 10.0f), tileset, &texProgram);
-		doorSprite2->setPosition({SCREEN_X + 10 * 16, SCREEN_Y + 18.0 * 16.0});
+		doorSprite2->setPosition({SCREEN_X + DOOR_POSITION_X_TILES * 16, SCREEN_Y + (DOOR_POSITION_Y_TILES - 1) * 16.0});
 
 		doorSprite2->setNumberAnimations(2);
 		doorSprite2->addKeyframe(0, {1.0f / 10.0f, 3.0f / 10.0f});
