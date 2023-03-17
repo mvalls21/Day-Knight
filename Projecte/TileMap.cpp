@@ -4,21 +4,20 @@
 #include <vector>
 #include "TileMap.h"
 
-using namespace std;
+// ================
+// Helper Functions
+// ================
 
 // REMEMBER: Plus 1 because tiles in map are saved as +1
 #define SPIKES 41 + 1
 
-#define CHANGEABLE_PLATFORM_RANGE_START 20 + 1
-#define CHANGEABLE_PLATFORM_RANGE_END 22 + 1
+constexpr int CHANGEABLE_PLATFORM_RANGE_START = 20 + 1;
+constexpr int CHANGEABLE_PLATFORM_RANGE_END = 22 + 1;
 
 inline bool isChangeableTile(int x)
 {
 	return x >= CHANGEABLE_PLATFORM_RANGE_START && x <= CHANGEABLE_PLATFORM_RANGE_END;
 }
-
-// inline bool isChangeableTileActive(int x) {
-// }
 
 #define WALL 0 + 1
 
@@ -26,6 +25,8 @@ inline bool isCollisionTile(int x)
 {
 	return x == WALL || (x >= (23 + 1) && x <= (26 + 1)) || (x >= (34 + 1) && x <= (37 + 1));
 }
+
+// ================
 
 TileMap *TileMap::createTileMap(const string &levelFile, const glm::vec2 &minCoords, ShaderProgram &program)
 {
@@ -41,17 +42,29 @@ TileMap::TileMap(const string &levelFile, const glm::vec2 &minCoords, ShaderProg
 
 	offset = minCoords;
 
-	Texture *texture = new Texture();
-	texture->loadFromFile("images/tileset.png", PixelFormat::TEXTURE_PIXEL_FORMAT_RGBA);
+	auto *changeable1 = StaticSprite::createSprite(glm::vec2(tileSize), glm::vec2(1.0f / 10.0f, 1.0f / 10.0f), &tilesheet, &program);
+	changeable1->setSpritesheetCoords(glm::vec2(7.0f / 10.0f, 2.0f / 10.0f));
 
-	changableSprite = StaticSprite::createSprite(glm::vec2(tileSize), glm::vec2(1.0f / 38.0f, 1.0f / 16.0f), texture, &program);
-	changableSprite->setSpritesheetCoords(glm::vec2(26.0f / 38.0f, 3.0f / 16.0f));
+	auto *changeable2 = StaticSprite::createSprite(glm::vec2(tileSize), glm::vec2(1.0f / 10.0f, 1.0f / 10.0f), &tilesheet, &program);
+	changeable2->setSpritesheetCoords(glm::vec2(8.0f / 10.0f, 2.0f / 10.0f));
+
+	auto *changeable3 = StaticSprite::createSprite(glm::vec2(tileSize), glm::vec2(1.0f / 10.0f, 1.0f / 10.0f), &tilesheet, &program);
+	changeable3->setSpritesheetCoords(glm::vec2(9.0f / 10.0f, 2.0f / 10.0f));
+
+	changeableToActive.push_back(changeable1);
+	changeableToActive.push_back(changeable2);
+	changeableToActive.push_back(changeable3);
 }
 
 TileMap::~TileMap()
 {
 	if (map != NULL)
 		delete map;
+
+	for (const auto *c : changeableToActive)
+	{
+		delete c;
+	}
 }
 
 void TileMap::render() const
@@ -69,8 +82,12 @@ void TileMap::render() const
 		if (isChanged)
 		{
 			const auto &[y, x] = position;
-			changableSprite->setPosition({offset.x + x * tileSize, offset.y + y * tileSize});
-			changableSprite->render();
+
+			const int tile = map[y * mapSize.x + x];
+			StaticSprite *active = getActiveChangeableTile(tile);
+
+			active->setPosition({offset.x + x * tileSize, offset.y + y * tileSize});
+			active->render();
 		}
 	}
 
@@ -312,4 +329,11 @@ bool TileMap::isCompleted() const
 	}
 
 	return true;
+}
+
+StaticSprite *TileMap::getActiveChangeableTile(const int tile) const
+{
+	const int updated = tile - CHANGEABLE_PLATFORM_RANGE_START;
+	assert(updated >= 0 && updated < changeableToActive.size());
+	return changeableToActive[updated];
 }

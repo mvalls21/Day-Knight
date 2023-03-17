@@ -31,8 +31,8 @@ public:
 
 	int getTileSize() const { return tileSize; }
 
-	bool collisionMoveLeft(const glm::ivec2 &pos, const glm::ivec2 &size, const bool& bJumping) const;
-	bool collisionMoveRight(const glm::ivec2 &pos, const glm::ivec2 &size, const bool& bJumping) const;
+	bool collisionMoveLeft(const glm::ivec2 &pos, const glm::ivec2 &size, const bool &bJumping) const;
+	bool collisionMoveRight(const glm::ivec2 &pos, const glm::ivec2 &size, const bool &bJumping) const;
 	bool collisionMoveUp(const glm::ivec2 &pos, const glm::ivec2 &size) const;
 	bool collisionMoveDown(const glm::ivec2 &pos, const glm::ivec2 &size, int *posY);
 
@@ -42,6 +42,7 @@ private:
 	bool loadLevel(const string &levelFile);
 	void prepareArrays(const glm::vec2 &minCoords, ShaderProgram &program);
 
+	StaticSprite *getActiveChangeableTile(const int tile) const;
 	void checkCollisionChangeableTile(int tileX, int tileY);
 
 private:
@@ -56,8 +57,8 @@ private:
 	int *map;
 
 	glm::vec2 offset;
-	StaticSprite *changableSprite;
 	std::map<std::pair<int, int>, bool> changeableTiles;
+	std::vector<StaticSprite *> changeableToActive;
 };
 
 #endif // _TILE_MAP_INCLUDE
