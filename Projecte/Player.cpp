@@ -14,7 +14,7 @@ void Player::init(const glm::ivec2 &tileMapPos, ShaderProgram &shaderProgram)
 	bJumping = false;
 	spritesheet.loadFromFile("images/main_player.png", TEXTURE_PIXEL_FORMAT_RGBA);
 
-	sprite = Sprite::createSprite(glm::ivec2(32, 32), glm::vec2(1.0f/6.0f, 1.0f/5.0f), &spritesheet, &shaderProgram);
+	sprite = AnimatedSprite::createSprite(glm::ivec2(32, 32), glm::vec2(1.0f/6.0f, 1.0f/5.0f), &spritesheet, &shaderProgram);
 	sprite->setNumberAnimations(4);
 
 	sprite->setAnimationSpeed(STAND_LEFT, 6);

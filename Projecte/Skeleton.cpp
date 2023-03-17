@@ -12,7 +12,7 @@ void Skeleton::init(const glm::ivec2 &tileMapPos, ShaderProgram &shaderProgram)
     // TODO: Change sprite
     spritesheet.loadFromFile("images/skeleton.png", TEXTURE_PIXEL_FORMAT_RGBA);
 
-    sprite = Sprite::createSprite(glm::ivec2(32), glm::vec2(1.0f / 4.0f, 1.0f / 3.0f), &spritesheet, &shaderProgram);
+    sprite = AnimatedSprite::createSprite(glm::ivec2(32), glm::vec2(1.0f / 4.0f, 1.0f / 3.0f), &spritesheet, &shaderProgram);
     sprite->setNumberAnimations(4);
 
     // sprite->setAnimationSpeed(STAND_LEFT, 8);

@@ -3,7 +3,9 @@
 #include <glm/glm.hpp>
 #include "ShaderProgram.h"
 #include "TileMap.h"
+
 #include "StaticSprite.h"
+#include "AnimatedSprite.h"
 
 #include "Player.h"
 #include "Skeleton.h"
@@ -41,5 +43,5 @@ private:
 	StaticSprite *keySprite;
 
 	bool isDoorOpen = false;
-	Sprite *doorSprite;
+	AnimatedSprite *doorSprite;
 };

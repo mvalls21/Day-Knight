@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Sprite.h"
+#include "AnimatedSprite.h"
 #include "TileMap.h"
 
 enum CharacterAnims
@@ -71,6 +71,6 @@ protected:
         .height = 24};
 
     Texture spritesheet;
-    Sprite *sprite;
+    AnimatedSprite *sprite;
     TileMap *map;
 };
