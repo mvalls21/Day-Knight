@@ -37,12 +37,6 @@ void Scene::init()
 
 	map = TileMap::createTileMap("levels/level01.txt", {SCREEN_X, SCREEN_Y}, texProgram);
 
-	Texture *back = new Texture();
-	back->loadFromFile("images/background.png", PixelFormat::TEXTURE_PIXEL_FORMAT_RGBA);
-	background = StaticSprite::createSprite(16.0f * glm::vec2(32.0f, 22.0f), glm::vec2(1.0f), back, &texProgram);
-	background->setPosition({SCREEN_X, SCREEN_Y});
-	background->setSpritesheetCoords(glm::vec2(0.0f));
-
 	player = new Player();
 	player->init(glm::ivec2(SCREEN_X, SCREEN_Y), texProgram);
 	player->setPosition(glm::vec2(INIT_PLAYER_X_TILES * map->getTileSize(), INIT_PLAYER_Y_TILES * map->getTileSize()));
@@ -97,6 +91,9 @@ void Scene::init()
 void Scene::update(int deltaTime)
 {
 	currentTime += deltaTime;
+
+	map->update(deltaTime);
+
 	player->update(deltaTime);
 	skeleton->update(deltaTime);
 	vampire->update(deltaTime);
@@ -139,7 +136,6 @@ void Scene::render()
 	glm::mat4 modelview;
 
 	texProgram.use();
-	background->render();
 
 	texProgram.setUniformMatrix4f("projection", projection);
 	texProgram.setUniform4f("color", 1.0f, 1.0f, 1.0f, 1.0f);

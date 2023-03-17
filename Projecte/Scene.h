@@ -30,7 +30,6 @@ private:
 
 private:
 	TileMap *map;
-	StaticSprite *background;
 	Player *player;
 	Skeleton *skeleton;
 	Vampire *vampire;

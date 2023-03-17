@@ -7,7 +7,9 @@
 #include "Texture.h"
 #include "ShaderProgram.h"
 #include "Sprite.h"
+
 #include "StaticSprite.h"
+#include "AnimatedSprite.h"
 
 // Class Tilemap is capable of loading a tile map from a text file in a very
 // simple format (see level01.txt for an example). With this information
@@ -27,6 +29,7 @@ public:
 	~TileMap();
 
 	void render() const;
+	void update(int deltaTime);
 	void free();
 
 	int getTileSize() const { return tileSize; }
@@ -48,6 +51,7 @@ private:
 private:
 	GLuint vao;
 	GLuint vbo;
+	ShaderProgram *shaderProgram;
 	GLint posLocation, texCoordLocation;
 	int nTiles;
 	glm::ivec2 position, mapSize, tilesheetSize;
@@ -56,9 +60,14 @@ private:
 	glm::vec2 tileTexSize;
 	int *map;
 
+	StaticSprite *background;
+
 	glm::vec2 offset;
 	std::map<std::pair<int, int>, bool> changeableTiles;
 	std::vector<StaticSprite *> changeableToActive;
+
+	AnimatedSprite *torchSprite;
+	std::vector<std::pair<int, int>> torchPositions;
 };
 
 #endif // _TILE_MAP_INCLUDE

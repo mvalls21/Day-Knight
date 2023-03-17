@@ -4,12 +4,14 @@
 #include <vector>
 #include "TileMap.h"
 
+#include <glm/gtc/matrix_transform.hpp>
+
 // ================
 // Helper Functions
 // ================
 
 // REMEMBER: Plus 1 because tiles in map are saved as +1
-#define SPIKES 41 + 1
+constexpr int SPIKES = 41 + 1;
 
 constexpr int CHANGEABLE_PLATFORM_RANGE_START = 20 + 1;
 constexpr int CHANGEABLE_PLATFORM_RANGE_END = 22 + 1;
@@ -19,12 +21,15 @@ inline bool isChangeableTile(int x)
 	return x >= CHANGEABLE_PLATFORM_RANGE_START && x <= CHANGEABLE_PLATFORM_RANGE_END;
 }
 
-#define WALL 0 + 1
+constexpr int WALL = 0 + 1;
 
 inline bool isCollisionTile(int x)
 {
 	return x == WALL || (x >= (23 + 1) && x <= (26 + 1)) || (x >= (34 + 1) && x <= (37 + 1));
 }
+
+constexpr int TORCH = 42 + 1;
+
 
 // ================
 
@@ -40,8 +45,17 @@ TileMap::TileMap(const string &levelFile, const glm::vec2 &minCoords, ShaderProg
 	loadLevel(levelFile);
 	prepareArrays(minCoords, program);
 
+	shaderProgram = &program;
 	offset = minCoords;
 
+	Texture *back = new Texture();
+	back->loadFromFile("images/background.png", PixelFormat::TEXTURE_PIXEL_FORMAT_RGBA);
+
+	background = StaticSprite::createSprite(16.0f * glm::vec2(32.0f, 22.0f), glm::vec2(1.0f), back, &program);
+	background->setPosition({offset.x, offset.y});
+	background->setSpritesheetCoords(glm::vec2(0.0f));
+
+	// Changeable tiles
 	auto *changeable1 = StaticSprite::createSprite(glm::vec2(tileSize), glm::vec2(1.0f / 10.0f, 1.0f / 10.0f), &tilesheet, &program);
 	changeable1->setSpritesheetCoords(glm::vec2(7.0f / 10.0f, 2.0f / 10.0f));
 
@@ -54,6 +68,17 @@ TileMap::TileMap(const string &levelFile, const glm::vec2 &minCoords, ShaderProg
 	changeableToActive.push_back(changeable1);
 	changeableToActive.push_back(changeable2);
 	changeableToActive.push_back(changeable3);
+
+	// Torches
+	torchSprite = AnimatedSprite::createSprite(glm::vec2(tileSize), glm::vec2(1.0f / 10.0f, 1.0f / 10.0f), &tilesheet, &program);
+	torchSprite->setNumberAnimations(1);
+
+	torchSprite->setAnimationSpeed(0, 8);
+	torchSprite->addKeyframe(0, glm::vec2(2.0f / 10.0f, 4.0f / 10.0f));
+	torchSprite->addKeyframe(0, glm::vec2(3.0f / 10.0f, 4.0f / 10.0f));
+	torchSprite->addKeyframe(0, glm::vec2(4.0f / 10.0f, 4.0f / 10.0f));
+
+	torchSprite->changeAnimation(0);
 }
 
 TileMap::~TileMap()
@@ -69,6 +94,11 @@ TileMap::~TileMap()
 
 void TileMap::render() const
 {
+	background->render();
+
+	glm::mat4 modelview = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, 0.f));
+	shaderProgram->setUniformMatrix4f("modelview", modelview);
+
 	glEnable(GL_TEXTURE_2D);
 	tilesheet.use();
 	glBindVertexArray(vao);
@@ -86,12 +116,24 @@ void TileMap::render() const
 			const int tile = map[y * mapSize.x + x];
 			StaticSprite *active = getActiveChangeableTile(tile);
 
-			active->setPosition({offset.x + float(x * tileSize), offset.y + float(y * tileSize)});
+			active->setPosition({offset.x + x * tileSize, offset.y + y * tileSize});
 			active->render();
 		}
 	}
 
+	// Draw torches
+	for (const auto &[y, x] : torchPositions)
+	{
+		torchSprite->setPosition({offset.x + x * tileSize, offset.y + y * tileSize});
+		torchSprite->render();
+	}
+
 	glDisable(GL_TEXTURE_2D);
+}
+
+void TileMap::update(int deltaTime)
+{
+	torchSprite->update(deltaTime);
 }
 
 void TileMap::free()
@@ -142,6 +184,11 @@ bool TileMap::loadLevel(const string &levelFile)
 			if (isChangeableTile(value + 1))
 			{
 				changeableTiles.insert({{j, i}, false});
+			}
+
+			if (value + 1 == TORCH)
+			{
+				torchPositions.push_back({j, i});
 			}
 
 			if (value == -1)
