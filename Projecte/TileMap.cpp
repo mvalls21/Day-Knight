@@ -86,7 +86,7 @@ void TileMap::render() const
 			const int tile = map[y * mapSize.x + x];
 			StaticSprite *active = getActiveChangeableTile(tile);
 
-			active->setPosition({offset.x + x * tileSize, offset.y + y * tileSize});
+			active->setPosition({offset.x + float(x * tileSize), offset.y + float(y * tileSize)});
 			active->render();
 		}
 	}

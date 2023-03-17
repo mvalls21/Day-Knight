@@ -43,5 +43,5 @@ private:
 	StaticSprite *keySprite;
 
 	bool isDoorOpen = false;
-	AnimatedSprite *doorSprite;
+	std::vector<AnimatedSprite*> doorSprites;
 };
