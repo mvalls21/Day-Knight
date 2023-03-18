@@ -43,7 +43,11 @@ void Vampire::update(int deltaTime)
     sprite->update(deltaTime);
     timeSinceLastFly_ms += deltaTime;
 
-    if (flying)
+    if (landing)
+    {
+        updateLanding(deltaTime);
+    }
+    else if (flying)
     {
         updateFlying(deltaTime);
     }
@@ -84,6 +88,13 @@ void Vampire::updateFlying(int deltaTime)
         position.y -= flyingMovement.y;
         flyingMovement = {flyingMovement.x, -flyingMovement.y};
     }
+
+    if (timeSinceLastFly_ms / 1000 >= TIME_PER_STAGE)
+    {
+        landing = true;
+        flying = false;
+        timeSinceLastFly_ms = 0;
+    }
 }
 
 void Vampire::updateWalking(int deltaTime)
@@ -114,6 +125,25 @@ void Vampire::updateWalking(int deltaTime)
     {
         flying = true;
         flyingMovement = {VAMPIRE_MOVEMENT_SPEED, -VAMPIRE_MOVEMENT_SPEED};
+        timeSinceLastFly_ms = 0;
+    }
+}
+
+void Vampire::updateLanding(int deltaTime)
+{
+    if (map->collisionMoveDown(position, glm::ivec2(32), &position.y))
+    {
+        landing = false;
+        assert(!flying);
+
+        CharacterAnims newDirection = flyingMovement.x >= 0 ? MOVE_RIGHT : MOVE_LEFT;
+        setDirection(newDirection);
+    }
+
+    timeSinceLastFly_ms = 0;
+    if (landing)
+    {
+        updateFlying(deltaTime);
     }
 }
 

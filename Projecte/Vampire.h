@@ -6,7 +6,7 @@
 
 #define VAMPIRE_MOVEMENT_SPEED 1
 
-#define TIME_PER_STAGE 2 //seconds
+#define TIME_PER_STAGE 10 // seconds
 
 class Vampire : public Character
 {
@@ -19,13 +19,15 @@ public:
 private:
     void updateFlying(int deltaTime);
     void updateWalking(int deltaTime);
+    void updateLanding(int deltaTime);
 
     void changeDirection();
 
     CharacterAnims currentDirection;
-    bool flying;
-    int timeSinceLastFly_ms;
-
     int movementSpeed = VAMPIRE_MOVEMENT_SPEED;
+
+    bool flying = false;
+    bool landing = false;
+    int timeSinceLastFly_ms;
     glm::ivec2 flyingMovement;
 };
