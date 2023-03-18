@@ -75,11 +75,22 @@ void Vampire::updateFlying(int deltaTime)
     }
 
     const bool collisionUp = map->collisionMoveUp({position.x, position.y - 1}, glm::ivec2(32));
+    // Bastante feo, pero mejor que cambiar collisionMoveDown para que
+    // opcionalmente no tenga en cuenta las plataformas.
+    bool collisionDown = false;
+    {
+        int x0 = position.x / map->getTileSize();
+        int x1 = (position.x + 32) / map->getTileSize();
 
-    // TODO: Puede suceder un error si el punto de contacto de abajo está en la parte de la derecha,
-    // pero la parte de la izquierda no tiene colisión. Esto es porque position está en la parte superior izquierda
-    // del sprite. No haciendo nada porque de momento no me he encontrado con el error, pero debería hacer algo :)
-    const bool collisionDown = map->isTileWithCollision({position.x / map->getTileSize(), position.y / map->getTileSize() + 2});
+        for (int x = x0; x < x1; ++x)
+        {
+            if (map->isTileWithCollision({x, position.y / map->getTileSize() + 2}))
+            {
+                collisionDown = true;
+                break;
+            }
+        }
+    }
 
     const bool collisionVertical = collisionUp || collisionDown;
 
@@ -124,7 +135,7 @@ void Vampire::updateWalking(int deltaTime)
     if (timeSinceLastFly_ms / 1000 >= TIME_PER_STAGE)
     {
         flying = true;
-        flyingMovement = {VAMPIRE_MOVEMENT_SPEED, -VAMPIRE_MOVEMENT_SPEED};
+        flyingMovement = {movementSpeed, -VAMPIRE_MOVEMENT_SPEED};
         timeSinceLastFly_ms = 0;
     }
 }
