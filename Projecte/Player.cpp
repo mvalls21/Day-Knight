@@ -95,7 +95,7 @@ void Player::update(int deltaTime)
 			position.y = int(startY - JUMP_HEIGHT * sin(3.14159f * jumpAngle / 180.f));
 			if(jumpAngle > 90)
 			{
-				bJumping = !map->collisionMoveDown(position, glm::ivec2(32, 32), &position.y);
+				bJumping = !map->collisionMoveDown(position, glm::ivec2(32, 32), &position.y, true);
 			}
 			else if (map->collisionMoveUp(position, glm::ivec2(32, 32)))
 			{
@@ -106,7 +106,7 @@ void Player::update(int deltaTime)
 	else
 	{
 		position.y += FALL_STEP;
-		if (map->collisionMoveDown(position, glm::ivec2(32, 32), &position.y))
+		if (map->collisionMoveDown(position, glm::ivec2(32, 32), &position.y, true))
 		{
 			if (Game::instance().getSpecialKey(GLUT_KEY_UP))
 			{

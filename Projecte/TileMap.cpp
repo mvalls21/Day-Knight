@@ -30,7 +30,6 @@ inline bool isCollisionTile(int x)
 
 constexpr int TORCH = 42 + 1;
 
-
 // ================
 
 TileMap *TileMap::createTileMap(const string &levelFile, const glm::vec2 &minCoords, ShaderProgram &program)
@@ -328,7 +327,7 @@ bool TileMap::collisionMoveUp(const glm::ivec2 &pos, const glm::ivec2 &size) con
 	return false;
 }
 
-bool TileMap::collisionMoveDown(const glm::ivec2 &pos, const glm::ivec2 &size, int *posY)
+bool TileMap::collisionMoveDown(const glm::ivec2 &pos, const glm::ivec2 &size, int *posY, bool tileChanger)
 {
 	int x0, x1, y;
 
@@ -346,7 +345,10 @@ bool TileMap::collisionMoveDown(const glm::ivec2 &pos, const glm::ivec2 &size, i
 			{
 				*posY = tileSize * y - size.y;
 
-				checkCollisionChangeableTile(x, y);
+				if (tileChanger)
+				{
+					checkCollisionChangeableTile(x, y);
+				}
 
 				result = true;
 			}
