@@ -88,18 +88,6 @@ void Vampire::updateWalking(int deltaTime)
 
     map->collisionMoveDown(position, glm::ivec2(32), &position.y);
 
-    // const glm::ivec2 tilePosition = position / map->getTileSize();
-    // MovementRange &currentRange = currentMovementStage == 0 ? rangeStage1 : rangeStage2;
-    // if (tilePosition == currentRange.tileEnd)
-    // {
-    //     ++currentStageTimes;
-    //     changeDirection();
-
-    //     auto tmp = currentRange.tileEnd;
-    //     currentRange.tileEnd = currentRange.tileStart;
-    //     currentRange.tileStart = tmp;
-    // }
-
     const int nextYTile = position.y / map->getTileSize() + 2;
     const int nextXTile = currentDirection == MOVE_RIGHT
                               ? (position.x + 32/2) / map->getTileSize() + 1 // MOVE_RIGHT
@@ -108,26 +96,14 @@ void Vampire::updateWalking(int deltaTime)
     const glm::ivec2 nextTile = glm::ivec2(nextXTile, nextYTile);
 
     const bool nextTileWouldFall = !map->isTileWithCollision(nextTile);
-    if (nextTileWouldFall)
+    const bool collisionRight = map->collisionMoveRight(position, glm::ivec2(32), false);
+    const bool collisionLeft = map->collisionMoveLeft(position, glm::ivec2(32), false);
+
+    if (nextTileWouldFall || collisionLeft || collisionRight)
     {
         position.x -= movementSpeed;
         changeDirection();
     }
-
-    bool collisionRight = map->collisionMoveRight(position, glm::ivec2(32), false);
-    bool collisionLeft = map->collisionMoveLeft(position, glm::ivec2(32), false);
-
-    if ((collisionLeft || collisionRight) && !nextTileWouldFall)
-    {
-        position.x -= movementSpeed;
-        changeDirection();
-    }
-
-    // if (currentStageTimes == STAGE_TIMES_FLY)
-    // {
-    //     flying = true;
-    //     currentStageTimes = 0;
-    // }
 }
 
 void Vampire::changeDirection()
