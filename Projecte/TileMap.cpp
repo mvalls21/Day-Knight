@@ -333,8 +333,10 @@ bool TileMap::collisionMoveDown(const glm::ivec2 &pos, const glm::ivec2 &size, i
 
 	bool result = false;
 
-	x0 = pos.x / tileSize;
-	x1 = (pos.x + size.x - 1) / tileSize;
+	int posX = (pos.x + size.x / 2);
+
+	x0 = (posX - size.x/2 + 1) / tileSize;
+	x1 = (posX + size.x/2 - 1) / tileSize;
 	y = (pos.y + size.y - 1) / tileSize;
 	for (int x = x0; x <= x1; x++)
 	{
@@ -356,6 +358,11 @@ bool TileMap::collisionMoveDown(const glm::ivec2 &pos, const glm::ivec2 &size, i
 	}
 
 	return result;
+}
+
+bool TileMap::isTileWithCollision(const glm::ivec2& nextTile) {
+	int tile = map[nextTile.y * mapSize.x + nextTile.x];
+	return isCollisionTile(tile) || isChangeableTile(tile);
 }
 
 void TileMap::checkCollisionChangeableTile(int tileX, int tileY)

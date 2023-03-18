@@ -27,6 +27,8 @@ struct BoundingBoxInfo
     int height;
 };
 
+#define FALL_STEP 4
+
 class Character
 {
 public:

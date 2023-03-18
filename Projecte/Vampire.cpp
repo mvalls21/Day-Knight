@@ -84,32 +84,49 @@ void Vampire::updateFlying(int deltaTime)
 void Vampire::updateWalking(int deltaTime)
 {
     position.x += movementSpeed;
+    position.y += FALL_STEP;
 
-    const glm::ivec2 tilePosition = position / map->getTileSize();
-    MovementRange &currentRange = currentMovementStage == 0 ? rangeStage1 : rangeStage2;
-    if (tilePosition == currentRange.tileEnd)
-    {
-        ++currentStageTimes;
-        changeDirection();
+    map->collisionMoveDown(position, glm::ivec2(32), &position.y);
 
-        auto tmp = currentRange.tileEnd;
-        currentRange.tileEnd = currentRange.tileStart;
-        currentRange.tileStart = tmp;
-    }
-
-    if (currentStageTimes == STAGE_TIMES_FLY)
-    {
-        flying = true;
-        currentStageTimes = 0;
-    }
-
-    // if (tilePosition == tileEnd)
+    // const glm::ivec2 tilePosition = position / map->getTileSize();
+    // MovementRange &currentRange = currentMovementStage == 0 ? rangeStage1 : rangeStage2;
+    // if (tilePosition == currentRange.tileEnd)
     // {
+    //     ++currentStageTimes;
     //     changeDirection();
 
-    //     auto tmp = tileEnd;
-    //     tileEnd = tileStart;
-    //     tileStart = tmp;
+    //     auto tmp = currentRange.tileEnd;
+    //     currentRange.tileEnd = currentRange.tileStart;
+    //     currentRange.tileStart = tmp;
+    // }
+
+    const int nextYTile = position.y / map->getTileSize() + 2;
+    const int nextXTile = currentDirection == MOVE_RIGHT
+                              ? (position.x + 32/2) / map->getTileSize() + 1 // MOVE_RIGHT
+                              : (position.x + 32/2) / map->getTileSize() - 1;       // MOVE_LEFT
+
+    const glm::ivec2 nextTile = glm::ivec2(nextXTile, nextYTile);
+
+    const bool nextTileWouldFall = !map->isTileWithCollision(nextTile);
+    if (nextTileWouldFall)
+    {
+        position.x -= movementSpeed;
+        changeDirection();
+    }
+
+    bool collisionRight = map->collisionMoveRight(position, glm::ivec2(32), false);
+    bool collisionLeft = map->collisionMoveLeft(position, glm::ivec2(32), false);
+
+    if ((collisionLeft || collisionRight) && !nextTileWouldFall)
+    {
+        position.x -= movementSpeed;
+        changeDirection();
+    }
+
+    // if (currentStageTimes == STAGE_TIMES_FLY)
+    // {
+    //     flying = true;
+    //     currentStageTimes = 0;
     // }
 }
 
