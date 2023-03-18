@@ -30,7 +30,10 @@ void Vampire::init(const glm::ivec2 &tileMapPos, ShaderProgram &shaderProgram)
     sprite->addKeyframe(MOVE_RIGHT, glm::vec2(0.25, 0.25f));
     sprite->addKeyframe(MOVE_RIGHT, glm::vec2(0.25, 0.5f));
 
-    sprite->changeAnimation(MOVE_RIGHT);
+    timeSinceLastFly_ms = 0;
+
+    setDirection(MOVE_RIGHT);
+
     tileMapDispl = tileMapPos;
     sprite->setPosition(glm::vec2(float(tileMapDispl.x + position.x), float(tileMapDispl.y + position.y)));
 }
@@ -38,6 +41,7 @@ void Vampire::init(const glm::ivec2 &tileMapPos, ShaderProgram &shaderProgram)
 void Vampire::update(int deltaTime)
 {
     sprite->update(deltaTime);
+    timeSinceLastFly_ms += deltaTime;
 
     if (flying)
     {
@@ -53,31 +57,32 @@ void Vampire::update(int deltaTime)
 
 void Vampire::updateFlying(int deltaTime)
 {
-    const glm::ivec2 tilePosition = position / map->getTileSize();
+    position += flyingMovement;
 
-    MovementRange &otherRange = currentMovementStage == 0 ? rangeStage2 : rangeStage1;
-    if (tilePosition == otherRange.tileStart)
+    const bool collisionRight = map->collisionMoveRight(position, glm::ivec2(32), true);
+    const bool collisionLeft = map->collisionMoveLeft(position, glm::ivec2(32), true);
+
+    const bool collisionHorizontal = collisionRight || collisionLeft;
+
+    if (collisionHorizontal)
     {
-        flying = false;
-
-        if (otherRange.tileEnd.x > otherRange.tileStart.x)
-            sprite->changeAnimation(MOVE_RIGHT);
-        else
-            sprite->changeAnimation(MOVE_LEFT);
-
-        currentMovementStage = (currentMovementStage + 1) % 2;
+        position.x -= flyingMovement.x;
+        flyingMovement = {-flyingMovement.x, flyingMovement.y};
     }
-    else
+
+    const bool collisionUp = map->collisionMoveUp({position.x, position.y - 1}, glm::ivec2(32));
+
+    // TODO: Puede suceder un error si el punto de contacto de abajo está en la parte de la derecha,
+    // pero la parte de la izquierda no tiene colisión. Esto es porque position está en la parte superior izquierda
+    // del sprite. No haciendo nada porque de momento no me he encontrado con el error, pero debería hacer algo :)
+    const bool collisionDown = map->isTileWithCollision({position.x / map->getTileSize(), position.y / map->getTileSize() + 2});
+
+    const bool collisionVertical = collisionUp || collisionDown;
+
+    if (collisionVertical)
     {
-        auto movement = otherRange.tileStart - tilePosition;
-
-        auto div = std::max(std::abs(movement.x), std::abs(movement.y));
-
-        if (div != 0)
-        {
-            movement = movement / div;
-            position += movement;
-        }
+        position.y -= flyingMovement.y;
+        flyingMovement = {flyingMovement.x, -flyingMovement.y};
     }
 }
 
@@ -90,12 +95,12 @@ void Vampire::updateWalking(int deltaTime)
 
     const int nextYTile = position.y / map->getTileSize() + 2;
     const int nextXTile = currentDirection == MOVE_RIGHT
-                              ? (position.x + 32/2) / map->getTileSize() + 1 // MOVE_RIGHT
-                              : (position.x + 32/2) / map->getTileSize() - 1;       // MOVE_LEFT
+                              ? (position.x + 32 / 2) / map->getTileSize() + 1  // MOVE_RIGHT
+                              : (position.x + 32 / 2) / map->getTileSize() - 1; // MOVE_LEFT
 
     const glm::ivec2 nextTile = glm::ivec2(nextXTile, nextYTile);
 
-    const bool nextTileWouldFall = !map->isTileWithCollision(nextTile);
+    const bool nextTileWouldFall = !map->isTileWithCollision(nextTile) && !map->isPlatform(nextTile);
     const bool collisionRight = map->collisionMoveRight(position, glm::ivec2(32), false);
     const bool collisionLeft = map->collisionMoveLeft(position, glm::ivec2(32), false);
 
@@ -103,6 +108,12 @@ void Vampire::updateWalking(int deltaTime)
     {
         position.x -= movementSpeed;
         changeDirection();
+    }
+
+    if (timeSinceLastFly_ms / 1000 >= TIME_PER_STAGE)
+    {
+        flying = true;
+        flyingMovement = {VAMPIRE_MOVEMENT_SPEED, -VAMPIRE_MOVEMENT_SPEED};
     }
 }
 
@@ -143,23 +154,4 @@ void Vampire::setDirection(CharacterAnims direction)
         movementSpeed = SKELETON_MOVEMENT_SPEED;
     else
         movementSpeed = -SKELETON_MOVEMENT_SPEED;
-}
-
-void Vampire::setMovementRange(const glm::ivec2 &tileStartOrigin, const glm::ivec2 &tileEndOrigin,
-                               const glm::ivec2 &tileStartDest, const glm::ivec2 &tileEndDest)
-{
-    rangeStage1.tileStart = tileStartOrigin;
-    rangeStage1.tileEnd = tileEndOrigin;
-
-    rangeStage2.tileStart = tileStartDest;
-    rangeStage2.tileEnd = tileEndDest;
-
-    assert(tileStartOrigin.y == tileEndOrigin.y && tileStartDest.y == tileEndDest.y);
-
-    if (rangeStage1.tileEnd.x > rangeStage1.tileStart.x)
-        setDirection(MOVE_RIGHT);
-    else
-        setDirection(MOVE_LEFT);
-
-    setPosition({rangeStage1.tileStart.x * map->getTileSize(), rangeStage1.tileStart.y * map->getTileSize()});
 }
