@@ -7,29 +7,44 @@
 
 #include "Game.h"
 
+constexpr glm::ivec2 BAT_SIZE = glm::ivec2(24, 16);
+
 void Vampire::init(const glm::ivec2 &tileMapPos, ShaderProgram &shaderProgram)
 {
-    spritesheet.loadFromFile("images/bub.png", TEXTURE_PIXEL_FORMAT_RGBA);
+    spritesheet.loadFromFile("images/vampire.png", TEXTURE_PIXEL_FORMAT_RGBA);
 
-    sprite = AnimatedSprite::createSprite(glm::ivec2(32), glm::vec2(0.25, 0.25), &spritesheet, &shaderProgram);
-    sprite->setNumberAnimations(4);
+    vampireSprite = AnimatedSprite::createSprite(glm::ivec2(32), glm::vec2(1.0f / 4.0f, 1.0f), &spritesheet, &shaderProgram);
+    vampireSprite->setNumberAnimations(4);
 
-    sprite->setAnimationSpeed(STAND_LEFT, 8);
-    sprite->addKeyframe(STAND_LEFT, glm::vec2(0.f, 0.f));
+    vampireSprite->setAnimationSpeed(STAND_LEFT, 8);
+    vampireSprite->addKeyframe(STAND_LEFT, glm::vec2(0.f, 0.f));
 
-    sprite->setAnimationSpeed(STAND_RIGHT, 8);
-    sprite->addKeyframe(STAND_RIGHT, glm::vec2(0.25f, 0.f));
+    vampireSprite->setAnimationSpeed(STAND_RIGHT, 8);
+    vampireSprite->addKeyframe(STAND_RIGHT, glm::vec2(0.25f, 0.f));
 
-    sprite->setAnimationSpeed(MOVE_LEFT, 8);
-    sprite->addKeyframe(MOVE_LEFT, glm::vec2(0.f, 0.f));
-    sprite->addKeyframe(MOVE_LEFT, glm::vec2(0.f, 0.25f));
-    sprite->addKeyframe(MOVE_LEFT, glm::vec2(0.f, 0.5f));
+    vampireSprite->setAnimationSpeed(MOVE_LEFT, 8);
+    vampireSprite->addKeyframe(MOVE_LEFT, glm::vec2(2.0f / 4.0f, 0.f));
+    vampireSprite->addKeyframe(MOVE_LEFT, glm::vec2(3.0f / 4.0f, 0.0f));
 
-    sprite->setAnimationSpeed(MOVE_RIGHT, 8);
-    sprite->addKeyframe(MOVE_RIGHT, glm::vec2(0.25, 0.f));
-    sprite->addKeyframe(MOVE_RIGHT, glm::vec2(0.25, 0.25f));
-    sprite->addKeyframe(MOVE_RIGHT, glm::vec2(0.25, 0.5f));
+    vampireSprite->setAnimationSpeed(MOVE_RIGHT, 8);
+    vampireSprite->addKeyframe(MOVE_RIGHT, glm::vec2(0.0f / 4.0f, 0.f));
+    vampireSprite->addKeyframe(MOVE_RIGHT, glm::vec2(1.0f / 4.0f, 0.0f));
 
+    // TODO: Cleanup
+    Texture *batTexture = new Texture();
+    batTexture->loadFromFile("images/bat.png", TEXTURE_PIXEL_FORMAT_RGBA);
+
+    batSprite = AnimatedSprite::createSprite(BAT_SIZE, glm::vec2(1.0f / 3.0f, 1.0f), batTexture, &shaderProgram);
+    batSprite->setNumberAnimations(1);
+
+    batSprite->setAnimationSpeed(0, 8);
+    batSprite->addKeyframe(0, glm::vec2(0.0f / 3.0f, 0.0f));
+    batSprite->addKeyframe(0, glm::vec2(1.0f / 3.0f, 0.0f));
+    batSprite->addKeyframe(0, glm::vec2(2.0f / 3.0f, 0.0f));
+
+    batSprite->changeAnimation(0);
+
+    sprite = vampireSprite;
     timeSinceLastFly_ms = 0;
 
     setDirection(MOVE_RIGHT);
@@ -63,8 +78,8 @@ void Vampire::updateFlying(int deltaTime)
 {
     position += flyingMovement;
 
-    const bool collisionRight = map->collisionMoveRight(position, glm::ivec2(32), true);
-    const bool collisionLeft = map->collisionMoveLeft(position, glm::ivec2(32), true);
+    const bool collisionRight = map->collisionMoveRight(position, BAT_SIZE, true);
+    const bool collisionLeft = map->collisionMoveLeft(position, BAT_SIZE, true);
 
     const bool collisionHorizontal = collisionRight || collisionLeft;
 
@@ -74,17 +89,17 @@ void Vampire::updateFlying(int deltaTime)
         flyingMovement = {-flyingMovement.x, flyingMovement.y};
     }
 
-    const bool collisionUp = map->collisionMoveUp({position.x, position.y - 1}, glm::ivec2(32));
+    const bool collisionUp = map->collisionMoveUp({position.x, position.y - 1}, BAT_SIZE);
     // Bastante feo, pero mejor que cambiar collisionMoveDown para que
     // opcionalmente no tenga en cuenta las plataformas.
     bool collisionDown = false;
     {
         int x0 = position.x / map->getTileSize();
-        int x1 = (position.x + 32) / map->getTileSize();
+        int x1 = (position.x + BAT_SIZE.x) / map->getTileSize();
 
         for (int x = x0; x < x1; ++x)
         {
-            if (map->isTileWithCollision({x, position.y / map->getTileSize() + 2}))
+            if (map->isTileWithCollision({x, position.y / map->getTileSize() + 1}))
             {
                 collisionDown = true;
                 break;
@@ -134,6 +149,8 @@ void Vampire::updateWalking(int deltaTime)
 
     if (timeSinceLastFly_ms / 1000 >= TIME_PER_STAGE)
     {
+        sprite = batSprite;
+
         flying = true;
         flyingMovement = {movementSpeed, -VAMPIRE_MOVEMENT_SPEED};
         timeSinceLastFly_ms = 0;
@@ -146,6 +163,8 @@ void Vampire::updateLanding(int deltaTime)
     {
         landing = false;
         assert(!flying);
+
+        sprite = vampireSprite;
 
         CharacterAnims newDirection = flyingMovement.x >= 0 ? MOVE_RIGHT : MOVE_LEFT;
         setDirection(newDirection);

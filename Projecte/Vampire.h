@@ -26,6 +26,9 @@ private:
     CharacterAnims currentDirection;
     int movementSpeed = VAMPIRE_MOVEMENT_SPEED;
 
+    AnimatedSprite *vampireSprite;
+    AnimatedSprite *batSprite;
+
     bool flying = false;
     bool landing = false;
     int timeSinceLastFly_ms;
