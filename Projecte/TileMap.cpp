@@ -308,7 +308,7 @@ bool TileMap::collisionMoveRight(const glm::ivec2 &pos, const glm::ivec2 &size, 
 	return false;
 }
 
-bool TileMap::collisionMoveUp(const glm::ivec2 &pos, const glm::ivec2 &size) const
+bool TileMap::collisionMoveUp(const glm::ivec2 &pos, const glm::ivec2 &size, const bool bJumping) const
 {
 	int x0, x1, y;
 
@@ -318,7 +318,7 @@ bool TileMap::collisionMoveUp(const glm::ivec2 &pos, const glm::ivec2 &size) con
 	for (int x = x0; x <= x1; x++)
 	{
 		const int tile = map[y * mapSize.x + x];
-		if (isCollisionTile(tile))
+		if (isCollisionTile(tile) || (!bJumping && isChangeableTile(tile)))
 		{
 			return true;
 		}

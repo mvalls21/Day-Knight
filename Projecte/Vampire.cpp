@@ -89,22 +89,16 @@ void Vampire::updateFlying(int deltaTime)
         flyingMovement = {-flyingMovement.x, flyingMovement.y};
     }
 
-    const bool collisionUp = map->collisionMoveUp({position.x, position.y - 1}, BAT_SIZE);
-    // Bastante feo, pero mejor que cambiar collisionMoveDown para que
-    // opcionalmente no tenga en cuenta las plataformas.
-    bool collisionDown = false;
+    bool collisionUp = false;
+    if (flyingMovement.y < 0)
     {
-        int x0 = position.x / map->getTileSize();
-        int x1 = (position.x + BAT_SIZE.x) / map->getTileSize();
+        collisionUp = map->collisionMoveUp({position.x, position.y - 1}, BAT_SIZE, false);
+    }
 
-        for (int x = x0; x < x1; ++x)
-        {
-            if (map->isTileWithCollision({x, position.y / map->getTileSize() + 1}))
-            {
-                collisionDown = true;
-                break;
-            }
-        }
+    bool collisionDown = false;
+    if (flyingMovement.y > 0)
+    {
+        collisionDown = map->collisionMoveDown({position.x, position.y}, BAT_SIZE, &position.y);
     }
 
     const bool collisionVertical = collisionUp || collisionDown;
@@ -159,7 +153,7 @@ void Vampire::updateWalking(int deltaTime)
 
 void Vampire::updateLanding(int deltaTime)
 {
-    if (map->collisionMoveDown(position, glm::ivec2(32), &position.y))
+    if (map->collisionMoveDown(position, glm::ivec2(BAT_SIZE.x, 32), &position.y))
     {
         landing = false;
         assert(!flying);
