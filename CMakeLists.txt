@@ -11,6 +11,7 @@ target_sources(${PROJECT_NAME} PRIVATE
         Projecte/Scene.cpp
 
         Projecte/Player.cpp
+        Projecte/Enemy.cpp
         Projecte/Skeleton.cpp
         Projecte/Vampire.cpp
         

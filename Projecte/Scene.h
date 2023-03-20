@@ -21,12 +21,24 @@
 
 class Scene
 {
-
 public:
+	struct Description
+	{
+		std::string level;
+
+		glm::ivec2 playerPositionStartTile;
+		std::vector<glm::ivec2> skeletonPositionsTile;
+		std::vector<glm::ivec2> vampirePositionsTile;
+		// More enemy types...
+
+		glm::ivec2 keyPositionTile;
+		glm::ivec2 doorPositionTile;
+	};
+
 	Scene();
 	~Scene();
 
-	void init();
+	void init(/*const Description& description*/);
 	void update(int deltaTime);
 	void render();
 

@@ -31,7 +31,7 @@ Scene::~Scene()
 		delete player;
 }
 
-void Scene::init()
+void Scene::init(/*const Description& description*/)
 {
 	initShaders();
 
@@ -45,7 +45,8 @@ void Scene::init()
 	skeleton = new Skeleton();
 	skeleton->init(glm::ivec2(SCREEN_X, SCREEN_Y), texProgram);
 	skeleton->setTileMap(map);
-	skeleton->setMovementRange({19, 18}, {28, 18});
+	skeleton->setPosition({20 * map->getTileSize(), 18 * map->getTileSize()});
+	skeleton->setDirection(MOVE_RIGHT);
 
 	vampire = new Vampire();
 	vampire->init(glm::ivec2(SCREEN_X, SCREEN_Y), texProgram);
