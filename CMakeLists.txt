@@ -13,6 +13,8 @@ target_sources(${PROJECT_NAME} PRIVATE
         Projecte/Player.cpp
         Projecte/Skeleton.cpp
         Projecte/Vampire.cpp
+        
+        Projecte/Object.cpp
 
         Projecte/Sprite.cpp
         Projecte/AnimatedSprite.cpp

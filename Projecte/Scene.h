@@ -1,12 +1,17 @@
 #pragma once
 
 #include <glm/glm.hpp>
+#include <vector>
+
 #include "ShaderProgram.h"
 #include "TileMap.h"
+
+#include "Object.h"
 
 #include "StaticSprite.h"
 #include "AnimatedSprite.h"
 
+#include "Character.h"
 #include "Player.h"
 #include "Skeleton.h"
 #include "Vampire.h"
@@ -31,6 +36,7 @@ private:
 private:
 	TileMap *map;
 	Player *player;
+
 	Skeleton *skeleton;
 	Vampire *vampire;
 
@@ -39,8 +45,8 @@ private:
 	glm::mat4 projection;
 
 	bool showKey = false;
-	StaticSprite *keySprite;
+	Key* key;
 
 	bool isDoorOpen = false;
-	std::vector<AnimatedSprite*> doorSprites;
+	Door *door;
 };

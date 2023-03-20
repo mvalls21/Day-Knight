@@ -60,33 +60,11 @@ void Scene::init()
 	Texture *tileset = new Texture();
 	tileset->loadFromFile("images/nuevo_tileset.png", PixelFormat::TEXTURE_PIXEL_FORMAT_RGBA);
 
-	keySprite = StaticSprite::createSprite(glm::vec2(20.0f), glm::vec2(1.0f / 10.0f, 1.0f / 10.0f), tileset, &texProgram);
-	keySprite->setPosition({SCREEN_X + KEY_POSITION_X_TILES * 16.0f, SCREEN_Y + KEY_POSITION_Y_TILES * 16.0f});
-	keySprite->setSpritesheetCoords(glm::vec2(0.0f, 4.0f / 10.0f));
+	key = new Key(tileset, {SCREEN_X + KEY_POSITION_X_TILES * 16.0f, SCREEN_Y + KEY_POSITION_Y_TILES * 16.0f}, &texProgram);
 
-	// Door sprites
-	{
-		auto doorSprite1 = AnimatedSprite::createSprite(glm::vec2(16.0f), glm::vec2(1.0f / 10.0f, 1.0f / 10.0f), tileset, &texProgram);
-		doorSprite1->setPosition({SCREEN_X + DOOR_POSITION_X_TILES * 16, SCREEN_Y + DOOR_POSITION_Y_TILES * 16.0});
-
-		doorSprite1->setNumberAnimations(2);
-		doorSprite1->addKeyframe(0, {0.0f / 10.0f, 3.0f / 10.0f});
-		doorSprite1->addKeyframe(1, {2.0f / 10.0f, 3.0f / 10.0f});
-
-		doorSprite1->changeAnimation(0);
-
-		auto doorSprite2 = AnimatedSprite::createSprite(glm::vec2(16.0f), glm::vec2(1.0f / 10.0f, 1.0f / 10.0f), tileset, &texProgram);
-		doorSprite2->setPosition({SCREEN_X + DOOR_POSITION_X_TILES * 16, SCREEN_Y + (DOOR_POSITION_Y_TILES - 1) * 16.0});
-
-		doorSprite2->setNumberAnimations(2);
-		doorSprite2->addKeyframe(0, {1.0f / 10.0f, 3.0f / 10.0f});
-		doorSprite2->addKeyframe(1, {3.0f / 10.0f, 3.0f / 10.0f});
-
-		doorSprite2->changeAnimation(0);
-
-		doorSprites.push_back(doorSprite1);
-		doorSprites.push_back(doorSprite2);
-	}
+	const glm::ivec2 doorPositionTop = {SCREEN_X + DOOR_POSITION_X_TILES * 16, SCREEN_Y + (DOOR_POSITION_Y_TILES - 1) * 16.0};
+	const glm::ivec2 doorPositionBottom = {SCREEN_X + DOOR_POSITION_X_TILES * 16, SCREEN_Y + DOOR_POSITION_Y_TILES * 16.0};
+	door = new Door(tileset, doorPositionTop, doorPositionBottom, &texProgram);
 }
 
 void Scene::update(int deltaTime)
@@ -122,13 +100,17 @@ void Scene::update(int deltaTime)
 
 	if (showKey && !isDoorOpen)
 	{
-		if ((tilePosition.x == KEY_POSITION_X_TILES || tilePosition.x + 1 == KEY_POSITION_X_TILES) && (tilePosition.y == KEY_POSITION_Y_TILES || tilePosition.y == KEY_POSITION_Y_TILES - 1))
+		if (player->isColliding(*key))
 		{
 			isDoorOpen = true;
 			showKey = false;
-			std::for_each(doorSprites.begin(), doorSprites.end(), [](const auto &sprite)
-						  { sprite->changeAnimation(1); });
+			door->open();
 		}
+	}
+
+	if (isDoorOpen && player->isColliding(*door))
+	{
+		std::cout << "NEXT LEEEEEEEVELLLL\n";
 	}
 }
 
@@ -149,10 +131,9 @@ void Scene::render()
 	vampire->render();
 
 	if (showKey)
-		keySprite->render();
+		key->render();
 
-	std::for_each(doorSprites.begin(), doorSprites.end(), [](const auto &sprite)
-				  { sprite->render(); });
+	door->render();
 
 	player->render();
 }
