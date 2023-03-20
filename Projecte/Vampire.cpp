@@ -209,3 +209,23 @@ void Vampire::setDirection(CharacterAnims direction)
     else
         movementSpeed = -SKELETON_MOVEMENT_SPEED;
 }
+
+BoundingBoxInfo Vampire::getBoundingBoxInfo() const
+{
+    if (flying || landing)
+    {
+        return {
+            .xoffset = 3,
+            .yoffset = 3,
+            .width = 12,
+            .height = 12};
+    }
+    else
+    {
+        return {
+            .xoffset = 3,
+            .yoffset = 3,
+            .width = 24,
+            .height = 24};
+    }
+}

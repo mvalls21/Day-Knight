@@ -15,6 +15,8 @@ public:
     void update(int deltaTime) override;
 
     void setDirection(CharacterAnims direction);
+    
+    virtual BoundingBoxInfo getBoundingBoxInfo() const override;
 
 private:
     void updateFlying(int deltaTime);

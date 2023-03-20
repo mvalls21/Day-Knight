@@ -26,7 +26,6 @@ public:
     void setPosition(const glm::vec2 &pos) { position = pos; }
 
     const glm::ivec2 &getPosition() const override { return position; }
-
     virtual BoundingBoxInfo getBoundingBoxInfo() const override { return boundingBoxInfo; }
 
 protected:
