@@ -19,6 +19,13 @@
 // Scene contains all the entities of our game.
 // It is responsible for updating and render them.
 
+enum class SceneStatus
+{
+	Continue,
+	PlayerDead,
+	LevelComplete
+};
+
 class Scene
 {
 public:
@@ -46,7 +53,7 @@ public:
 	~Scene();
 
 	void init(const Description &description);
-	void update(int deltaTime);
+	SceneStatus update(int deltaTime);
 	void render();
 
 private:

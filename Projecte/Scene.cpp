@@ -77,7 +77,7 @@ void Scene::init(const Description &description)
 	door = new Door(tileset, doorPositionTop, doorPositionBottom, &texProgram);
 }
 
-void Scene::update(int deltaTime)
+SceneStatus Scene::update(int deltaTime)
 {
 	currentTime += deltaTime;
 
@@ -114,7 +114,9 @@ void Scene::update(int deltaTime)
 	}
 
 	if (isDoorOpen && player->isColliding(*door))
-		std::cout << "NEXT LEEEEEEEVELLLL\n";
+		return SceneStatus::LevelComplete;
+
+	return SceneStatus::Continue;
 }
 
 void Scene::render()
