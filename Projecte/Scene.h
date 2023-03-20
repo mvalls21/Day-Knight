@@ -11,8 +11,8 @@
 #include "StaticSprite.h"
 #include "AnimatedSprite.h"
 
-#include "Character.h"
 #include "Player.h"
+#include "Enemy.h"
 #include "Skeleton.h"
 #include "Vampire.h"
 
@@ -22,13 +22,20 @@
 class Scene
 {
 public:
+	struct EnemyDescription
+	{
+		int tileX;
+		int tileY;
+		CharacterAnims startingDirection;
+	};
+
 	struct Description
 	{
-		std::string level;
+		std::string levelName;
 
 		glm::ivec2 playerPositionStartTile;
-		std::vector<glm::ivec2> skeletonPositionsTile;
-		std::vector<glm::ivec2> vampirePositionsTile;
+		std::vector<EnemyDescription> skeletonDescriptions;
+		std::vector<EnemyDescription> vampireDescriptions;
 		// More enemy types...
 
 		glm::ivec2 keyPositionTile;
@@ -38,7 +45,7 @@ public:
 	Scene();
 	~Scene();
 
-	void init(/*const Description& description*/);
+	void init(const Description &description);
 	void update(int deltaTime);
 	void render();
 
@@ -47,17 +54,16 @@ private:
 
 private:
 	TileMap *map;
-	Player *player;
 
-	Skeleton *skeleton;
-	Vampire *vampire;
+	Player *player;
+	std::vector<Enemy *> enemies;
 
 	ShaderProgram texProgram;
 	float currentTime;
 	glm::mat4 projection;
 
 	bool showKey = false;
-	Key* key;
+	Key *key;
 
 	bool isDoorOpen = false;
 	Door *door;

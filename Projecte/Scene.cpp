@@ -11,12 +11,6 @@
 #define INIT_PLAYER_X_TILES 8
 #define INIT_PLAYER_Y_TILES 3
 
-#define KEY_POSITION_X_TILES 8
-#define KEY_POSITION_Y_TILES 18
-
-#define DOOR_POSITION_X_TILES 21
-#define DOOR_POSITION_Y_TILES 4
-
 Scene::Scene()
 {
 	map = NULL;
@@ -31,40 +25,55 @@ Scene::~Scene()
 		delete player;
 }
 
-void Scene::init(/*const Description& description*/)
+void Scene::init(const Description &description)
 {
 	initShaders();
-
-	map = TileMap::createTileMap("levels/level01.txt", {SCREEN_X, SCREEN_Y}, texProgram);
-
-	player = new Player();
-	player->init(glm::ivec2(SCREEN_X, SCREEN_Y), texProgram);
-	player->setPosition(glm::vec2(INIT_PLAYER_X_TILES * map->getTileSize(), INIT_PLAYER_Y_TILES * map->getTileSize()));
-	player->setTileMap(map);
-
-	skeleton = new Skeleton();
-	skeleton->init(glm::ivec2(SCREEN_X, SCREEN_Y), texProgram);
-	skeleton->setTileMap(map);
-	skeleton->setPosition({20 * map->getTileSize(), 18 * map->getTileSize()});
-	skeleton->setDirection(MOVE_RIGHT);
-
-	vampire = new Vampire();
-	vampire->init(glm::ivec2(SCREEN_X, SCREEN_Y), texProgram);
-	vampire->setTileMap(map);
-	vampire->setPosition({4 * map->getTileSize(), 9 * map->getTileSize()});
-	vampire->setDirection(MOVE_RIGHT);
 
 	projection = glm::ortho(0.f, float(SCREEN_WIDTH - 1), float(SCREEN_HEIGHT - 1), 0.f);
 	projection = glm::ortho(0.f, float(SCREEN_WIDTH - 1) / 2.5f, float(SCREEN_HEIGHT - 1) / 2.5f, 0.f);
 	currentTime = 0.0f;
 
+	// 	Load level
+	std::string levelPath = "levels/" + description.levelName;
+	map = TileMap::createTileMap(levelPath, {SCREEN_X, SCREEN_Y}, texProgram);
+
+	// Create player
+	player = new Player();
+	player->init(glm::ivec2(SCREEN_X, SCREEN_Y), texProgram);
+	player->setPosition(glm::vec2(description.playerPositionStartTile.x * map->getTileSize(), description.playerPositionStartTile.y * map->getTileSize()));
+	player->setTileMap(map);
+
+	// Create skeletons
+	for (const auto &desc : description.skeletonDescriptions)
+	{
+		auto *skeleton = new Skeleton();
+		skeleton->init(glm::ivec2(SCREEN_X, SCREEN_Y), texProgram);
+		skeleton->setTileMap(map);
+		skeleton->setPosition({desc.tileX * map->getTileSize(), desc.tileY * map->getTileSize()});
+		skeleton->setDirection(desc.startingDirection);
+
+		enemies.push_back(skeleton);
+	}
+
+	// Create vampires
+	for (const auto &desc : description.vampireDescriptions)
+	{
+		auto *vampire = new Vampire();
+		vampire->init(glm::ivec2(SCREEN_X, SCREEN_Y), texProgram);
+		vampire->setTileMap(map);
+		vampire->setPosition({desc.tileX * map->getTileSize(), desc.tileY * map->getTileSize()});
+		vampire->setDirection(desc.startingDirection);
+
+		enemies.push_back(vampire);
+	}
+
 	Texture *tileset = new Texture();
 	tileset->loadFromFile("images/nuevo_tileset.png", PixelFormat::TEXTURE_PIXEL_FORMAT_RGBA);
 
-	key = new Key(tileset, {SCREEN_X + KEY_POSITION_X_TILES * 16.0f, SCREEN_Y + KEY_POSITION_Y_TILES * 16.0f}, &texProgram);
+	key = new Key(tileset, {SCREEN_X + description.keyPositionTile.x * 16.0f, SCREEN_Y + description.keyPositionTile.y * 16.0f}, &texProgram);
 
-	const glm::ivec2 doorPositionTop = {SCREEN_X + DOOR_POSITION_X_TILES * 16, SCREEN_Y + (DOOR_POSITION_Y_TILES - 1) * 16.0};
-	const glm::ivec2 doorPositionBottom = {SCREEN_X + DOOR_POSITION_X_TILES * 16, SCREEN_Y + DOOR_POSITION_Y_TILES * 16.0};
+	const glm::ivec2 doorPositionTop = {SCREEN_X + description.doorPositionTile.x * 16, SCREEN_Y + (description.doorPositionTile.y - 1) * 16.0};
+	const glm::ivec2 doorPositionBottom = {SCREEN_X + description.doorPositionTile.x * 16, SCREEN_Y + description.doorPositionTile.y * 16.0};
 	door = new Door(tileset, doorPositionTop, doorPositionBottom, &texProgram);
 }
 
@@ -75,23 +84,18 @@ void Scene::update(int deltaTime)
 	map->update(deltaTime);
 
 	player->update(deltaTime);
-	skeleton->update(deltaTime);
-	vampire->update(deltaTime);
 
-	if (player->isColliding(*skeleton))
-	{
-		player->setPosition(glm::vec2(INIT_PLAYER_X_TILES * map->getTileSize(), INIT_PLAYER_Y_TILES * map->getTileSize()));
-	}
+	for (auto *enemy : enemies)
+		enemy->update(deltaTime);
 
-	if (player->isColliding(*vampire))
-	{
+	bool enemyCollision = std::any_of(enemies.begin(), enemies.end(), [&](const Enemy *enemy)
+									  { return player->isColliding(*enemy); });
+
+	if (enemyCollision)
 		player->setPosition(glm::vec2(INIT_PLAYER_X_TILES * map->getTileSize(), INIT_PLAYER_Y_TILES * map->getTileSize()));
-	}
 
 	if (!showKey && !isDoorOpen && map->isCompleted())
-	{
 		showKey = true;
-	}
 
 	const auto &posPlayer = player->getPosition();
 	const glm::ivec2 tilePosition = {
@@ -110,9 +114,7 @@ void Scene::update(int deltaTime)
 	}
 
 	if (isDoorOpen && player->isColliding(*door))
-	{
 		std::cout << "NEXT LEEEEEEEVELLLL\n";
-	}
 }
 
 void Scene::render()
@@ -128,8 +130,9 @@ void Scene::render()
 	texProgram.setUniform2f("texCoordDispl", 0.f, 0.f);
 
 	map->render();
-	skeleton->render();
-	vampire->render();
+
+	for (const auto *enemy : enemies)
+		enemy->render();
 
 	if (showKey)
 		key->render();
