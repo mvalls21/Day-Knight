@@ -25,11 +25,10 @@ constexpr int WALL = 0 + 1;
 
 inline bool isCollisionTile(int x)
 {
-	return x == WALL || (x >= (23 + 1) && x <= (26 + 1)) || (x >= (34 + 1) && x <= (37 + 1));
+	return x == WALL || (x >= (23 + 1) && x <= (26 + 1)) || (x >= (34 + 1) && x <= (37 + 1)) || x == SPIKES;
 }
 
 constexpr int TORCH = 42 + 1;
-
 
 // ================
 
@@ -309,7 +308,7 @@ bool TileMap::collisionMoveRight(const glm::ivec2 &pos, const glm::ivec2 &size, 
 	return false;
 }
 
-bool TileMap::collisionMoveUp(const glm::ivec2 &pos, const glm::ivec2 &size) const
+bool TileMap::collisionMoveUp(const glm::ivec2 &pos, const glm::ivec2 &size, const bool bJumping) const
 {
 	int x0, x1, y;
 
@@ -319,7 +318,7 @@ bool TileMap::collisionMoveUp(const glm::ivec2 &pos, const glm::ivec2 &size) con
 	for (int x = x0; x <= x1; x++)
 	{
 		const int tile = map[y * mapSize.x + x];
-		if (isCollisionTile(tile))
+		if (isCollisionTile(tile) || (!bJumping && isChangeableTile(tile)))
 		{
 			return true;
 		}
@@ -328,14 +327,16 @@ bool TileMap::collisionMoveUp(const glm::ivec2 &pos, const glm::ivec2 &size) con
 	return false;
 }
 
-bool TileMap::collisionMoveDown(const glm::ivec2 &pos, const glm::ivec2 &size, int *posY)
+bool TileMap::collisionMoveDown(const glm::ivec2 &pos, const glm::ivec2 &size, int *posY, bool tileChanger)
 {
 	int x0, x1, y;
 
 	bool result = false;
 
-	x0 = pos.x / tileSize;
-	x1 = (pos.x + size.x - 1) / tileSize;
+	int posX = (pos.x + size.x / 2);
+
+	x0 = (posX - size.x / 2 + 1) / tileSize;
+	x1 = (posX + size.x / 2 - 1) / tileSize;
 	y = (pos.y + size.y - 1) / tileSize;
 	for (int x = x0; x <= x1; x++)
 	{
@@ -346,7 +347,10 @@ bool TileMap::collisionMoveDown(const glm::ivec2 &pos, const glm::ivec2 &size, i
 			{
 				*posY = tileSize * y - size.y;
 
-				checkCollisionChangeableTile(x, y);
+				if (tileChanger)
+				{
+					checkCollisionChangeableTile(x, y);
+				}
 
 				result = true;
 			}
@@ -354,6 +358,18 @@ bool TileMap::collisionMoveDown(const glm::ivec2 &pos, const glm::ivec2 &size, i
 	}
 
 	return result;
+}
+
+bool TileMap::isTileWithCollision(const glm::ivec2 &tile)
+{
+	int value = map[tile.y * mapSize.x + tile.x];
+	return isCollisionTile(value);
+}
+
+bool TileMap::isPlatform(const glm::ivec2 &tile)
+{
+	int value = map[tile.y * mapSize.x + tile.x];
+	return isChangeableTile(value);
 }
 
 void TileMap::checkCollisionChangeableTile(int tileX, int tileY)

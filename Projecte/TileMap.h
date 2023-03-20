@@ -36,8 +36,11 @@ public:
 
 	bool collisionMoveLeft(const glm::ivec2 &pos, const glm::ivec2 &size, const bool &bJumping) const;
 	bool collisionMoveRight(const glm::ivec2 &pos, const glm::ivec2 &size, const bool &bJumping) const;
-	bool collisionMoveUp(const glm::ivec2 &pos, const glm::ivec2 &size) const;
-	bool collisionMoveDown(const glm::ivec2 &pos, const glm::ivec2 &size, int *posY);
+	bool collisionMoveUp(const glm::ivec2 &pos, const glm::ivec2 &size, const bool bJumping = true) const;
+	bool collisionMoveDown(const glm::ivec2 &pos, const glm::ivec2 &size, int *posY, bool tileChanger = false);
+
+	bool isTileWithCollision(const glm::ivec2 &tile);
+	bool isPlatform(const glm::ivec2 &tile);
 
 	bool isCompleted() const;
 

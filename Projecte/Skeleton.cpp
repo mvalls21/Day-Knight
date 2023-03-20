@@ -22,10 +22,10 @@ void Skeleton::init(const glm::ivec2 &tileMapPos, ShaderProgram &shaderProgram)
     // sprite->addKeyframe(STAND_RIGHT, glm::vec2(0.25f, 0.f));
 
     sprite->setAnimationSpeed(MOVE_LEFT, 8);
-    sprite->addKeyframe(MOVE_LEFT, glm::vec2(0.0f / 4.0f, 1.0f / 3.0f));
-    sprite->addKeyframe(MOVE_LEFT, glm::vec2(1.0f / 4.0f, 1.0f / 3.0f));
-    sprite->addKeyframe(MOVE_LEFT, glm::vec2(2.0f / 4.0f, 1.0f / 3.0f));
     sprite->addKeyframe(MOVE_LEFT, glm::vec2(3.0f / 4.0f, 1.0f / 3.0f));
+    sprite->addKeyframe(MOVE_LEFT, glm::vec2(2.0f / 4.0f, 1.0f / 3.0f));
+    sprite->addKeyframe(MOVE_LEFT, glm::vec2(1.0f / 4.0f, 1.0f / 3.0f));
+    sprite->addKeyframe(MOVE_LEFT, glm::vec2(0.0f / 4.0f, 1.0f / 3.0f));
 
     sprite->setAnimationSpeed(MOVE_RIGHT, 8);
     sprite->addKeyframe(MOVE_RIGHT, glm::vec2(0.0f / 4.0f, 0.f));

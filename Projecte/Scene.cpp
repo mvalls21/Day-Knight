@@ -50,7 +50,8 @@ void Scene::init()
 	vampire = new Vampire();
 	vampire->init(glm::ivec2(SCREEN_X, SCREEN_Y), texProgram);
 	vampire->setTileMap(map);
-	vampire->setMovementRange({3, 9}, {12, 9}, {7, 2}, {22, 2});
+	vampire->setPosition({4 * map->getTileSize(), 9 * map->getTileSize()});
+	vampire->setDirection(MOVE_RIGHT);
 
 	projection = glm::ortho(0.f, float(SCREEN_WIDTH - 1), float(SCREEN_HEIGHT - 1), 0.f);
 	projection = glm::ortho(0.f, float(SCREEN_WIDTH - 1) / 2.5f, float(SCREEN_HEIGHT - 1) / 2.5f, 0.f);

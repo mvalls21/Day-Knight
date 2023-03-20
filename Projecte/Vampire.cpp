@@ -7,30 +7,48 @@
 
 #include "Game.h"
 
+constexpr glm::ivec2 BAT_SIZE = glm::ivec2(24, 16);
+
 void Vampire::init(const glm::ivec2 &tileMapPos, ShaderProgram &shaderProgram)
 {
-    spritesheet.loadFromFile("images/bub.png", TEXTURE_PIXEL_FORMAT_RGBA);
+    spritesheet.loadFromFile("images/vampire.png", TEXTURE_PIXEL_FORMAT_RGBA);
 
-    sprite = AnimatedSprite::createSprite(glm::ivec2(32), glm::vec2(0.25, 0.25), &spritesheet, &shaderProgram);
-    sprite->setNumberAnimations(4);
+    vampireSprite = AnimatedSprite::createSprite(glm::ivec2(32), glm::vec2(1.0f / 4.0f, 1.0f), &spritesheet, &shaderProgram);
+    vampireSprite->setNumberAnimations(4);
 
-    sprite->setAnimationSpeed(STAND_LEFT, 8);
-    sprite->addKeyframe(STAND_LEFT, glm::vec2(0.f, 0.f));
+    vampireSprite->setAnimationSpeed(STAND_LEFT, 8);
+    vampireSprite->addKeyframe(STAND_LEFT, glm::vec2(0.f, 0.f));
 
-    sprite->setAnimationSpeed(STAND_RIGHT, 8);
-    sprite->addKeyframe(STAND_RIGHT, glm::vec2(0.25f, 0.f));
+    vampireSprite->setAnimationSpeed(STAND_RIGHT, 8);
+    vampireSprite->addKeyframe(STAND_RIGHT, glm::vec2(0.25f, 0.f));
 
-    sprite->setAnimationSpeed(MOVE_LEFT, 8);
-    sprite->addKeyframe(MOVE_LEFT, glm::vec2(0.f, 0.f));
-    sprite->addKeyframe(MOVE_LEFT, glm::vec2(0.f, 0.25f));
-    sprite->addKeyframe(MOVE_LEFT, glm::vec2(0.f, 0.5f));
+    vampireSprite->setAnimationSpeed(MOVE_LEFT, 8);
+    vampireSprite->addKeyframe(MOVE_LEFT, glm::vec2(2.0f / 4.0f, 0.f));
+    vampireSprite->addKeyframe(MOVE_LEFT, glm::vec2(3.0f / 4.0f, 0.0f));
 
-    sprite->setAnimationSpeed(MOVE_RIGHT, 8);
-    sprite->addKeyframe(MOVE_RIGHT, glm::vec2(0.25, 0.f));
-    sprite->addKeyframe(MOVE_RIGHT, glm::vec2(0.25, 0.25f));
-    sprite->addKeyframe(MOVE_RIGHT, glm::vec2(0.25, 0.5f));
+    vampireSprite->setAnimationSpeed(MOVE_RIGHT, 8);
+    vampireSprite->addKeyframe(MOVE_RIGHT, glm::vec2(0.0f / 4.0f, 0.f));
+    vampireSprite->addKeyframe(MOVE_RIGHT, glm::vec2(1.0f / 4.0f, 0.0f));
 
-    sprite->changeAnimation(MOVE_RIGHT);
+    // TODO: Cleanup
+    Texture *batTexture = new Texture();
+    batTexture->loadFromFile("images/bat.png", TEXTURE_PIXEL_FORMAT_RGBA);
+
+    batSprite = AnimatedSprite::createSprite(BAT_SIZE, glm::vec2(1.0f / 3.0f, 1.0f), batTexture, &shaderProgram);
+    batSprite->setNumberAnimations(1);
+
+    batSprite->setAnimationSpeed(0, 8);
+    batSprite->addKeyframe(0, glm::vec2(0.0f / 3.0f, 0.0f));
+    batSprite->addKeyframe(0, glm::vec2(1.0f / 3.0f, 0.0f));
+    batSprite->addKeyframe(0, glm::vec2(2.0f / 3.0f, 0.0f));
+
+    batSprite->changeAnimation(0);
+
+    sprite = vampireSprite;
+    timeSinceLastFly_ms = 0;
+
+    setDirection(MOVE_RIGHT);
+
     tileMapDispl = tileMapPos;
     sprite->setPosition(glm::vec2(float(tileMapDispl.x + position.x), float(tileMapDispl.y + position.y)));
 }
@@ -38,8 +56,13 @@ void Vampire::init(const glm::ivec2 &tileMapPos, ShaderProgram &shaderProgram)
 void Vampire::update(int deltaTime)
 {
     sprite->update(deltaTime);
+    timeSinceLastFly_ms += deltaTime;
 
-    if (flying)
+    if (landing)
+    {
+        updateLanding(deltaTime);
+    }
+    else if (flying)
     {
         updateFlying(deltaTime);
     }
@@ -53,64 +76,99 @@ void Vampire::update(int deltaTime)
 
 void Vampire::updateFlying(int deltaTime)
 {
-    const glm::ivec2 tilePosition = position / map->getTileSize();
+    position += flyingMovement;
 
-    MovementRange &otherRange = currentMovementStage == 0 ? rangeStage2 : rangeStage1;
-    if (tilePosition == otherRange.tileStart)
+    const bool collisionRight = map->collisionMoveRight(position, BAT_SIZE, true);
+    const bool collisionLeft = map->collisionMoveLeft(position, BAT_SIZE, true);
+
+    const bool collisionHorizontal = collisionRight || collisionLeft;
+
+    if (collisionHorizontal)
     {
-        flying = false;
-
-        if (otherRange.tileEnd.x > otherRange.tileStart.x)
-            sprite->changeAnimation(MOVE_RIGHT);
-        else
-            sprite->changeAnimation(MOVE_LEFT);
-
-        currentMovementStage = (currentMovementStage + 1) % 2;
+        position.x -= flyingMovement.x;
+        flyingMovement = {-flyingMovement.x, flyingMovement.y};
     }
-    else
+
+    bool collisionUp = false;
+    if (flyingMovement.y < 0)
     {
-        auto movement = otherRange.tileStart - tilePosition;
+        collisionUp = map->collisionMoveUp({position.x, position.y - 1}, BAT_SIZE, false);
+    }
 
-        auto div = std::max(std::abs(movement.x), std::abs(movement.y));
+    bool collisionDown = false;
+    if (flyingMovement.y > 0)
+    {
+        collisionDown = map->collisionMoveDown({position.x, position.y}, BAT_SIZE, &position.y);
+    }
 
-        if (div != 0)
-        {
-            movement = movement / div;
-            position += movement;
-        }
+    const bool collisionVertical = collisionUp || collisionDown;
+
+    if (collisionVertical)
+    {
+        position.y -= flyingMovement.y;
+        flyingMovement = {flyingMovement.x, -flyingMovement.y};
+    }
+
+    if (timeSinceLastFly_ms / 1000 >= TIME_PER_STAGE)
+    {
+        landing = true;
+        flying = false;
+        timeSinceLastFly_ms = 0;
     }
 }
 
 void Vampire::updateWalking(int deltaTime)
 {
     position.x += movementSpeed;
+    position.y += FALL_STEP;
 
-    const glm::ivec2 tilePosition = position / map->getTileSize();
-    MovementRange &currentRange = currentMovementStage == 0 ? rangeStage1 : rangeStage2;
-    if (tilePosition == currentRange.tileEnd)
+    map->collisionMoveDown(position, glm::ivec2(32), &position.y);
+
+    const int nextYTile = position.y / map->getTileSize() + 2;
+    const int nextXTile = currentDirection == MOVE_RIGHT
+                              ? (position.x + 32 / 2) / map->getTileSize() + 1  // MOVE_RIGHT
+                              : (position.x + 32 / 2) / map->getTileSize() - 1; // MOVE_LEFT
+
+    const glm::ivec2 nextTile = glm::ivec2(nextXTile, nextYTile);
+
+    const bool nextTileWouldFall = !map->isTileWithCollision(nextTile) && !map->isPlatform(nextTile);
+    const bool collisionRight = map->collisionMoveRight(position, glm::ivec2(32), false);
+    const bool collisionLeft = map->collisionMoveLeft(position, glm::ivec2(32), false);
+
+    if (nextTileWouldFall || collisionLeft || collisionRight)
     {
-        ++currentStageTimes;
+        position.x -= movementSpeed;
         changeDirection();
-
-        auto tmp = currentRange.tileEnd;
-        currentRange.tileEnd = currentRange.tileStart;
-        currentRange.tileStart = tmp;
     }
 
-    if (currentStageTimes == STAGE_TIMES_FLY)
+    if (timeSinceLastFly_ms / 1000 >= TIME_PER_STAGE)
     {
+        sprite = batSprite;
+
         flying = true;
-        currentStageTimes = 0;
+        flyingMovement = {movementSpeed, -VAMPIRE_MOVEMENT_SPEED};
+        timeSinceLastFly_ms = 0;
+    }
+}
+
+void Vampire::updateLanding(int deltaTime)
+{
+    if (map->collisionMoveDown(position, glm::ivec2(BAT_SIZE.x, 32), &position.y))
+    {
+        landing = false;
+        assert(!flying);
+
+        sprite = vampireSprite;
+
+        CharacterAnims newDirection = flyingMovement.x >= 0 ? MOVE_RIGHT : MOVE_LEFT;
+        setDirection(newDirection);
     }
 
-    // if (tilePosition == tileEnd)
-    // {
-    //     changeDirection();
-
-    //     auto tmp = tileEnd;
-    //     tileEnd = tileStart;
-    //     tileStart = tmp;
-    // }
+    timeSinceLastFly_ms = 0;
+    if (landing)
+    {
+        updateFlying(deltaTime);
+    }
 }
 
 void Vampire::changeDirection()
@@ -150,23 +208,4 @@ void Vampire::setDirection(CharacterAnims direction)
         movementSpeed = SKELETON_MOVEMENT_SPEED;
     else
         movementSpeed = -SKELETON_MOVEMENT_SPEED;
-}
-
-void Vampire::setMovementRange(const glm::ivec2 &tileStartOrigin, const glm::ivec2 &tileEndOrigin,
-                               const glm::ivec2 &tileStartDest, const glm::ivec2 &tileEndDest)
-{
-    rangeStage1.tileStart = tileStartOrigin;
-    rangeStage1.tileEnd = tileEndOrigin;
-
-    rangeStage2.tileStart = tileStartDest;
-    rangeStage2.tileEnd = tileEndDest;
-
-    assert(tileStartOrigin.y == tileEndOrigin.y && tileStartDest.y == tileEndDest.y);
-
-    if (rangeStage1.tileEnd.x > rangeStage1.tileStart.x)
-        setDirection(MOVE_RIGHT);
-    else
-        setDirection(MOVE_LEFT);
-
-    setPosition({rangeStage1.tileStart.x * map->getTileSize(), rangeStage1.tileStart.y * map->getTileSize()});
 }
