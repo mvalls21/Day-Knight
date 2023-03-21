@@ -75,6 +75,8 @@ private:
 	bool isDoorOpen = false;
 	Door *door;
 
+    StaticSprite *heart;
+
 	Gem* gem = nullptr;
 	Clock* clock = nullptr;
 };

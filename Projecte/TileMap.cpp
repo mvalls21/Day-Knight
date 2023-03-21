@@ -381,6 +381,30 @@ void TileMap::checkCollisionChangeableTile(int tileX, int tileY)
 	}
 }
 
+bool TileMap::collisionSpikes(const glm::ivec2 &pos, const glm::ivec2 &size)
+{
+    int x0, x1, y;
+
+    int posX = (pos.x + size.x / 2);
+
+    x0 = (posX - size.x / 2 + 1) / tileSize;
+    x1 = (posX + size.x / 2 - 1) / tileSize;
+    y = (pos.y + size.y - 1) / tileSize;
+    for (int x = x0; x <= x1; x++)
+    {
+        const int tile = map[y * mapSize.x + x];
+        if (isCollisionTile(tile) or isChangeableTile(tile) or tile == SPIKES)
+        {
+            if (tile == SPIKES and pos.y - tileSize * y + size.y <= 4)
+            {
+                return true;
+            }
+        }
+    }
+
+    return false;
+}
+
 bool TileMap::isCompleted() const
 {
 	for (const auto &[_, pressed] : changeableTiles)
