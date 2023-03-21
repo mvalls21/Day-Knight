@@ -1,28 +1,59 @@
 #pragma once
 
 #include <glm/glm.hpp>
+#include <vector>
+
 #include "ShaderProgram.h"
 #include "TileMap.h"
+
+#include "Object.h"
 
 #include "StaticSprite.h"
 #include "AnimatedSprite.h"
 
 #include "Player.h"
+#include "Enemy.h"
 #include "Skeleton.h"
 #include "Vampire.h"
 
 // Scene contains all the entities of our game.
 // It is responsible for updating and render them.
 
+enum class SceneStatus
+{
+	Continue,
+	PlayerDead,
+	LevelComplete
+};
+
 class Scene
 {
-
 public:
+	struct EnemyDescription
+	{
+		int tileX;
+		int tileY;
+		CharacterAnims startingDirection;
+	};
+
+	struct Description
+	{
+		std::string levelName;
+
+		glm::ivec2 playerPositionStartTile;
+		std::vector<EnemyDescription> skeletonDescriptions;
+		std::vector<EnemyDescription> vampireDescriptions;
+		// More enemy types...
+
+		glm::ivec2 keyPositionTile;
+		glm::ivec2 doorPositionTile;
+	};
+
 	Scene();
 	~Scene();
 
-	void init();
-	void update(int deltaTime);
+	void init(const Description &description);
+	SceneStatus update(int deltaTime);
 	void render();
 
 private:
@@ -30,17 +61,17 @@ private:
 
 private:
 	TileMap *map;
+
 	Player *player;
-	Skeleton *skeleton;
-	Vampire *vampire;
+	std::vector<Enemy *> enemies;
 
 	ShaderProgram texProgram;
 	float currentTime;
 	glm::mat4 projection;
 
 	bool showKey = false;
-	StaticSprite *keySprite;
+	Key *key;
 
 	bool isDoorOpen = false;
-	std::vector<AnimatedSprite*> doorSprites;
+	Door *door;
 };
