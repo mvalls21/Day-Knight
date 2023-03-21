@@ -121,6 +121,15 @@ void Player::update(int deltaTime)
 	sprite->setPosition(glm::vec2(float(tileMapDispl.x + position.x), float(tileMapDispl.y + position.y)));
 }
 
-int Player::getLives() const {
+int Player::getLives() const
+{
     return lives;
+}
+
+void Player::setLives(int lives)
+{
+    if (lives >= 0 and lives <= MAX_LIVES)
+    {
+        this->lives = lives;
+    }
 }

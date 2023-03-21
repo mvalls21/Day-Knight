@@ -76,5 +76,4 @@ private:
 	Door *door;
 
     StaticSprite *heart;
-    int lives = 5;
 };

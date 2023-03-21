@@ -97,7 +97,7 @@ SceneStatus Scene::update(int deltaTime)
 	if (enemyCollision)
     {
         player->setPosition(glm::vec2(INIT_PLAYER_X_TILES * map->getTileSize(), INIT_PLAYER_Y_TILES * map->getTileSize()));
-        --lives;
+        player->setLives(player->getLives() - 1);
     }
 
 	if (!showKey && !isDoorOpen && map->isCompleted())
@@ -118,6 +118,10 @@ SceneStatus Scene::update(int deltaTime)
 			door->open();
 		}
 	}
+
+    if (player->getLives() == 0) {
+        return SceneStatus::PlayerDead;
+    }
 
 	if (isDoorOpen && player->isColliding(*door))
 		return SceneStatus::LevelComplete;

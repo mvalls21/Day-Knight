@@ -54,6 +54,11 @@ bool Game::update(int deltaTime)
 		++currentLevelIdx;
 		currentScene = levels[currentLevelIdx];
 	}
+    else if (status == SceneStatus::PlayerDead)
+    {
+        ++currentLevelIdx;
+        currentScene = levels[currentLevelIdx];
+    }
 
 	return bPlay;
 }
