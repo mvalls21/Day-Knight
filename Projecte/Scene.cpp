@@ -142,6 +142,7 @@ void Scene::render()
 	texProgram.setUniform2f("texCoordDispl", 0.f, 0.f);
 
 	map->render();
+	door->render();
 
     for (int i = 0; i < player->getLives(); ++i)
     {
@@ -154,8 +155,6 @@ void Scene::render()
 
 	if (showKey)
 		key->render();
-
-	door->render();
 
 	player->render();
 }
