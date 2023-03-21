@@ -11,7 +11,7 @@ public:
     virtual ~Object() {}
 
     virtual void render() const = 0;
-    const glm::ivec2 &getPosition() const override { return position; }
+    glm::ivec2 getPosition() const override { return position; }
 
 protected:
     glm::ivec2 position;

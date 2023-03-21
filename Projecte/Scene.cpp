@@ -70,10 +70,10 @@ void Scene::init(const Description &description)
 	Texture *tileset = new Texture();
 	tileset->loadFromFile("images/nuevo_tileset.png", PixelFormat::TEXTURE_PIXEL_FORMAT_RGBA);
 
-    heart = StaticSprite::createSprite(glm::vec2(20.f), glm::vec2(1.f/10.f), tileset, &texProgram);
-    heart->setSpritesheetCoords(glm::vec2(5.f/10.f, 4.f/10.f));
+	heart = StaticSprite::createSprite(glm::vec2(20.f), glm::vec2(1.f / 10.f), tileset, &texProgram);
+	heart->setSpritesheetCoords(glm::vec2(5.f / 10.f, 4.f / 10.f));
 
-	key = new Key(tileset, {SCREEN_X + description.keyPositionTile.x * 16.0f, SCREEN_Y + description.keyPositionTile.y * 16.0f}, &texProgram);
+	key = new Key(tileset, {SCREEN_X + description.keyPositionTile.x * map->getTileSize(), SCREEN_Y + description.keyPositionTile.y * map->getTileSize()}, &texProgram);
 
 	const glm::ivec2 doorPositionTop = {SCREEN_X + description.doorPositionTile.x * 16, SCREEN_Y + (description.doorPositionTile.y - 1) * 16.0};
 	const glm::ivec2 doorPositionBottom = {SCREEN_X + description.doorPositionTile.x * 16, SCREEN_Y + description.doorPositionTile.y * 16.0};
@@ -109,12 +109,6 @@ SceneStatus Scene::update(int deltaTime)
 	if (!showKey && !isDoorOpen && map->isCompleted())
 		showKey = true;
 
-	const auto &posPlayer = player->getPosition();
-	const glm::ivec2 tilePosition = {
-		posPlayer.x / map->getTileSize(),
-		posPlayer.y / map->getTileSize(),
-	};
-
 	if (showKey && !isDoorOpen)
 	{
 		if (player->isColliding(*key))
@@ -125,9 +119,10 @@ SceneStatus Scene::update(int deltaTime)
 		}
 	}
 
-    if (player->getLives() == 0) {
-        return SceneStatus::PlayerDead;
-    }
+	if (player->getLives() == 0)
+	{
+		return SceneStatus::PlayerDead;
+	}
 
 	if (isDoorOpen && player->isColliding(*door))
 		return SceneStatus::LevelComplete;
@@ -150,11 +145,11 @@ void Scene::render()
 	map->render();
 	door->render();
 
-    for (int i = 0; i < player->getLives(); ++i)
-    {
-        heart->setPosition(glm::vec2(SCREEN_X + 20*i, SCREEN_Y - 30));
-        heart->render();
-    }
+	for (int i = 0; i < player->getLives(); ++i)
+	{
+		heart->setPosition(glm::vec2(SCREEN_X + 20 * i, SCREEN_Y - 30));
+		heart->render();
+	}
 
 	for (const auto *enemy : enemies)
 		enemy->render();

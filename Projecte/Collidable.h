@@ -24,7 +24,7 @@ class Collidable
 public:
     virtual ~Collidable() {}
 
-    virtual const glm::ivec2 &getPosition() const = 0;
+    virtual glm::ivec2 getPosition() const = 0;
     virtual BoundingBoxInfo getBoundingBoxInfo() const = 0;
 
     bool isColliding(const Collidable &other) const

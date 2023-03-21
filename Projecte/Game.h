@@ -2,8 +2,8 @@
 
 #include "Scene.h"
 
-#define SCREEN_WIDTH 40 * (32 + 2)
-#define SCREEN_HEIGHT 40 * (22 + 2) + 40
+constexpr int SCREEN_WIDTH = 40 * (32 + 2);
+constexpr int SCREEN_HEIGHT = 40 * (22 + 2) + 40;
 
 // Game is a singleton (a class with a single instance) that represents our whole application
 
@@ -38,9 +38,9 @@ public:
 
 private:
 	bool bPlay;						  // Continue to play game?
-	Scene* currentScene;					  // Scene to render
+	Scene *currentScene;			  // Scene to render
 	bool keys[256], specialKeys[256]; // Store key states so that we can have access at any time
 
-	std::vector<Scene*> levels;
+	std::vector<Scene *> levels;
 	int currentLevelIdx;
 };

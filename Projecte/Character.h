@@ -25,7 +25,11 @@ public:
     void setTileMap(TileMap *tileMap) { map = tileMap; }
     void setPosition(const glm::vec2 &pos) { position = pos; }
 
-    const glm::ivec2 &getPosition() const override { return position; }
+    virtual glm::ivec2 getPosition() const override
+    {
+        return {float(tileMapDispl.x + position.x), float(tileMapDispl.y + position.y)};
+    }
+
     virtual BoundingBoxInfo getBoundingBoxInfo() const override { return boundingBoxInfo; }
 
 protected:

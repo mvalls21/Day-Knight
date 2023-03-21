@@ -53,7 +53,7 @@ void Door::open() const
 BoundingBoxInfo Door::getBoundingBoxInfo() const
 {
     return {
-        .xoffset = -16 + 5,
+        .xoffset = 5,
         .yoffset = 2,
         .width = 6,
         .height = 26};
@@ -84,7 +84,7 @@ void Key::render() const
 BoundingBoxInfo Key::getBoundingBoxInfo() const
 {
     return {
-        .xoffset = -20 + 4,
+        .xoffset = 4,
         .yoffset = 0,
         .width = 12,
         .height = 14};
@@ -115,7 +115,7 @@ void Gem::render() const
 BoundingBoxInfo Gem::getBoundingBoxInfo() const
 {
     return {
-        .xoffset = -20 + 4,
+        .xoffset = 4,
         .yoffset = 0,
         .width = 12,
         .height = 14};
@@ -146,7 +146,7 @@ void Clock::render() const
 BoundingBoxInfo Clock::getBoundingBoxInfo() const
 {
     return {
-        .xoffset = -20 + 4,
+        .xoffset = 4,
         .yoffset = 0,
         .width = 12,
         .height = 14};
