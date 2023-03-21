@@ -105,6 +105,8 @@ void Player::update(int deltaTime)
 	else
 	{
 		position.y += FALL_STEP;
+        if (map->collisionSpikes(position, glm::ivec2(24, 32))) --lives;
+
 		if (map->collisionMoveDown(position, glm::ivec2(24, 32), &position.y, true))
 		{
 			if (Game::instance().getSpecialKey(GLUT_KEY_UP))
@@ -117,4 +119,8 @@ void Player::update(int deltaTime)
 	}
 
 	sprite->setPosition(glm::vec2(float(tileMapDispl.x + position.x), float(tileMapDispl.y + position.y)));
+}
+
+int Player::getLives() const {
+    return lives;
 }

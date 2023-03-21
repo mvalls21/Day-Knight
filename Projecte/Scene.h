@@ -74,4 +74,7 @@ private:
 
 	bool isDoorOpen = false;
 	Door *door;
+
+    StaticSprite *heart;
+    int lives = 5;
 };

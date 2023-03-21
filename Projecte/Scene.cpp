@@ -5,8 +5,8 @@
 #include "Scene.h"
 #include "Game.h"
 
-#define SCREEN_X 16
-#define SCREEN_Y 16
+#define SCREEN_X 26
+#define SCREEN_Y 46
 
 #define INIT_PLAYER_X_TILES 8
 #define INIT_PLAYER_Y_TILES 3
@@ -30,7 +30,7 @@ void Scene::init(const Description &description)
 	initShaders();
 
 	projection = glm::ortho(0.f, float(SCREEN_WIDTH - 1), float(SCREEN_HEIGHT - 1), 0.f);
-	projection = glm::ortho(0.f, float(SCREEN_WIDTH - 1) / 2.5f, float(SCREEN_HEIGHT - 1) / 2.5f, 0.f);
+	projection = glm::ortho(0.f, float(SCREEN_WIDTH - 1) / 2.4f, float(SCREEN_HEIGHT - 1) / 2.4f, 0.f);
 	currentTime = 0.0f;
 
 	// 	Load level
@@ -70,6 +70,9 @@ void Scene::init(const Description &description)
 	Texture *tileset = new Texture();
 	tileset->loadFromFile("images/nuevo_tileset.png", PixelFormat::TEXTURE_PIXEL_FORMAT_RGBA);
 
+    heart = StaticSprite::createSprite(glm::vec2(20.f), glm::vec2(1.f/10.f), tileset, &texProgram);
+    heart->setSpritesheetCoords(glm::vec2(5.f/10.f, 4.f/10.f));
+
 	key = new Key(tileset, {SCREEN_X + description.keyPositionTile.x * 16.0f, SCREEN_Y + description.keyPositionTile.y * 16.0f}, &texProgram);
 
 	const glm::ivec2 doorPositionTop = {SCREEN_X + description.doorPositionTile.x * 16, SCREEN_Y + (description.doorPositionTile.y - 1) * 16.0};
@@ -92,7 +95,10 @@ SceneStatus Scene::update(int deltaTime)
 									  { return player->isColliding(*enemy); });
 
 	if (enemyCollision)
-		player->setPosition(glm::vec2(INIT_PLAYER_X_TILES * map->getTileSize(), INIT_PLAYER_Y_TILES * map->getTileSize()));
+    {
+        player->setPosition(glm::vec2(INIT_PLAYER_X_TILES * map->getTileSize(), INIT_PLAYER_Y_TILES * map->getTileSize()));
+        --lives;
+    }
 
 	if (!showKey && !isDoorOpen && map->isCompleted())
 		showKey = true;
@@ -132,6 +138,12 @@ void Scene::render()
 	texProgram.setUniform2f("texCoordDispl", 0.f, 0.f);
 
 	map->render();
+
+    for (int i = 0; i < player->getLives(); ++i)
+    {
+        heart->setPosition(glm::vec2(SCREEN_X + 20*i, SCREEN_Y - 30));
+        heart->render();
+    }
 
 	for (const auto *enemy : enemies)
 		enemy->render();

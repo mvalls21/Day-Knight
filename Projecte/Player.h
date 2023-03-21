@@ -12,8 +12,11 @@ class Player : public Character
 public:
 	void init(const glm::ivec2 &tileMapPos, ShaderProgram &shaderProgram) override;
 	void update(int deltaTime) override;
+    int getLives() const;
+
 
 private:
 	bool bJumping;
 	int jumpAngle, startY;
+    int lives = 5;
 };
