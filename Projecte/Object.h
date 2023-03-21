@@ -45,3 +45,31 @@ public:
 private:
     StaticSprite *sprite;
 };
+
+class Gem : public Object
+{
+public:
+    Gem(Texture *tileset, const glm::ivec2 &pos, ShaderProgram *program);
+    ~Gem() override;
+
+    void render() const override;
+
+    BoundingBoxInfo getBoundingBoxInfo() const override;
+
+private:
+    StaticSprite *sprite;
+};
+
+class Clock : public Object
+{
+public:
+    Clock(Texture *tileset, const glm::ivec2 &pos, ShaderProgram *program);
+    ~Clock();
+
+    void render() const override;
+
+    BoundingBoxInfo getBoundingBoxInfo() const override;
+
+private:
+    StaticSprite *sprite;
+};

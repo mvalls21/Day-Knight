@@ -74,4 +74,7 @@ private:
 
 	bool isDoorOpen = false;
 	Door *door;
+
+	Gem* gem = nullptr;
+	Clock* clock = nullptr;
 };

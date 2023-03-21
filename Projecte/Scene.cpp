@@ -75,6 +75,12 @@ void Scene::init(const Description &description)
 	const glm::ivec2 doorPositionTop = {SCREEN_X + description.doorPositionTile.x * 16, SCREEN_Y + (description.doorPositionTile.y - 1) * 16.0};
 	const glm::ivec2 doorPositionBottom = {SCREEN_X + description.doorPositionTile.x * 16, SCREEN_Y + description.doorPositionTile.y * 16.0};
 	door = new Door(tileset, doorPositionTop, doorPositionBottom, &texProgram);
+
+	// Gem
+	gem = new Gem(tileset, {SCREEN_X + 8 * map->getTileSize(), SCREEN_Y + 9 * map->getTileSize() + 7}, &texProgram);
+
+	// Clock
+	clock = new Clock(tileset, {SCREEN_X + 10 * map->getTileSize(), SCREEN_Y + 9 * map->getTileSize() + 7}, &texProgram);
 }
 
 SceneStatus Scene::update(int deltaTime)
@@ -139,6 +145,9 @@ void Scene::render()
 
 	if (showKey)
 		key->render();
+
+	gem->render();
+	clock->render();
 
 	player->render();
 }

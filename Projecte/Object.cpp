@@ -89,3 +89,65 @@ BoundingBoxInfo Key::getBoundingBoxInfo() const
         .width = 12,
         .height = 14};
 }
+
+//
+// Gem
+//
+
+Gem::Gem(Texture *tileset, const glm::ivec2 &pos, ShaderProgram *program)
+{
+    position = pos;
+    sprite = StaticSprite::createSprite(glm::vec2(20.0f), glm::vec2(1.0f / 10.0f, 1.0f / 10.0f), tileset, program);
+    sprite->setPosition(position);
+    sprite->setSpritesheetCoords(glm::vec2(6.0f / 10.0f, 4.0f / 10.0f));
+}
+
+Gem::~Gem()
+{
+    delete sprite;
+}
+
+void Gem::render() const
+{
+    sprite->render();
+}
+
+BoundingBoxInfo Gem::getBoundingBoxInfo() const
+{
+    return {
+        .xoffset = -20 + 4,
+        .yoffset = 0,
+        .width = 12,
+        .height = 14};
+}
+
+//
+// Clock
+//
+
+Clock::Clock(Texture *tileset, const glm::ivec2 &pos, ShaderProgram *program)
+{
+    position = pos;
+    sprite = StaticSprite::createSprite(glm::vec2(20.0f), glm::vec2(1.0f / 10.0f, 1.0f / 10.0f), tileset, program);
+    sprite->setPosition(position);
+    sprite->setSpritesheetCoords(glm::vec2(0.0f / 10.0f, 0.0f / 10.0f));
+}
+
+Clock::~Clock()
+{
+    delete sprite;
+}
+
+void Clock::render() const
+{
+    sprite->render();
+}
+
+BoundingBoxInfo Clock::getBoundingBoxInfo() const
+{
+    return {
+        .xoffset = -20 + 4,
+        .yoffset = 0,
+        .width = 12,
+        .height = 14};
+}

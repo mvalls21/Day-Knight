@@ -13,6 +13,7 @@ class Sprite
 {
 protected:
 	Sprite(const glm::vec2 &quadSize, const glm::vec2 &sizeInSpritesheet, Texture *spritesheet, ShaderProgram *program);
+	~Sprite();
 
 public:
 	virtual void update(int deltaTime) = 0;
