@@ -132,14 +132,13 @@ void Scene::render()
 	texProgram.setUniform2f("texCoordDispl", 0.f, 0.f);
 
 	map->render();
+	door->render();
 
 	for (const auto *enemy : enemies)
 		enemy->render();
 
 	if (showKey)
 		key->render();
-
-	door->render();
 
 	player->render();
 }
