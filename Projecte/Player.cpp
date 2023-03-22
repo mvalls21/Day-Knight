@@ -49,6 +49,11 @@ void Player::init(const glm::ivec2 &tileMapPos, ShaderProgram &shaderProgram)
 
 void Player::update(int deltaTime)
 {
+    if (remainingImmunityMilliseconds > 0)
+    {
+        remainingImmunityMilliseconds -= deltaTime;
+    }
+
 	sprite->update(deltaTime);
 	if (Game::instance().getSpecialKey(GLUT_KEY_LEFT))
 	{
@@ -104,7 +109,7 @@ void Player::update(int deltaTime)
 	else
 	{
 		position.y += FALL_STEP;
-        if (map->collisionSpikes(position, glm::ivec2(24, 32))) --lives;
+        if (map->collisionSpikes(position, glm::ivec2(24, 32))) setLives(lives - 1);
 
 		if (map->collisionMoveDown(position, glm::ivec2(24, 32), &position.y, true))
 		{
@@ -125,10 +130,20 @@ int Player::getLives() const
     return lives;
 }
 
+bool Player::isImmune()
+{
+    return remainingImmunityMilliseconds > 0;
+}
+
 void Player::setLives(int lives)
 {
-    if (lives >= 0 and lives <= MAX_LIVES)
+    if (lives >= this->lives or remainingImmunityMilliseconds <= 0)
     {
-        this->lives = lives;
+        this->lives = max(min(lives, MAX_LIVES), 0);
     }
+}
+
+void Player::makeImmune(int milliseconds)
+{
+    remainingImmunityMilliseconds = milliseconds;
 }
