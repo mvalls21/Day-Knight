@@ -15,6 +15,7 @@
 #include "Enemy.h"
 #include "Skeleton.h"
 #include "Vampire.h"
+#include "Text.h"
 
 // Scene contains all the entities of our game.
 // It is responsible for updating and render them.

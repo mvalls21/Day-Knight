@@ -10,3 +10,6 @@
 [submodule "vendor/freeglut"]
 	path = vendor/freeglut
 	url = git@github.com:FreeGLUTProject/freeglut.git
+[submodule "vendor/freetype"]
+	path = vendor/freetype
+	url = git@github.com:freetype/freetype.git

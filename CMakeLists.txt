@@ -9,6 +9,10 @@ add_executable(${PROJECT_NAME})
 target_sources(${PROJECT_NAME} PRIVATE
         Projecte/Game.cpp
         Projecte/Scene.cpp
+        Projecte/LevelSelection.cpp
+
+        Projecte/Text.cpp
+        Projecte/TexturedQuad.cpp
 
         Projecte/Player.cpp
         Projecte/Enemy.cpp
@@ -61,3 +65,6 @@ target_link_libraries(${PROJECT_NAME} PUBLIC libglew_shared)
 
 add_subdirectory(vendor/freeglut/)
 target_link_libraries(${PROJECT_NAME} PUBLIC glut)
+
+add_subdirectory(vendor/freetype/)
+target_link_libraries(${PROJECT_NAME} PUBLIC freetype)

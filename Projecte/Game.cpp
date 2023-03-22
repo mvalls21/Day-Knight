@@ -43,10 +43,14 @@ void Game::init()
 {
 	bPlay = true;
 	glClearColor(0.3f, 0.3f, 0.3f, 1.0f);
+
+        levelSelection = new LevelSelection();
 }
 
 bool Game::update(int deltaTime)
 {
+	return bPlay;
+
 	auto status = currentScene->update(deltaTime);
 
 	if (status == SceneStatus::LevelComplete)
@@ -66,7 +70,8 @@ bool Game::update(int deltaTime)
 void Game::render()
 {
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	currentScene->render();
+	// currentScene->render();
+	levelSelection->render();
 }
 
 void Game::keyPressed(int key)

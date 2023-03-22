@@ -2,10 +2,16 @@
 
 #include "Scene.h"
 
+#include "LevelSelection.h"
+
 constexpr int SCREEN_WIDTH = 40 * (32 + 2);
 constexpr int SCREEN_HEIGHT = 40 * (22 + 2) + 40;
 
 // Game is a singleton (a class with a single instance) that represents our whole application
+
+// 1360
+// 1000
+// 1.36
 
 class Game
 {
@@ -40,6 +46,10 @@ private:
 	bool bPlay;						  // Continue to play game?
 	Scene *currentScene;			  // Scene to render
 	bool keys[256], specialKeys[256]; // Store key states so that we can have access at any time
+
+	bool paused = false;
+
+	LevelSelection* levelSelection;
 
 	std::vector<Scene *> levels;
 	int currentLevelIdx;
