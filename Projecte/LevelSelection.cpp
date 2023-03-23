@@ -73,72 +73,31 @@ void LevelSelection::render() const
     }
 
     {
-        float widthPerSlot = (float)width / 3.0f;
-        const float localHeight = std::min((float)widthPerSlot / relation, heightPerSlot);
+        float offsetLeft = 0.05f * width;
 
-        if (levels.size() <= 3)
+        float percentageWidthPerSlot = (1.0f - 0.05f * 2.0f) / std::min((int)levels.size(), 3);
+        float slotWidth = percentageWidthPerSlot * width;
+
+        float height = std::min(slotWidth / 1.36f, heightPerSlot);
+
+        for (int i = 0; i < levels.size(); ++i)
         {
-            if (localHeight == heightPerSlot)
-            {
-                widthPerSlot = localHeight * relation;
-            }
+            float startHeight = i >= 3 ? 2.0f * heightPerSlot : heightPerSlot;
+            float offsetOffset = (i % 3) * slotWidth;
 
-            if (levels.size() == 1)
-            {
-                glViewport(widthPerSlot, heightPerSlot, widthPerSlot, localHeight);
-                levels[0]->render();
-            }
-            else if (levels.size() == 2)
-            {
-                const float offset = 100.0f;
-                glViewport(offset, heightPerSlot, widthPerSlot, localHeight);
-                levels[0]->render();
-
-                glViewport(widthPerSlot * 2.0f - offset, heightPerSlot, widthPerSlot, localHeight);
-                levels[1]->render();
-            }
-            else
-            {
-                glViewport(0.0f, heightPerSlot, widthPerSlot, localHeight);
-                levels[0]->render();
-
-                glViewport(widthPerSlot, heightPerSlot, widthPerSlot, localHeight);
-                levels[1]->render();
-
-                glViewport(widthPerSlot * 2.0f, heightPerSlot, widthPerSlot, localHeight);
-                levels[2]->render();
-            }
+            glViewport(offsetLeft + offsetOffset, startHeight, slotWidth, height);
+            levels[i]->render();
         }
-        else
-        {
-            for (int i = 0; i < levels.size(); ++i)
-            {
-                glViewport(widthPerSlot * i, heightPerSlot * 2.0f, widthPerSlot, localHeight);
-                levels[i]->render();
-            }
+    }
 
-            for (int i = 3; i < levels.size(); ++i)
-            {
-                glViewport(widthPerSlot * (i - 3), heightPerSlot, widthPerSlot, localHeight);
-                levels[i]->render();
-            }
-        }
-
-        {
-        glViewport(0.0f, heightPerSlot * 3.0f, width, heightPerSlot);
+    {
+        glViewport(0.0f, heightPerSlot * 2.0f, width, heightPerSlot);
 
         const int pixelSize = 50;
-        std::string backStr("Level Selection");
-        text->render(backStr, glm::vec2(width / 2.0f - pixelSize, heightPerSlot - pixelSize *2.0f), pixelSize, glm::vec4(1.0f));
+        std::string str("Level Selection");
+        const unsigned int numLetters = str.length();
 
-        }
-
-        // // Levels on first line
-        // glViewport(widthPerSlot, heightPerSlot, widthPerSlot, heightPerSlot);
-        // levels[0]->render();
-
-        // glViewport(widthPerSlot * 2.0f, heightPerSlot, widthPerSlot, heightPerSlot);
-        // levels[1]->render();
+        text->render(str, glm::vec2(width / 2, heightPerSlot - pixelSize * 2.0f), pixelSize, glm::vec4(1.0f));
     }
 
     // Restore initial vieport
