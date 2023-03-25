@@ -4,6 +4,15 @@
 #include "Texture.h"
 #include "TexturedQuad.h"
 
+enum MainMenuSelection
+{
+    None = -1,
+    Play = 0,
+    Credits = 1,
+    Instructions = 2,
+    Exit = 3
+};
+
 class MainMenu
 {
 public:
@@ -11,19 +20,18 @@ public:
     ~MainMenu();
 
     void render();
-    void update(int deltaTime);
+    int update(int deltaTime);
 
 private:
     Texture selectedPlay;
     Texture selectedCredits;
     Texture selectedInstructions;
+    Texture selectedExit;
 
     TexturedQuad *quad;
-
     ShaderProgram texProgram;
-
     glm::mat4 projection;
 
-    int current = 0;
+    int selection;
     int time = 0;
 };

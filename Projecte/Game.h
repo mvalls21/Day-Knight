@@ -3,15 +3,20 @@
 #include "Scene.h"
 
 #include "LevelSelection.h"
+#include "MainMenu.h"
 
 constexpr int SCREEN_WIDTH = 40 * (32 + 2);
 constexpr int SCREEN_HEIGHT = 40 * (22 + 2) + 40;
 
 // Game is a singleton (a class with a single instance) that represents our whole application
 
-// 1360
-// 1000
-// 1.36
+enum class CurrentSceneType
+{
+	MainMenu,
+	Play,
+	Instructions,
+	Credits,
+};
 
 class Game
 {
@@ -49,7 +54,10 @@ private:
 
 	bool paused = false;
 
-	LevelSelection* levelSelection;
+	CurrentSceneType currentSceneType;
+
+	LevelSelection *levelSelection;
+	MainMenu *mainMenu;
 
 	std::vector<Scene *> levels;
 	int currentLevelIdx;

@@ -14,17 +14,11 @@ MainMenu::MainMenu(int width, int height)
     selectedPlay.loadFromFile("images/main_menu/selected_play.png", PixelFormat::TEXTURE_PIXEL_FORMAT_RGBA);
     selectedCredits.loadFromFile("images/main_menu/selected_credits.png", PixelFormat::TEXTURE_PIXEL_FORMAT_RGBA);
     selectedInstructions.loadFromFile("images/main_menu/selected_instructions.png", PixelFormat::TEXTURE_PIXEL_FORMAT_RGBA);
+    selectedExit.loadFromFile("images/main_menu/selected_exit.png", PixelFormat::TEXTURE_PIXEL_FORMAT_RGBA);
 
     projection = glm::ortho(0.f, float(width - 1), float(height - 1), 0.f);
 
-    // glm::vec2 geom[] = {
-    //     {0.0f, 0.0f},
-    //     {width, height}};
-    // glm::vec2 texCoords[] = {
-    //     {0.0f, 0.0f},
-    //     {1.0f, 1.0f}};
-
-    // quad = TexturedQuad::createTexturedQuad(geom, texCoords, texProgram);
+    selection = MainMenuSelection::Play;
 
     {
         Shader vShader, fShader;
@@ -84,30 +78,47 @@ void MainMenu::render()
     texProgram.setUniformMatrix4f("modelview", modelview);
     texProgram.setUniform2f("texCoordDispl", 0.f, 0.f);
 
-    if (current == 0)
+    switch (selection)
+    {
+    case MainMenuSelection::Play:
         quad->render(selectedPlay);
-    if (current == 1)
+        break;
+    case MainMenuSelection::Credits:
         quad->render(selectedCredits);
-    if (current == 2)
+        break;
+    case MainMenuSelection::Instructions:
         quad->render(selectedInstructions);
+        break;
+    case MainMenuSelection::Exit:
+        quad->render(selectedExit);
+        break;
+    }
 }
 
-void MainMenu::update(int deltaTime)
+int MainMenu::update(int deltaTime)
 {
     time += deltaTime;
     if (time <= 200)
-        return;
+        return None;
+
+    if (Game::instance().getKey(13)) // 13 is enter key
+    {
+        return selection;
+    }
 
     if (Game::instance().getSpecialKey(GLUT_KEY_DOWN))
     {
         time = 0;
-        current = (current + 1) % 3;
+        selection = (selection + 1) % 4;
     }
 
     if (Game::instance().getSpecialKey(GLUT_KEY_UP))
     {
         time = 0;
-        current--;
-        if (current == -1) current = 2;
+        selection--;
+        if (selection == -1)
+            selection = MainMenuSelection::Exit;
     }
+
+    return None;
 }

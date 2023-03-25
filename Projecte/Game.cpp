@@ -37,6 +37,7 @@ Game::Game()
 
 	currentLevelIdx = 0;
 	currentScene = levels[currentLevelIdx];
+	currentSceneType = CurrentSceneType::MainMenu;
 }
 
 void Game::init()
@@ -44,25 +45,37 @@ void Game::init()
 	bPlay = true;
 	glClearColor(0.3f, 0.3f, 0.3f, 1.0f);
 
-        levelSelection = new LevelSelection();
+	// levelSelection = new LevelSelection();
+	mainMenu = new MainMenu(SCREEN_WIDTH, SCREEN_HEIGHT);
 }
 
 bool Game::update(int deltaTime)
 {
-	return bPlay;
+	// TEMPORAL:
 
-	auto status = currentScene->update(deltaTime);
-
-	if (status == SceneStatus::LevelComplete)
+	if (currentSceneType == CurrentSceneType::MainMenu)
 	{
-		++currentLevelIdx;
-		currentScene = levels[currentLevelIdx];
+		auto status = mainMenu->update(deltaTime);
+		if (status == MainMenuSelection::Play)
+			currentSceneType = CurrentSceneType::Play;
+		else if (status == MainMenuSelection::Exit)
+			bPlay = false;
 	}
-    else if (status == SceneStatus::PlayerDead)
-    {
-        ++currentLevelIdx;
-        currentScene = levels[currentLevelIdx];
-    }
+	else if (currentSceneType == CurrentSceneType::Play)
+	{
+		auto status = currentScene->update(deltaTime);
+
+		if (status == SceneStatus::LevelComplete)
+		{
+			++currentLevelIdx;
+			currentScene = levels[currentLevelIdx];
+		}
+		else if (status == SceneStatus::PlayerDead)
+		{
+			++currentLevelIdx;
+			currentScene = levels[currentLevelIdx];
+		}
+	}
 
 	return bPlay;
 }
@@ -70,14 +83,18 @@ bool Game::update(int deltaTime)
 void Game::render()
 {
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	// currentScene->render();
-	levelSelection->render();
+
+	if (currentSceneType == CurrentSceneType::MainMenu)
+		mainMenu->render();
+	else if (currentSceneType == CurrentSceneType::Play)
+		currentScene->render();
 }
 
 void Game::keyPressed(int key)
 {
 	if (key == 27) // Escape code
 		bPlay = false;
+
 	keys[key] = true;
 }
 
