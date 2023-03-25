@@ -36,8 +36,7 @@ Game::Game()
 	levels.push_back(level02);
 
 	currentLevelIdx = 0;
-	currentScene = levels[currentLevelIdx];
-	currentSceneType = CurrentSceneType::MainMenu;
+	currentSceneType = SceneType::MainMenu;
 }
 
 void Game::init()
@@ -47,31 +46,37 @@ void Game::init()
 
 	// levelSelection = new LevelSelection();
 	mainMenu = new MainMenu(SCREEN_WIDTH, SCREEN_HEIGHT);
+	instructionsMenu = new InstructionsMenu(SCREEN_WIDTH, SCREEN_HEIGHT);
 }
 
 bool Game::update(int deltaTime)
 {
-	if (currentSceneType == CurrentSceneType::MainMenu)
+	if (currentSceneType == SceneType::MainMenu)
 	{
 		auto status = mainMenu->update(deltaTime);
 		if (status == MainMenuSelection::Play)
-			currentSceneType = CurrentSceneType::Play;
+			currentSceneType = SceneType::Play;
+		if (status == MainMenuSelection::Instructions)
+			currentSceneType = SceneType::Instructions;
 		else if (status == MainMenuSelection::Exit)
 			bPlay = false;
 	}
-	else if (currentSceneType == CurrentSceneType::Play && !paused)
+	else if (currentSceneType == SceneType::Instructions)
 	{
-		auto status = currentScene->update(deltaTime);
+		auto status = instructionsMenu->update(deltaTime);
+		if (status == (int)InstructionsMenuSelection::Back)
+			currentSceneType = SceneType::MainMenu;
+	}
+	else if (currentSceneType == SceneType::Play && !paused)
+	{
+		auto status = levels[currentLevelIdx]->update(deltaTime);
 
 		if (status == SceneStatus::LevelComplete)
-		{
 			++currentLevelIdx;
-			currentScene = levels[currentLevelIdx];
-		}
 		else if (status == SceneStatus::PlayerDead)
 		{
-			++currentLevelIdx;
-			currentScene = levels[currentLevelIdx];
+			currentSceneType = SceneType::MainMenu;
+			currentLevelIdx = 0;
 		}
 	}
 
@@ -82,18 +87,23 @@ void Game::render()
 {
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-	if (currentSceneType == CurrentSceneType::MainMenu)
+	switch (currentSceneType)
+	{
+	case SceneType::MainMenu:
 		mainMenu->render();
-	else if (currentSceneType == CurrentSceneType::Play)
-		currentScene->render();
+		break;
+	case SceneType::Instructions:
+		instructionsMenu->render();
+		break;
+	case SceneType::Play:
+		levels[currentLevelIdx]->render();
+		break;
+	}
 }
 
 void Game::keyPressed(int key)
 {
-	if (key == 27) // Escape code
-		bPlay = false;
-
-	if (currentSceneType == CurrentSceneType::Play && key == 'p')
+	if (currentSceneType == SceneType::Play && key == 'p')
 		paused = !paused;
 
 	keys[key] = true;

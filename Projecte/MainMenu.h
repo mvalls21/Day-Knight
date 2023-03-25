@@ -3,6 +3,7 @@
 #include "StaticSprite.h"
 #include "Texture.h"
 #include "TexturedQuad.h"
+#include "IGameScene.h"
 
 enum MainMenuSelection
 {
@@ -13,14 +14,14 @@ enum MainMenuSelection
     Exit = 3
 };
 
-class MainMenu
+class MainMenu : public IGameScene
 {
 public:
     MainMenu(int width, int height);
     ~MainMenu();
 
-    void render();
-    int update(int deltaTime);
+    int update(int deltaTime) override;
+    void render() override;
 
 private:
     Texture selectedPlay;
