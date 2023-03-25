@@ -51,8 +51,6 @@ void Game::init()
 
 bool Game::update(int deltaTime)
 {
-	// TEMPORAL:
-
 	if (currentSceneType == CurrentSceneType::MainMenu)
 	{
 		auto status = mainMenu->update(deltaTime);
@@ -61,7 +59,7 @@ bool Game::update(int deltaTime)
 		else if (status == MainMenuSelection::Exit)
 			bPlay = false;
 	}
-	else if (currentSceneType == CurrentSceneType::Play)
+	else if (currentSceneType == CurrentSceneType::Play && !paused)
 	{
 		auto status = currentScene->update(deltaTime);
 
@@ -94,6 +92,9 @@ void Game::keyPressed(int key)
 {
 	if (key == 27) // Escape code
 		bPlay = false;
+
+	if (currentSceneType == CurrentSceneType::Play && key == 'p')
+		paused = !paused;
 
 	keys[key] = true;
 }
