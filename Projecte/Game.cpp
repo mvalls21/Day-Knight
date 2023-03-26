@@ -99,6 +99,11 @@ void Game::keyPressed(int key)
 	if (currentSceneType == SceneType::Play && key == 'p')
 		paused = !paused;
 
+	if (currentSceneType == SceneType::Play && key >= '1' && key <= '3')
+	{
+		changeToLevel(key - '1');
+	} 
+
 	keys[key] = true;
 }
 
@@ -153,12 +158,19 @@ void Game::startPlay()
 
 void Game::nextLevel()
 {
-	delete currentPlayScene;
+	changeToLevel(++currentLevelIdx);
+}
 
-	currentLevelIdx++;
+void Game::changeToLevel(int levelIdx)
+{
+	if (levelIdx < 0 || levelIdx >= levelDescriptions.size())
+		return;
+
+	if (currentPlayScene != nullptr)
+		delete currentPlayScene;
 
 	currentPlayScene = new Scene();
-	currentPlayScene->init(levelDescriptions[currentLevelIdx]);
+	currentPlayScene->init(levelDescriptions[levelIdx]);
 }
 
 void Game::stopPlay()

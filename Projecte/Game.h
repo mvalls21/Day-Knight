@@ -65,5 +65,6 @@ private:
 
 	void startPlay();
 	void nextLevel();
+	void changeToLevel(int levelIdx);
 	void stopPlay();
 };
