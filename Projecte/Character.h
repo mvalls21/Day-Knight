@@ -20,7 +20,7 @@ class Character : public Collidable
 public:
     virtual void init(const glm::ivec2 &tileMapPos, ShaderProgram &shaderProgram) = 0;
     virtual void update(int deltaTime) = 0;
-    void render() const { sprite->render(); }
+    virtual void render() const { sprite->render(); }
 
     void setTileMap(TileMap *tileMap) { map = tileMap; }
     void setPosition(const glm::vec2 &pos) { position = pos; }

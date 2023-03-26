@@ -11,6 +11,7 @@
 void Player::init(const glm::ivec2 &tileMapPos, ShaderProgram &shaderProgram)
 {
 	bJumping = false;
+    texProgram = &shaderProgram;
 	spritesheet.loadFromFile("images/main_player.png", TEXTURE_PIXEL_FORMAT_RGBA);
 
 	sprite = AnimatedSprite::createSprite(glm::ivec2(32, 32), glm::vec2(1.0f/6.0f, 1.0f/5.0f), &spritesheet, &shaderProgram);
@@ -146,4 +147,11 @@ void Player::setLives(int lives)
 void Player::makeImmune(int milliseconds)
 {
     remainingImmunityMilliseconds = milliseconds;
+}
+
+void Player::render() const {
+    float val = cos(remainingImmunityMilliseconds/50.f);
+    texProgram->setUniform4f("color", val, val, val, 1.0f);
+    Character::render();
+    texProgram->setUniform4f("color", 1.0f, 1.0f, 1.0f, 1.0f);
 }
