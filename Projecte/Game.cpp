@@ -2,10 +2,8 @@
 #include <GL/glut.h>
 #include "Game.h"
 
-static Scene *sceneLevel01()
+static Scene::Description sceneLevel01()
 {
-	Scene *scene = new Scene();
-
 	Scene::Description description{};
 
 	description.levelName = "level01.txt";
@@ -22,18 +20,16 @@ static Scene *sceneLevel01()
 	description.keyPositionTile = {8, 18};
 	description.doorPositionTile = {21, 4};
 
-	scene->init(description);
-
-	return scene;
+	return description;
 }
 
 Game::Game()
 {
-	Scene *level01 = sceneLevel01();
-	Scene *level02 = sceneLevel01();
+	Scene::Description level01 = sceneLevel01();
+	Scene::Description level02 = sceneLevel01();
 
-	levels.push_back(level01);
-	levels.push_back(level02);
+	levelDescriptions.push_back(level01);
+	levelDescriptions.push_back(level02);
 
 	currentLevelIdx = 0;
 	currentSceneType = SceneType::MainMenu;
@@ -55,7 +51,7 @@ bool Game::update(int deltaTime)
 	{
 		auto status = mainMenu->update(deltaTime);
 		if (status == MainMenuSelection::Play)
-			currentSceneType = SceneType::Play;
+			startPlay();
 		if (status == MainMenuSelection::Instructions)
 			currentSceneType = SceneType::Instructions;
 		else if (status == MainMenuSelection::Exit)
@@ -69,15 +65,12 @@ bool Game::update(int deltaTime)
 	}
 	else if (currentSceneType == SceneType::Play && !paused)
 	{
-		auto status = levels[currentLevelIdx]->update(deltaTime);
+		auto status = currentPlayScene->update(deltaTime);
 
 		if (status == SceneStatus::LevelComplete)
-			++currentLevelIdx;
+			nextLevel();
 		else if (status == SceneStatus::PlayerDead)
-		{
-			currentSceneType = SceneType::MainMenu;
-			currentLevelIdx = 0;
-		}
+			stopPlay();
 	}
 
 	return bPlay;
@@ -96,7 +89,7 @@ void Game::render()
 		instructionsMenu->render();
 		break;
 	case SceneType::Play:
-		levels[currentLevelIdx]->render();
+		currentPlayScene->render();
 		break;
 	}
 }
@@ -144,4 +137,34 @@ bool Game::getKey(int key) const
 bool Game::getSpecialKey(int key) const
 {
 	return specialKeys[key];
+}
+
+void Game::startPlay()
+{
+	currentSceneType = SceneType::Play;
+	currentLevelIdx = 0;
+
+	if (currentPlayScene != nullptr)
+		delete currentPlayScene;
+
+	currentPlayScene = new Scene();
+	currentPlayScene->init(levelDescriptions[currentLevelIdx]);
+}
+
+void Game::nextLevel()
+{
+	delete currentPlayScene;
+
+	currentLevelIdx++;
+
+	currentPlayScene = new Scene();
+	currentPlayScene->init(levelDescriptions[currentLevelIdx]);
+}
+
+void Game::stopPlay()
+{
+	delete currentPlayScene;
+	currentPlayScene = nullptr;
+
+	currentSceneType = SceneType::MainMenu;
 }

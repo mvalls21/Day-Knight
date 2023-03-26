@@ -56,11 +56,14 @@ private:
 
 	SceneType currentSceneType;
 
-	LevelSelection *levelSelection;
 	MainMenu *mainMenu;
-	InstructionsMenu* instructionsMenu;
+	Scene *currentPlayScene;
+	InstructionsMenu *instructionsMenu;
 
-
-	std::vector<Scene *> levels;
+	std::vector<Scene::Description> levelDescriptions;
 	int currentLevelIdx;
+
+	void startPlay();
+	void nextLevel();
+	void stopPlay();
 };
