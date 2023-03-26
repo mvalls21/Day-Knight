@@ -110,7 +110,11 @@ void Player::update(int deltaTime)
 	else
 	{
 		position.y += FALL_STEP;
-        if (map->collisionSpikes(position, glm::ivec2(24, 32))) setLives(lives - 1);
+        if (map->collisionSpikes(position, glm::ivec2(24, 32)) and not isImmune())
+        {
+            setLives(getLives() - 1);
+            makeImmune(PLAYER_IMMUNITY_MS);
+        }
 
 		if (map->collisionMoveDown(position, glm::ivec2(24, 32), &position.y, true))
 		{
