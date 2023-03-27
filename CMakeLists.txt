@@ -12,6 +12,7 @@ target_sources(${PROJECT_NAME} PRIVATE
         Projecte/LevelSelection.cpp
         Projecte/MainMenu.cpp
         Projecte/InstructionsMenu.cpp
+        Projecte/CreditsMenu.cpp
 
         Projecte/Text.cpp
         Projecte/TexturedQuad.cpp

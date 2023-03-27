@@ -43,6 +43,7 @@ void Game::init()
 	// levelSelection = new LevelSelection();
 	mainMenu = new MainMenu(SCREEN_WIDTH, SCREEN_HEIGHT);
 	instructionsMenu = new InstructionsMenu(SCREEN_WIDTH, SCREEN_HEIGHT);
+	creditsMenu = new CreditsMenu(SCREEN_WIDTH, SCREEN_HEIGHT);
 }
 
 bool Game::update(int deltaTime)
@@ -54,6 +55,8 @@ bool Game::update(int deltaTime)
 			startPlay();
 		if (status == MainMenuSelection::Instructions)
 			currentSceneType = SceneType::Instructions;
+		if (status == MainMenuSelection::Credits)
+			currentSceneType = SceneType::Credits;
 		else if (status == MainMenuSelection::Exit)
 			bPlay = false;
 	}
@@ -61,6 +64,12 @@ bool Game::update(int deltaTime)
 	{
 		auto status = instructionsMenu->update(deltaTime);
 		if (status == (int)InstructionsMenuSelection::Back)
+			currentSceneType = SceneType::MainMenu;
+	}
+	else if (currentSceneType == SceneType::Credits)
+	{
+		auto status = creditsMenu->update(deltaTime);
+		if (status == (int)CreditsMenuSelection::Back)
 			currentSceneType = SceneType::MainMenu;
 	}
 	else if (currentSceneType == SceneType::Play && !paused)
@@ -88,6 +97,9 @@ void Game::render()
 	case SceneType::Instructions:
 		instructionsMenu->render();
 		break;
+	case SceneType::Credits:
+		creditsMenu->render();
+		break;
 	case SceneType::Play:
 		currentPlayScene->render();
 		break;
@@ -102,7 +114,7 @@ void Game::keyPressed(int key)
 	if (currentSceneType == SceneType::Play && key >= '1' && key <= '3')
 	{
 		changeToLevel(key - '1');
-	} 
+	}
 
 	keys[key] = true;
 }
