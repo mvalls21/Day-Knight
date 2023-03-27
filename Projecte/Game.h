@@ -4,8 +4,7 @@
 
 #include "LevelSelection.h"
 #include "MainMenu.h"
-#include "InstructionsMenu.h"
-#include "CreditsMenu.h"
+#include "TexturedMenu.h"
 
 constexpr int SCREEN_WIDTH = 40 * (32 + 2);
 constexpr int SCREEN_HEIGHT = 40 * (22 + 2) + 40;
@@ -59,8 +58,8 @@ private:
 
 	MainMenu *mainMenu;
 	Scene *currentPlayScene;
-	InstructionsMenu *instructionsMenu;
-	CreditsMenu * creditsMenu;
+	TexturedMenu *instructionsMenu;
+	TexturedMenu * creditsMenu;
 
 	std::vector<Scene::Description> levelDescriptions;
 	int currentLevelIdx;

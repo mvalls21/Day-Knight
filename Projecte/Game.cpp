@@ -42,8 +42,8 @@ void Game::init()
 
 	// levelSelection = new LevelSelection();
 	mainMenu = new MainMenu(SCREEN_WIDTH, SCREEN_HEIGHT);
-	instructionsMenu = new InstructionsMenu(SCREEN_WIDTH, SCREEN_HEIGHT);
-	creditsMenu = new CreditsMenu(SCREEN_WIDTH, SCREEN_HEIGHT);
+	instructionsMenu = new TexturedMenu(SCREEN_WIDTH, SCREEN_HEIGHT, "images/main_menu/instructions_menu.png");
+	creditsMenu = new TexturedMenu(SCREEN_WIDTH, SCREEN_HEIGHT, "images/main_menu/credits_menu.png");
 }
 
 bool Game::update(int deltaTime)
@@ -63,13 +63,13 @@ bool Game::update(int deltaTime)
 	else if (currentSceneType == SceneType::Instructions)
 	{
 		auto status = instructionsMenu->update(deltaTime);
-		if (status == (int)InstructionsMenuSelection::Back)
+		if (status == (int)TexturedMenuSelection::Back)
 			currentSceneType = SceneType::MainMenu;
 	}
 	else if (currentSceneType == SceneType::Credits)
 	{
 		auto status = creditsMenu->update(deltaTime);
-		if (status == (int)CreditsMenuSelection::Back)
+		if (status == (int)TexturedMenuSelection::Back)
 			currentSceneType = SceneType::MainMenu;
 	}
 	else if (currentSceneType == SceneType::Play && !paused)

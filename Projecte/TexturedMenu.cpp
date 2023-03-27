@@ -1,4 +1,4 @@
-#include "CreditsMenu.h"
+#include "TexturedMenu.h"
 
 #include "Shader.h"
 #include <iostream>
@@ -9,9 +9,9 @@
 
 #include <glm/gtc/matrix_transform.hpp>
 
-CreditsMenu::CreditsMenu(int width, int height)
+TexturedMenu::TexturedMenu(int width, int height, const std::string& texturePath)
 {
-    instructionsTexture.loadFromFile("images/main_menu/credits_menu.png", PixelFormat::TEXTURE_PIXEL_FORMAT_RGBA);
+    texture.loadFromFile(texturePath, PixelFormat::TEXTURE_PIXEL_FORMAT_RGBA);
 
     projection = glm::ortho(0.f, float(width - 1), float(height - 1), 0.f);
 
@@ -47,8 +47,6 @@ CreditsMenu::CreditsMenu(int width, int height)
         fShader.free();
     }
 
-    // quad = StaticSprite::createSprite({width, height}, {1.0f, 1.0f}, &selectedPlay, &texProgram);
-
     glm::vec2 geom[] = {
         {0.0f, 0.0f},
         {width, height}};
@@ -60,11 +58,11 @@ CreditsMenu::CreditsMenu(int width, int height)
     quad = TexturedQuad::createTexturedQuad(geom, texCoords, texProgram);
 }
 
-CreditsMenu::~CreditsMenu()
+TexturedMenu::~TexturedMenu()
 {
 }
 
-void CreditsMenu::render()
+void TexturedMenu::render()
 {
     texProgram.use();
     texProgram.setUniformMatrix4f("projection", projection);
@@ -73,13 +71,13 @@ void CreditsMenu::render()
     texProgram.setUniformMatrix4f("modelview", modelview);
     texProgram.setUniform2f("texCoordDispl", 0.f, 0.f);
 
-    quad->render(instructionsTexture);
+    quad->render(texture);
 }
 
-int CreditsMenu::update(int deltaTime)
+int TexturedMenu::update(int deltaTime)
 {
     if (Game::instance().getKey(27)) // esc key
-        return (int)CreditsMenuSelection::Back;
+        return (int)TexturedMenuSelection::Back;
 
-    return (int)CreditsMenuSelection::None;
+    return (int)TexturedMenuSelection::None;
 }

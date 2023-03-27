@@ -1,27 +1,26 @@
 #pragma once
 
-#include "StaticSprite.h"
 #include "Texture.h"
 #include "TexturedQuad.h"
 #include "IGameScene.h"
 
-enum class InstructionsMenuSelection 
+enum class TexturedMenuSelection
 {
     None = -1,
     Back = 0
 };
 
-class InstructionsMenu : public IGameScene
+class TexturedMenu : public IGameScene
 {
 public:
-    InstructionsMenu(int width, int height);
-    ~InstructionsMenu();
+    TexturedMenu(int width, int height, const std::string &texturePath);
+    ~TexturedMenu();
 
     int update(int deltaTime) override;
     void render() override;
 
 private:
-    Texture instructionsTexture;
+    Texture texture;
 
     TexturedQuad *quad;
     ShaderProgram texProgram;
