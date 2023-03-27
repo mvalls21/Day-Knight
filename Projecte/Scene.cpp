@@ -65,7 +65,7 @@ void Scene::init(const Description &description)
 	// Create vampires
 	for (const auto &desc : description.vampireDescriptions)
 	{
-		auto *vampire = new Vampire();
+		auto *vampire = new Ghost();
 		vampire->init(glm::ivec2(SCREEN_X, SCREEN_Y), texProgram);
 		vampire->setTileMap(map);
 		vampire->setPosition({desc.tileX * map->getTileSize(), desc.tileY * map->getTileSize()});

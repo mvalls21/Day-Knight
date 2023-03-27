@@ -15,6 +15,8 @@
 #include "Enemy.h"
 #include "Skeleton.h"
 #include "Vampire.h"
+#include "Ghost.h"
+
 #include "Text.h"
 
 // Scene contains all the entities of our game.
