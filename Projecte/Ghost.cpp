@@ -31,7 +31,7 @@ void Ghost::init(const glm::ivec2 &tileMapPos, ShaderProgram &shaderProgram)
     sprite->setPosition(glm::vec2(float(tileMapDispl.x + position.x), float(tileMapDispl.y + position.y)));
 }
 
-constexpr glm::vec2 GHOST_SIZE = glm::vec2(32.0f, 32.0f);
+constexpr glm::vec2 GHOST_SIZE = glm::vec2(30.0f);
 
 void Ghost::update(int deltaTime)
 {
@@ -48,18 +48,19 @@ void Ghost::update(int deltaTime)
     {
         position.x -= flyingMovement.x;
         flyingMovement = {-flyingMovement.x, flyingMovement.y};
+        changeDirection();
     }
 
     bool collisionUp = false;
     if (flyingMovement.y < 0)
     {
-        collisionUp = map->collisionMoveUp({position.x, position.y - 1}, GHOST_SIZE, true);
+        collisionUp = map->collisionMoveUp({position.x, position.y - 1}, GHOST_SIZE, false);
     }
 
     bool collisionDown = false;
     if (flyingMovement.y > 0)
     {
-        collisionDown = map->collisionMoveDown({position.x, position.y}, GHOST_SIZE, &position.y);
+        collisionDown = map->collisionMoveDown({position.x, position.y}, GHOST_SIZE, &position.y, false);
     }
 
     const bool collisionVertical = collisionUp || collisionDown;
@@ -78,6 +79,6 @@ BoundingBoxInfo Ghost::getBoundingBoxInfo() const
     return {
         .xoffset = 3,
         .yoffset = 3,
-        .width = 24,
-        .height = 24};
+        .width = 20,
+        .height = 20};
 }
