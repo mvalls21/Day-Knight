@@ -25,10 +25,7 @@ constexpr int WALL = 0 + 1;
 
 inline bool isCollisionTile(const int x, const bool internalWalls = false)
 {
-	return x == WALL 
-	|| (internalWalls && x >= (23 + 1) && x <= (26 + 1)) 
-	|| (internalWalls && x >= (34 + 1) && x <= (37 + 1)) 
-	|| x == SPIKES;
+	return x == WALL || (internalWalls && x >= (23 + 1) && x <= (26 + 1)) || (internalWalls && x >= (34 + 1) && x <= (37 + 1)) || x == SPIKES;
 }
 
 constexpr int TORCH = 42 + 1;
@@ -386,26 +383,37 @@ void TileMap::checkCollisionChangeableTile(int tileX, int tileY)
 
 bool TileMap::collisionSpikes(const glm::ivec2 &pos, const glm::ivec2 &size)
 {
-    int x0, x1, y;
+	int x0, x1, y;
 
-    int posX = (pos.x + size.x / 2);
+	int posX = (pos.x + size.x / 2);
 
-    x0 = (posX - size.x / 2 + 1) / tileSize;
-    x1 = (posX + size.x / 2 - 1) / tileSize;
-    y = (pos.y + size.y - 1) / tileSize;
-    for (int x = x0; x <= x1; x++)
-    {
-        const int tile = map[y * mapSize.x + x];
-        if (isCollisionTile(tile) or isChangeableTile(tile) or tile == SPIKES)
-        {
-            if (tile == SPIKES and pos.y - tileSize * y + size.y <= 4)
-            {
-                return true;
-            }
-        }
-    }
+	x0 = (posX - size.x / 2 + 1) / tileSize;
+	x1 = (posX + size.x / 2 - 1) / tileSize;
+	y = (pos.y + size.y - 1) / tileSize;
+	for (int x = x0; x <= x1; x++)
+	{
+		const int tile = map[y * mapSize.x + x];
+		if (isCollisionTile(tile) or isChangeableTile(tile) or tile == SPIKES)
+		{
+			if (tile == SPIKES and pos.y - tileSize * y + size.y <= 4)
+			{
+				return true;
+			}
+		}
+	}
 
-    return false;
+	return false;
+}
+
+std::vector<glm::ivec2> TileMap::getPlatforms() const
+{
+	std::vector<std::pair<std::pair<int, int>, bool>> values(changeableTiles.begin(), changeableTiles.end());
+
+	std::vector<glm::ivec2> platforms;
+	for (const auto &val : values)
+		platforms.push_back(glm::ivec2(val.first.second, val.first.first));
+
+	return platforms;
 }
 
 bool TileMap::isCompleted() const

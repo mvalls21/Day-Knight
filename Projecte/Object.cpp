@@ -10,44 +10,59 @@ Door::Door(Texture *tileset, const glm::ivec2 &positionTop, const glm::ivec2 &po
 {
     position = positionTop;
 
-    auto doorSprite1 = AnimatedSprite::createSprite(glm::vec2(16.0f), glm::vec2(1.0f / 10.0f, 1.0f / 10.0f), tileset, program);
-    doorSprite1->setPosition(positionBottom);
+    texture = new Texture();
+    texture->loadFromFile("images/door.png", PixelFormat::TEXTURE_PIXEL_FORMAT_RGBA);
 
-    doorSprite1->setNumberAnimations(2);
-    doorSprite1->addKeyframe(0, {0.0f / 10.0f, 3.0f / 10.0f});
-    doorSprite1->addKeyframe(1, {2.0f / 10.0f, 3.0f / 10.0f});
+    sprite = AnimatedSprite::createSprite(glm::vec2(48.0f), glm::vec2(1.0f / 4.0f, 1.0f), texture, program);
+    sprite->setPosition(positionTop);
 
-    doorSprite1->changeAnimation(0);
+    sprite->setNumberAnimations(3);
 
-    auto doorSprite2 = AnimatedSprite::createSprite(glm::vec2(16.0f), glm::vec2(1.0f / 10.0f, 1.0f / 10.0f), tileset, program);
-    doorSprite2->setPosition(positionTop);
+    // Closed
+    sprite->setAnimationSpeed(0, 8);
+    sprite->addKeyframe(0, glm::vec2(0.0f / 4.0f, 0.0f));
 
-    doorSprite2->setNumberAnimations(2);
-    doorSprite2->addKeyframe(0, {1.0f / 10.0f, 3.0f / 10.0f});
-    doorSprite2->addKeyframe(1, {3.0f / 10.0f, 3.0f / 10.0f});
+    constexpr int openingDoorKeyframesPerSecond = 2;
+    // milliseconds for the door to open
+    timeToOpenDoor_ms = (1.0f / float(openingDoorKeyframesPerSecond)) * 4.0f * 1000.0f;
 
-    doorSprite2->changeAnimation(0);
+    sprite->setAnimationSpeed(1, openingDoorKeyframesPerSecond);
+    sprite->addKeyframe(1, glm::vec2(0.0f / 4.0f, 0.0f));
+    sprite->addKeyframe(1, glm::vec2(1.0f / 4.0f, 0.0f));
+    sprite->addKeyframe(1, glm::vec2(2.0f / 4.0f, 0.0f));
+    sprite->addKeyframe(1, glm::vec2(3.0f / 4.0f, 0.0f));
 
-    sprites.push_back(doorSprite1);
-    sprites.push_back(doorSprite2);
+    sprite->setAnimationSpeed(2, 8);
+    sprite->addKeyframe(2, glm::vec2(3.0f / 4.0f, 0.0f));
+
+    sprite->changeAnimation(0);
 }
 
 Door::~Door()
 {
-    for (const AnimatedSprite *sprite : sprites)
-        delete sprite;
+    delete sprite;
+    delete texture;
 }
 
 void Door::render() const
 {
-    for (const auto &sprite : sprites)
-        sprite->render();
+    sprite->render();
+}
+
+void Door::update(int deltaTime)
+{
+    if (sprite->animation() == 1)
+        timeOpening += deltaTime;
+
+    if (sprite->animation() == 1 && timeOpening >= timeToOpenDoor_ms)
+        sprite->changeAnimation(2);
+
+    sprite->update(deltaTime);
 }
 
 void Door::open() const
 {
-    for (const auto &sprite : sprites)
-        sprite->changeAnimation(1);
+    sprite->changeAnimation(1);
 }
 
 BoundingBoxInfo Door::getBoundingBoxInfo() const
@@ -128,13 +143,26 @@ BoundingBoxInfo Gem::getBoundingBoxInfo() const
 Clock::Clock(Texture *tileset, const glm::ivec2 &pos, ShaderProgram *program)
 {
     position = pos;
-    sprite = StaticSprite::createSprite(glm::vec2(20.0f), glm::vec2(1.0f / 10.0f, 1.0f / 10.0f), tileset, program);
+
+    texture = new Texture();
+    texture->loadFromFile("images/clock.png", PixelFormat::TEXTURE_PIXEL_FORMAT_RGBA);
+
+    sprite = AnimatedSprite::createSprite(glm::vec2(14.0f, 20.0f), glm::vec2(1.0f / 4.0f, 1.0f), texture, program);
     sprite->setPosition(position);
-    sprite->setSpritesheetCoords(glm::vec2(0.0f / 10.0f, 0.0f / 10.0f));
+
+    sprite->setNumberAnimations(1);
+    sprite->setAnimationSpeed(0, 4);
+    sprite->addKeyframe(0, glm::vec2(0.0f / 4.0f, 0.0f));
+    sprite->addKeyframe(0, glm::vec2(1.0f / 4.0f, 0.0f));
+    sprite->addKeyframe(0, glm::vec2(2.0f / 4.0f, 0.0f));
+    sprite->addKeyframe(0, glm::vec2(3.0f / 4.0f, 0.0f));
+
+    sprite->changeAnimation(0);
 }
 
 Clock::~Clock()
 {
+    delete texture;
     delete sprite;
 }
 
@@ -143,7 +171,58 @@ void Clock::render() const
     sprite->render();
 }
 
+void Clock::update(int deltaTime)
+{
+    sprite->update(deltaTime);
+}
+
 BoundingBoxInfo Clock::getBoundingBoxInfo() const
+{
+    return {
+        .xoffset = 4,
+        .yoffset = 0,
+        .width = 12,
+        .height = 14};
+}
+
+//
+// Shield
+//
+Shield::Shield(Texture *tileset, const glm::ivec2 &pos, ShaderProgram *program)
+{
+    position = pos;
+
+    texture = new Texture();
+    texture->loadFromFile("images/shield.png", PixelFormat::TEXTURE_PIXEL_FORMAT_RGBA);
+
+    sprite = AnimatedSprite::createSprite(glm::vec2(20.0f, 20.0f), glm::vec2(1.0f / 2.0f, 1.0f), texture, program);
+    sprite->setPosition(position);
+
+    sprite->setNumberAnimations(1);
+    sprite->setAnimationSpeed(0, 2);
+    sprite->addKeyframe(0, glm::vec2(0.0f / 2.0f, 0.0f));
+    sprite->addKeyframe(0, glm::vec2(1.0f / 2.0f, 0.0f));
+
+    sprite->changeAnimation(0);
+}
+
+Shield::~Shield()
+{
+    delete texture;
+    delete sprite;
+}
+
+void Shield::render() const
+{
+    sprite->render();
+}
+
+void Shield::update(int deltaTime)
+{
+    sprite->update(deltaTime);
+}
+
+BoundingBoxInfo Shield::getBoundingBoxInfo() const
 {
     return {
         .xoffset = 4,

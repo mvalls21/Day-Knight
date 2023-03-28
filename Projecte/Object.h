@@ -11,6 +11,7 @@ public:
     virtual ~Object() {}
 
     virtual void render() const = 0;
+    virtual void update(int deltaTime) {}
     glm::ivec2 getPosition() const override { return position; }
 
 protected:
@@ -24,12 +25,17 @@ public:
     ~Door() override;
 
     void render() const override;
+    void update(int deltaTime) override;
     void open() const;
 
     BoundingBoxInfo getBoundingBoxInfo() const override;
 
 private:
-    std::vector<AnimatedSprite *> sprites;
+  AnimatedSprite* sprite;
+  Texture* texture;
+
+  int timeOpening = 0;
+  int timeToOpenDoor_ms;
 };
 
 class Key : public Object
@@ -67,9 +73,32 @@ public:
     ~Clock();
 
     void render() const override;
+    void update(int deltaTime) override;
 
     BoundingBoxInfo getBoundingBoxInfo() const override;
 
 private:
-    StaticSprite *sprite;
+    AnimatedSprite *sprite;
+    Texture *texture;
+};
+
+class Shield : public Object
+{
+public:
+    Shield(Texture *tileset, const glm::ivec2 &pos, ShaderProgram *program);
+    ~Shield();
+
+    void render() const override;
+    void update(int deltaTime) override;
+    void setPosition(const glm::ivec2 &pos)
+    {
+        position = pos;
+        sprite->setPosition(pos);
+    }
+
+    BoundingBoxInfo getBoundingBoxInfo() const override;
+
+private:
+    AnimatedSprite *sprite;
+    Texture *texture;
 };

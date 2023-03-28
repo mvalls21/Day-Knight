@@ -5,213 +5,324 @@
 #include "Scene.h"
 #include "Game.h"
 
+#include <random>
+
 #define SCREEN_X 26
 #define SCREEN_Y 46
 
 #define INIT_PLAYER_X_TILES 8
 #define INIT_PLAYER_Y_TILES 3
 
+#define TILE_POS(x, y) glm::vec2(SCREEN_X + (x)*map->getTileSize(), SCREEN_Y + (y)*map->getTileSize())
+
 Scene::Scene()
 {
-	map = NULL;
-	player = NULL;
+    map = NULL;
+    player = NULL;
 }
 
 Scene::~Scene()
 {
-	delete map;
+    delete map;
+    delete tileset;
 
-	delete player;
-	for (const auto *enemy : enemies)
-		delete enemy;
+    delete player;
+    for (const auto *enemy : enemies)
+        delete enemy;
 
-	delete key;
-	delete door;
-	delete heart;
-	delete gem;
-	delete clock;
+    delete key;
+    delete door;
+    delete heart;
+
+    if (currentObject != nullptr)
+        delete currentObject;
 }
 
 void Scene::init(const Description &description)
 {
-	initShaders();
+    initShaders();
 
-	projection = glm::ortho(0.f, float(SCREEN_WIDTH - 1), float(SCREEN_HEIGHT - 1), 0.f);
-	projection = glm::ortho(0.f, float(SCREEN_WIDTH - 1) / 2.4f, float(SCREEN_HEIGHT - 1) / 2.4f, 0.f);
-	currentTime = 0.0f;
+    projection = glm::ortho(0.f, float(SCREEN_WIDTH - 1), float(SCREEN_HEIGHT - 1), 0.f);
+    projection = glm::ortho(0.f, float(SCREEN_WIDTH - 1) / 2.4f, float(SCREEN_HEIGHT - 1) / 2.4f, 0.f);
+    currentTime = 0.0f;
 
-	// 	Load level
-	std::string levelPath = "levels/" + description.levelName;
-	map = TileMap::createTileMap(levelPath, {SCREEN_X, SCREEN_Y}, texProgram);
+    // 	Load level
+    std::string levelPath = "levels/" + description.levelName;
+    map = TileMap::createTileMap(levelPath, {SCREEN_X, SCREEN_Y}, texProgram);
 
-	// Create player
-	player = new Player();
-	player->init(glm::ivec2(SCREEN_X, SCREEN_Y), texProgram);
-	player->setPosition(glm::vec2(description.playerPositionStartTile.x * map->getTileSize(), description.playerPositionStartTile.y * map->getTileSize()));
-	player->setTileMap(map);
+    // Create player
+    player = new Player();
+    player->init(glm::ivec2(SCREEN_X, SCREEN_Y), texProgram);
+    player->setPosition(glm::vec2(description.playerPositionStartTile.x * map->getTileSize(), description.playerPositionStartTile.y * map->getTileSize()));
+    player->setTileMap(map);
 
-	// Create skeletons
-	for (const auto &desc : description.skeletonDescriptions)
-	{
-		auto *skeleton = new Skeleton();
-		skeleton->init(glm::ivec2(SCREEN_X, SCREEN_Y), texProgram);
-		skeleton->setTileMap(map);
-		skeleton->setPosition({desc.tileX * map->getTileSize(), desc.tileY * map->getTileSize()});
-		skeleton->setDirection(desc.startingDirection);
+    // Create skeletons
+    for (const auto &desc : description.skeletonDescriptions)
+    {
+        auto *skeleton = new Skeleton();
+        skeleton->init(glm::ivec2(SCREEN_X, SCREEN_Y), texProgram);
+        skeleton->setTileMap(map);
+        skeleton->setPosition({desc.tileX * map->getTileSize(), desc.tileY * map->getTileSize()});
+        skeleton->setDirection(desc.startingDirection);
 
-		enemies.push_back(skeleton);
-	}
+        enemies.push_back(skeleton);
+    }
 
-	// Create vampires
-	for (const auto &desc : description.vampireDescriptions)
-	{
-		auto *vampire = new Vampire();
-		vampire->init(glm::ivec2(SCREEN_X, SCREEN_Y), texProgram);
-		vampire->setTileMap(map);
-		vampire->setPosition({desc.tileX * map->getTileSize(), desc.tileY * map->getTileSize()});
-		vampire->setDirection(desc.startingDirection);
+    // Create vampires
+    for (const auto &desc : description.vampireDescriptions)
+    {
+        auto *vampire = new Vampire();
+        vampire->init(glm::ivec2(SCREEN_X, SCREEN_Y), texProgram);
+        vampire->setTileMap(map);
+        vampire->setPosition({desc.tileX * map->getTileSize(), desc.tileY * map->getTileSize()});
+        vampire->setDirection(desc.startingDirection);
 
-		enemies.push_back(vampire);
-	}
+        enemies.push_back(vampire);
+    }
 
-	// Create ghosts
-	for (const auto &desc : description.ghostDescriptions)
-	{
-		auto *ghost = new Ghost();
-		ghost->init(glm::ivec2(SCREEN_X, SCREEN_Y), texProgram);
-		ghost->setTileMap(map);
-		ghost->setPosition({desc.tileX * map->getTileSize(), desc.tileY * map->getTileSize()});
-		ghost->setDirection(desc.startingDirection);
+    // Create ghosts
+    for (const auto &desc : description.ghostDescriptions)
+    {
+        auto *ghost = new Ghost();
+        ghost->init(glm::ivec2(SCREEN_X, SCREEN_Y), texProgram);
+        ghost->setTileMap(map);
+        ghost->setPosition({desc.tileX * map->getTileSize(), desc.tileY * map->getTileSize()});
+        ghost->setDirection(desc.startingDirection);
 
-		enemies.push_back(ghost);
-	}
+        enemies.push_back(ghost);
+    }
 
-	Texture *tileset = new Texture();
-	tileset->loadFromFile("images/nuevo_tileset.png", PixelFormat::TEXTURE_PIXEL_FORMAT_RGBA);
+    tileset = new Texture();
+    tileset->loadFromFile("images/nuevo_tileset.png", PixelFormat::TEXTURE_PIXEL_FORMAT_RGBA);
 
-	heart = StaticSprite::createSprite(glm::vec2(20.f), glm::vec2(1.f / 10.f), tileset, &texProgram);
-	heart->setSpritesheetCoords(glm::vec2(5.f / 10.f, 4.f / 10.f));
+    heart = StaticSprite::createSprite(glm::vec2(20.f), glm::vec2(1.f / 10.f), tileset, &texProgram);
+    heart->setSpritesheetCoords(glm::vec2(5.f / 10.f, 4.f / 10.f));
 
-	key = new Key(tileset, {SCREEN_X + description.keyPositionTile.x * map->getTileSize(), SCREEN_Y + description.keyPositionTile.y * map->getTileSize()}, &texProgram);
+    key = new Key(tileset, {SCREEN_X + description.keyPositionTile.x * map->getTileSize(), SCREEN_Y + description.keyPositionTile.y * map->getTileSize()}, &texProgram);
 
-	const glm::ivec2 doorPositionTop = {SCREEN_X + description.doorPositionTile.x * 16, SCREEN_Y + (description.doorPositionTile.y - 1) * 16.0};
-	const glm::ivec2 doorPositionBottom = {SCREEN_X + description.doorPositionTile.x * 16, SCREEN_Y + description.doorPositionTile.y * 16.0};
-	door = new Door(tileset, doorPositionTop, doorPositionBottom, &texProgram);
+    // const glm::ivec2 doorPositionTop = TILE_POS(description.doorPositionTile.x, description.doorPositionTile.y - 1);
+    const glm::ivec2 doorPositionTop = TILE_POS(description.doorPositionTile.x, description.doorPositionTile.y - 2);
 
-	// Gem
-	gem = new Gem(tileset, {SCREEN_X + 8 * map->getTileSize(), SCREEN_Y + 9 * map->getTileSize() + 7}, &texProgram);
+    const glm::ivec2 doorPositionBottom = TILE_POS(description.doorPositionTile.x, description.doorPositionTile.y);
+    door = new Door(tileset, doorPositionTop, doorPositionBottom, &texProgram);
 
-	// Clock
-	clock = new Clock(tileset, {SCREEN_X + 10 * map->getTileSize(), SCREEN_Y + 9 * map->getTileSize() + 7}, &texProgram);
+    // Create objects with random order
+    std::random_device r;
+    std::default_random_engine engine(r());
+
+    std::vector<ObjectType> objects = {ObjectType::Gem, ObjectType::Clock, ObjectType::Shield};
+    std::shuffle(objects.begin(), objects.end(), engine);
+
+    for (const auto &object : objects)
+        remainingObjectTypes.push(object);
+
+    // Shield sprite for hearts
+    shield = new Shield(tileset, TILE_POS(0, 0), &texProgram);
 }
 
 SceneStatus Scene::update(int deltaTime)
 {
-	currentTime += deltaTime;
+    detectCheatKeys();
 
-	map->update(deltaTime);
+    currentTime += deltaTime;
+    objectTimer += deltaTime;
 
-	player->update(deltaTime);
+    map->update(deltaTime);
 
-	for (auto *enemy : enemies)
-		enemy->update(deltaTime);
+    player->update(deltaTime);
 
-	bool enemyCollision = not player->isImmune() and std::any_of(enemies.begin(), enemies.end(), [&](const Enemy *enemy)
-																 { return player->isColliding(*enemy); });
+    for (auto *enemy : enemies)
+        enemy->update(deltaTime);
 
-	if (enemyCollision)
+    bool enemyCollision = not player->isImmune() and std::any_of(enemies.begin(), enemies.end(), [&](const Enemy *enemy)
+                                                                 { return player->isColliding(*enemy); });
+
+    if (enemyCollision)
     {
-        player->setPosition(glm::vec2(INIT_PLAYER_X_TILES * map->getTileSize(), INIT_PLAYER_Y_TILES * map->getTileSize()));
-        player->setLives(player->getLives() - 1);
+        if (shieldProtection)
+            shieldProtection = false;
+        else
+            player->setLives(player->getLives() - 1);
+
         player->makeImmune(PLAYER_IMMUNITY_MS);
     }
 
-	if (!showKey && !isDoorOpen && map->isCompleted())
-		showKey = true;
+    if (!showKey && !isDoorOpen && map->isCompleted())
+        showKey = true;
 
-	if (showKey && !isDoorOpen)
-	{
-		if (player->isColliding(*key))
-		{
-			isDoorOpen = true;
-			showKey = false;
-			door->open();
-		}
-	}
+    if (showKey && !isDoorOpen)
+    {
+        if (player->isColliding(*key))
+        {
+            isDoorOpen = true;
+            showKey = false;
+            door->open();
+        }
+    }
 
-	if (player->getLives() == 0)
-	{
-		return SceneStatus::PlayerDead;
-	}
+    door->update(deltaTime);
 
-	if (isDoorOpen && player->isColliding(*door))
-		return SceneStatus::LevelComplete;
+    if (player->getLives() == 0)
+        return SceneStatus::PlayerDead;
 
-	return SceneStatus::Continue;
+    if (isDoorOpen && player->isColliding(*door))
+        return SceneStatus::LevelComplete;
+
+    if (currentObjectType != ObjectType::None && currentObject->isColliding(*player))
+    {
+        switch (currentObjectType)
+        {
+        case ObjectType::Gem:
+            // TODO: Give points
+            break;
+        case ObjectType::Clock:
+            // TODO: Give time
+            break;
+        case ObjectType::Shield:
+            // TODO: Should also give immunity for some time for player, but without effect...
+            shieldProtection = true;
+            break;
+        default:
+            break;
+        }
+        currentObjectType = ObjectType::None;
+    }
+
+    // Object spawn logic
+    if (currentObjectType != ObjectType::None)
+        currentObject->update(deltaTime);
+
+    if (objectTimer >= OBJECT_PERIOD)
+    {
+        // ObjectType::None means that player should not interact with object, but existance or not is controlled
+        // by currentObject == nullptr
+        objectTimer = 0;
+
+        if (currentObject == nullptr)
+        {
+            spawnRandomObject();
+        }
+        else
+        {
+            delete currentObject;
+            currentObject = nullptr;
+            currentObjectType = ObjectType::None;
+        }
+    }
+
+    return SceneStatus::Continue;
 }
 
 void Scene::render()
 {
-	glm::mat4 modelview;
+    glm::mat4 modelview;
 
-	texProgram.use();
+    texProgram.use();
 
-	texProgram.setUniformMatrix4f("projection", projection);
-	texProgram.setUniform4f("color", 1.0f, 1.0f, 1.0f, 1.0f);
-	modelview = glm::mat4(1.0f);
-	texProgram.setUniformMatrix4f("modelview", modelview);
-	texProgram.setUniform2f("texCoordDispl", 0.f, 0.f);
+    texProgram.setUniformMatrix4f("projection", projection);
+    texProgram.setUniform4f("color", 1.0f, 1.0f, 1.0f, 1.0f);
+    modelview = glm::mat4(1.0f);
+    texProgram.setUniformMatrix4f("modelview", modelview);
+    texProgram.setUniform2f("texCoordDispl", 0.f, 0.f);
 
-	map->render();
-	door->render();
+    map->render();
+    door->render();
 
-	for (int i = 0; i < player->getLives(); ++i)
-	{
-		heart->setPosition(glm::vec2(SCREEN_X + 20 * i, SCREEN_Y - 30));
-		heart->render();
-	}
+    for (int i = 0; i < player->getLives(); ++i)
+    {
+        if (i == player->getLives() - 1 && shieldProtection)
+        {
+            shield->setPosition(glm::vec2(SCREEN_X + 20 * i, SCREEN_Y - 30));
+            shield->render();
+            continue;
+        }
 
-	for (const auto *enemy : enemies)
-		enemy->render();
+        heart->setPosition(glm::vec2(SCREEN_X + 20 * i, SCREEN_Y - 30));
+        heart->render();
+    }
 
-	if (showKey)
-		key->render();
+    for (const auto *enemy : enemies)
+        enemy->render();
 
-	gem->render();
-	clock->render();
+    if (showKey)
+        key->render();
 
-	player->render();
+    if (currentObjectType != ObjectType::None)
+        currentObject->render();
+
+    player->render();
 }
 
 void Scene::initShaders()
 {
-	Shader vShader, fShader;
+    Shader vShader, fShader;
 
-	vShader.initFromFile(VERTEX_SHADER, "shaders/texture.vert");
-	if (!vShader.isCompiled())
-	{
-		cout << "Vertex Shader Error" << endl;
-		cout << "" << vShader.log() << endl
-			 << endl;
-	}
-	fShader.initFromFile(FRAGMENT_SHADER, "shaders/texture.frag");
-	if (!fShader.isCompiled())
-	{
-		cout << "Fragment Shader Error" << endl;
-		cout << "" << fShader.log() << endl
-			 << endl;
-	}
-	texProgram.init();
-	texProgram.addShader(vShader);
-	texProgram.addShader(fShader);
-	texProgram.link();
-	if (!texProgram.isLinked())
-	{
-		cout << "Shader Linking Error" << endl;
-		cout << "" << texProgram.log() << endl
-			 << endl;
-	}
-	texProgram.bindFragmentOutput("outColor");
-	vShader.free();
-	fShader.free();
+    vShader.initFromFile(VERTEX_SHADER, "shaders/texture.vert");
+    if (!vShader.isCompiled())
+    {
+        cout << "Vertex Shader Error" << endl;
+        cout << "" << vShader.log() << endl
+             << endl;
+    }
+    fShader.initFromFile(FRAGMENT_SHADER, "shaders/texture.frag");
+    if (!fShader.isCompiled())
+    {
+        cout << "Fragment Shader Error" << endl;
+        cout << "" << fShader.log() << endl
+             << endl;
+    }
+    texProgram.init();
+    texProgram.addShader(vShader);
+    texProgram.addShader(fShader);
+    texProgram.link();
+    if (!texProgram.isLinked())
+    {
+        cout << "Shader Linking Error" << endl;
+        cout << "" << texProgram.log() << endl
+             << endl;
+    }
+    texProgram.bindFragmentOutput("outColor");
+    vShader.free();
+    fShader.free();
+}
+
+void Scene::spawnRandomObject()
+{
+    if (remainingObjectTypes.size() == 0)
+        return;
+
+    std::random_device r;
+    std::default_random_engine engine(r());
+
+    constexpr glm::vec2 offset = {0, 7};
+
+    // Select platform
+    const auto platforms = map->getPlatforms();
+    std::uniform_int_distribution<int> platform_random(0, platforms.size() - 1);
+    const int platformIdx = platform_random(engine);
+
+    const auto platform = platforms[platformIdx];
+    const auto pos = TILE_POS(platform.x, platform.y - 2) + offset;
+
+    // Get Object
+    currentObjectType = remainingObjectTypes.front();
+    remainingObjectTypes.pop();
+    switch (currentObjectType)
+    {
+    case ObjectType::Gem:
+        currentObject = new Gem(tileset, pos, &texProgram);
+        break;
+    case ObjectType::Clock:
+        currentObject = new Clock(tileset, pos, &texProgram);
+        break;
+    case ObjectType::Shield:
+        currentObject = new Shield(tileset, pos, &texProgram);
+        break;
+    }
+}
+
+void Scene::detectCheatKeys()
+{
+    if (Game::instance().getKey('k'))
+        showKey = true;
 }

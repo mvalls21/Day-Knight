@@ -31,7 +31,7 @@ void Ghost::init(const glm::ivec2 &tileMapPos, ShaderProgram &shaderProgram)
     sprite->setPosition(glm::vec2(float(tileMapDispl.x + position.x), float(tileMapDispl.y + position.y)));
 }
 
-constexpr glm::vec2 GHOST_SIZE = glm::vec2(28.0f);
+constexpr glm::vec2 GHOST_SIZE = glm::vec2(32.0f);
 
 void Ghost::update(int deltaTime)
 {

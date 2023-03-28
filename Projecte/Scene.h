@@ -2,6 +2,7 @@
 
 #include <glm/glm.hpp>
 #include <vector>
+#include <queue>
 
 #include "ShaderProgram.h"
 #include "TileMap.h"
@@ -24,11 +25,21 @@
 
 #define PLAYER_IMMUNITY_MS 1500
 
+#define OBJECT_PERIOD 10'000
+
 enum class SceneStatus
 {
 	Continue,
 	PlayerDead,
 	LevelComplete
+};
+
+enum class ObjectType
+{
+	None,
+	Clock,
+	Gem,
+	Shield,
 };
 
 class Scene
@@ -49,7 +60,6 @@ public:
 		std::vector<EnemyDescription> skeletonDescriptions;
 		std::vector<EnemyDescription> vampireDescriptions;
 		std::vector<EnemyDescription> ghostDescriptions;
-		// More enemy types...
 
 		glm::ivec2 keyPositionTile;
 		glm::ivec2 doorPositionTile;
@@ -67,6 +77,7 @@ private:
 
 private:
 	TileMap *map;
+	Texture *tileset;
 
 	Player *player;
 	std::vector<Enemy *> enemies;
@@ -81,8 +92,17 @@ private:
 	bool isDoorOpen = false;
 	Door *door;
 
-    StaticSprite *heart;
+	StaticSprite *heart;
 
-	Gem* gem = nullptr;
-	Clock* clock = nullptr;
+	Object *currentObject = nullptr;
+	ObjectType currentObjectType = ObjectType::None;
+	int objectTimer = 0;
+
+	std::queue<ObjectType> remainingObjectTypes;
+
+	bool shieldProtection = false;
+        Shield* shield;
+
+	void spawnRandomObject();
+        void detectCheatKeys();
 };
