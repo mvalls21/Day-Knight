@@ -168,3 +168,48 @@ BoundingBoxInfo Clock::getBoundingBoxInfo() const
         .width = 12,
         .height = 14};
 }
+
+// 
+// Shield
+//
+Shield::Shield(Texture *tileset, const glm::ivec2 &pos, ShaderProgram *program)
+{
+    position = pos;
+
+    texture = new Texture();
+    texture->loadFromFile("images/shield.png", PixelFormat::TEXTURE_PIXEL_FORMAT_RGBA);
+
+    sprite = AnimatedSprite::createSprite(glm::vec2(20.0f, 20.0f), glm::vec2(1.0f / 2.0f, 1.0f), texture, program);
+    sprite->setPosition(position);
+
+    sprite->setNumberAnimations(1);
+    sprite->setAnimationSpeed(0, 2);
+    sprite->addKeyframe(0, glm::vec2(0.0f / 2.0f, 0.0f));
+    sprite->addKeyframe(0, glm::vec2(1.0f / 2.0f, 0.0f));
+
+    sprite->changeAnimation(0);
+}
+
+Shield::~Shield()
+{
+    delete texture;
+    delete sprite;
+}
+
+void Shield::render() const
+{
+    sprite->render();
+}
+
+void Shield::update(int deltaTime) {
+    sprite->update(deltaTime);
+}
+
+BoundingBoxInfo Shield::getBoundingBoxInfo() const
+{
+    return {
+        .xoffset = 4,
+        .yoffset = 0,
+        .width = 12,
+        .height = 14};
+}

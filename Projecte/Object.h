@@ -73,7 +73,22 @@ public:
     BoundingBoxInfo getBoundingBoxInfo() const override;
 
 private:
-    // StaticSprite *sprite;
+    AnimatedSprite *sprite;
+    Texture *texture;
+};
+
+class Shield : public Object
+{
+public:
+    Shield(Texture *tileset, const glm::ivec2 &pos, ShaderProgram *program);
+    ~Shield();
+
+    void render() const override;
+    void update(int deltaTime) override;
+
+    BoundingBoxInfo getBoundingBoxInfo() const override;
+
+private:
     AnimatedSprite *sprite;
     Texture *texture;
 };

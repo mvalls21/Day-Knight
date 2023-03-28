@@ -36,9 +36,10 @@ enum class SceneStatus
 
 enum class ObjectType
 {
-	None = -1,
-	Clock = 0,
-	Gem = 1,
+	None,
+	Clock,
+	Gem,
+	Shield,
 };
 
 class Scene

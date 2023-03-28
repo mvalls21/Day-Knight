@@ -109,7 +109,7 @@ void Scene::init(const Description &description)
 	std::random_device r;
 	std::default_random_engine engine(r());
 
-	std::vector<ObjectType> objects = {ObjectType::Gem, ObjectType::Clock};
+	std::vector<ObjectType> objects = {ObjectType::Gem, ObjectType::Clock, ObjectType::Shield};
 	std::shuffle(objects.begin(), objects.end(), engine);
 
 	for (const auto &object : objects)
@@ -156,6 +156,22 @@ SceneStatus Scene::update(int deltaTime)
 
 	if (isDoorOpen && player->isColliding(*door))
 		return SceneStatus::LevelComplete;
+
+	if (currentObjectType != ObjectType::None && currentObject->isColliding(*player))
+	{
+		switch (currentObjectType)
+		{
+		case ObjectType::Gem:
+			// TODO: Give points
+			break;
+		case ObjectType::Clock:
+			// TODO: Give time
+			break;
+		case ObjectType::Shield:
+			// TODO: Give one hit immunity
+			break;
+		}
+	}
 
 	// Object spawn logic
 	if (currentObjectType != ObjectType::None)
@@ -276,6 +292,9 @@ void Scene::spawnRandomObject()
 		break;
 	case ObjectType::Clock:
 		currentObject = new Clock(tileset, pos, &texProgram);
+		break;
+	case ObjectType::Shield:
+		currentObject = new Shield(tileset, pos, &texProgram);
 		break;
 	}
 }
