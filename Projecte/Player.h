@@ -17,7 +17,8 @@ public:
     int getLives() const;
     void setLives(int lives);
     void makeImmune(int milliseconds);
-    bool isImmune();
+    bool isImmune() const;
+    void render() const override;
 
 
 private:
@@ -25,4 +26,5 @@ private:
 	int jumpAngle, startY;
     int lives = MAX_LIVES;
     int remainingImmunityMilliseconds = 0;
+    ShaderProgram* texProgram;
 };

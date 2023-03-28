@@ -108,11 +108,11 @@ SceneStatus Scene::update(int deltaTime)
 																 { return player->isColliding(*enemy); });
 
 	if (enemyCollision)
-	{
-		player->setPosition(glm::vec2(INIT_PLAYER_X_TILES * map->getTileSize(), INIT_PLAYER_Y_TILES * map->getTileSize()));
-		player->setLives(player->getLives() - 1);
-		player->makeImmune(2000);
-	}
+    {
+        player->setPosition(glm::vec2(INIT_PLAYER_X_TILES * map->getTileSize(), INIT_PLAYER_Y_TILES * map->getTileSize()));
+        player->setLives(player->getLives() - 1);
+        player->makeImmune(PLAYER_IMMUNITY_MS);
+    }
 
 	if (!showKey && !isDoorOpen && map->isCompleted())
 		showKey = true;
