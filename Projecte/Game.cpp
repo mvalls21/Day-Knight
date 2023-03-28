@@ -2,6 +2,8 @@
 #include <GL/glut.h>
 #include "Game.h"
 
+#include <irrKlang.h>
+
 static Scene::Description sceneLevel01()
 {
 	Scene::Description description{};
@@ -44,6 +46,13 @@ void Game::init()
 	mainMenu = new MainMenu(SCREEN_WIDTH, SCREEN_HEIGHT);
 	instructionsMenu = new TexturedMenu(SCREEN_WIDTH, SCREEN_HEIGHT, "images/main_menu/instructions_menu.png");
 	creditsMenu = new TexturedMenu(SCREEN_WIDTH, SCREEN_HEIGHT, "images/main_menu/credits_menu.png");
+
+        irrklang::ISoundEngine* engine = irrklang::createIrrKlangDevice();
+
+        if (engine == nullptr)
+          abort();
+
+        engine->play2D("sounds/explosion.wav", true);
 }
 
 bool Game::update(int deltaTime)
