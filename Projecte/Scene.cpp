@@ -100,8 +100,9 @@ void Scene::init(const Description &description)
 
     key = new Key(tileset, {SCREEN_X + description.keyPositionTile.x * map->getTileSize(), SCREEN_Y + description.keyPositionTile.y * map->getTileSize()}, &texProgram);
 
-    const auto tileSize = map->getTileSize();
-    const glm::ivec2 doorPositionTop = TILE_POS(description.doorPositionTile.x, description.doorPositionTile.y - 1);
+    // const glm::ivec2 doorPositionTop = TILE_POS(description.doorPositionTile.x, description.doorPositionTile.y - 1);
+    const glm::ivec2 doorPositionTop = TILE_POS(description.doorPositionTile.x, description.doorPositionTile.y - 2);
+
     const glm::ivec2 doorPositionBottom = TILE_POS(description.doorPositionTile.x, description.doorPositionTile.y);
     door = new Door(tileset, doorPositionTop, doorPositionBottom, &texProgram);
 

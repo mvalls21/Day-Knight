@@ -25,12 +25,16 @@ public:
     ~Door() override;
 
     void render() const override;
+    void update(int deltaTime) override;
     void open() const;
 
     BoundingBoxInfo getBoundingBoxInfo() const override;
 
 private:
-    std::vector<AnimatedSprite *> sprites;
+    // std::vector<AnimatedSprite *> sprites;
+  AnimatedSprite* sprite;
+  Texture* texture;
+
 };
 
 class Key : public Object

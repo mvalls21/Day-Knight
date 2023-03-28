@@ -18,7 +18,7 @@ static Scene::Description sceneLevel01()
 		Scene::EnemyDescription{24, 9, MOVE_LEFT}};
 
 	description.keyPositionTile = {8, 18};
-	description.doorPositionTile = {21, 4};
+	description.doorPositionTile = {19, 4};
 
 	return description;
 }

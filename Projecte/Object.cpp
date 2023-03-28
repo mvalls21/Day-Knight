@@ -10,44 +10,45 @@ Door::Door(Texture *tileset, const glm::ivec2 &positionTop, const glm::ivec2 &po
 {
     position = positionTop;
 
-    auto doorSprite1 = AnimatedSprite::createSprite(glm::vec2(16.0f), glm::vec2(1.0f / 10.0f, 1.0f / 10.0f), tileset, program);
-    doorSprite1->setPosition(positionBottom);
+    texture = new Texture();
+    texture->loadFromFile("images/door.png", PixelFormat::TEXTURE_PIXEL_FORMAT_RGBA);
 
-    doorSprite1->setNumberAnimations(2);
-    doorSprite1->addKeyframe(0, {0.0f / 10.0f, 3.0f / 10.0f});
-    doorSprite1->addKeyframe(1, {2.0f / 10.0f, 3.0f / 10.0f});
+    sprite = AnimatedSprite::createSprite(glm::vec2(48.0f), glm::vec2(1.0f / 4.0f, 1.0f), texture, program);
+    sprite->setPosition(positionTop);
 
-    doorSprite1->changeAnimation(0);
+    sprite->setNumberAnimations(3);
 
-    auto doorSprite2 = AnimatedSprite::createSprite(glm::vec2(16.0f), glm::vec2(1.0f / 10.0f, 1.0f / 10.0f), tileset, program);
-    doorSprite2->setPosition(positionTop);
+    // Closed
+    sprite->setAnimationSpeed(0, 8);
+    sprite->addKeyframe(0, glm::vec2(0.0f / 4.0f, 0.0f));
 
-    doorSprite2->setNumberAnimations(2);
-    doorSprite2->addKeyframe(0, {1.0f / 10.0f, 3.0f / 10.0f});
-    doorSprite2->addKeyframe(1, {3.0f / 10.0f, 3.0f / 10.0f});
+    // TODO: Opening
+    sprite->setAnimationSpeed(1, 4);
 
-    doorSprite2->changeAnimation(0);
-
-    sprites.push_back(doorSprite1);
-    sprites.push_back(doorSprite2);
+    // TODO: Opened
+    sprite->setAnimationSpeed(2, 4);
 }
 
 Door::~Door()
 {
-    for (const AnimatedSprite *sprite : sprites)
-        delete sprite;
+    delete sprite;
+    delete texture;
 }
 
 void Door::render() const
 {
-    for (const auto &sprite : sprites)
-        sprite->render();
+    sprite->render();
+}
+
+void Door::update(int deltaTime)
+{
+    sprite->update(deltaTime);
 }
 
 void Door::open() const
 {
-    for (const auto &sprite : sprites)
-        sprite->changeAnimation(1);
+    // for (const auto &sprite : sprites)
+    // sprite->changeAnimation(1);
 }
 
 BoundingBoxInfo Door::getBoundingBoxInfo() const
@@ -156,7 +157,8 @@ void Clock::render() const
     sprite->render();
 }
 
-void Clock::update(int deltaTime) {
+void Clock::update(int deltaTime)
+{
     sprite->update(deltaTime);
 }
 
@@ -169,7 +171,7 @@ BoundingBoxInfo Clock::getBoundingBoxInfo() const
         .height = 14};
 }
 
-// 
+//
 // Shield
 //
 Shield::Shield(Texture *tileset, const glm::ivec2 &pos, ShaderProgram *program)
@@ -201,7 +203,8 @@ void Shield::render() const
     sprite->render();
 }
 
-void Shield::update(int deltaTime) {
+void Shield::update(int deltaTime)
+{
     sprite->update(deltaTime);
 }
 
