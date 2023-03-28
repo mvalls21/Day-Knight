@@ -19,10 +19,17 @@ Scene::Scene()
 
 Scene::~Scene()
 {
-	if (map != NULL)
-		delete map;
-	if (player != NULL)
-		delete player;
+	delete map;
+
+	delete player;
+	for (const auto *enemy : enemies)
+		delete enemy;
+
+	delete key;
+	delete door;
+	delete heart;
+	delete gem;
+	delete clock;
 }
 
 void Scene::init(const Description &description)
@@ -98,7 +105,7 @@ SceneStatus Scene::update(int deltaTime)
 		enemy->update(deltaTime);
 
 	bool enemyCollision = not player->isImmune() and std::any_of(enemies.begin(), enemies.end(), [&](const Enemy *enemy)
-									  { return player->isColliding(*enemy); });
+																 { return player->isColliding(*enemy); });
 
 	if (enemyCollision)
     {

@@ -135,7 +135,7 @@ int Player::getLives() const
     return lives;
 }
 
-bool Player::isImmune()
+bool Player::isImmune() const
 {
     return remainingImmunityMilliseconds > 0;
 }
