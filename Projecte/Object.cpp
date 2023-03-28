@@ -132,7 +132,7 @@ Clock::Clock(Texture *tileset, const glm::ivec2 &pos, ShaderProgram *program)
     texture = new Texture();
     texture->loadFromFile("images/clock.png", PixelFormat::TEXTURE_PIXEL_FORMAT_RGBA);
 
-    sprite = AnimatedSprite::createSprite(glm::vec2(16.0f, 20.0f), glm::vec2(1.0f / 4.0f, 1.0f), texture, program);
+    sprite = AnimatedSprite::createSprite(glm::vec2(14.0f, 20.0f), glm::vec2(1.0f / 4.0f, 1.0f), texture, program);
     sprite->setPosition(position);
 
     sprite->setNumberAnimations(1);

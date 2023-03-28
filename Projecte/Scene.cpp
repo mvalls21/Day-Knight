@@ -5,11 +5,15 @@
 #include "Scene.h"
 #include "Game.h"
 
+#include <random>
+
 #define SCREEN_X 26
 #define SCREEN_Y 46
 
 #define INIT_PLAYER_X_TILES 8
 #define INIT_PLAYER_Y_TILES 3
+
+#define TILE_POS(x, y) glm::vec2(SCREEN_X + (x)*map->getTileSize(), SCREEN_Y + (y)*map->getTileSize())
 
 Scene::Scene()
 {
@@ -20,6 +24,7 @@ Scene::Scene()
 Scene::~Scene()
 {
 	delete map;
+	delete tileset;
 
 	delete player;
 	for (const auto *enemy : enemies)
@@ -28,8 +33,9 @@ Scene::~Scene()
 	delete key;
 	delete door;
 	delete heart;
-	delete gem;
-	delete clock;
+
+	if (currentObject != nullptr)
+		delete currentObject;
 }
 
 void Scene::init(const Description &description)
@@ -86,7 +92,7 @@ void Scene::init(const Description &description)
 		enemies.push_back(ghost);
 	}
 
-	Texture *tileset = new Texture();
+	tileset = new Texture();
 	tileset->loadFromFile("images/nuevo_tileset.png", PixelFormat::TEXTURE_PIXEL_FORMAT_RGBA);
 
 	heart = StaticSprite::createSprite(glm::vec2(20.f), glm::vec2(1.f / 10.f), tileset, &texProgram);
@@ -94,23 +100,36 @@ void Scene::init(const Description &description)
 
 	key = new Key(tileset, {SCREEN_X + description.keyPositionTile.x * map->getTileSize(), SCREEN_Y + description.keyPositionTile.y * map->getTileSize()}, &texProgram);
 
-	const glm::ivec2 doorPositionTop = {SCREEN_X + description.doorPositionTile.x * 16, SCREEN_Y + (description.doorPositionTile.y - 1) * 16.0};
-	const glm::ivec2 doorPositionBottom = {SCREEN_X + description.doorPositionTile.x * 16, SCREEN_Y + description.doorPositionTile.y * 16.0};
+	const auto tileSize = map->getTileSize();
+	const glm::ivec2 doorPositionTop = TILE_POS(description.doorPositionTile.x, description.doorPositionTile.y - 1);
+	const glm::ivec2 doorPositionBottom = TILE_POS(description.doorPositionTile.x, description.doorPositionTile.y);
 	door = new Door(tileset, doorPositionTop, doorPositionBottom, &texProgram);
 
+	// Create objects randomly
+	const int numberObjects = 2;
+
+	std::random_device r;
+	std::default_random_engine engine(r());
+
+	std::vector<ObjectType> objects = {ObjectType::Gem, ObjectType::Clock};
+	std::shuffle(objects.begin(), objects.end(), engine);
+
+	for (const auto &object : objects)
+		remainingObjectTypes.push(object);
+
 	// Gem
-	gem = new Gem(tileset, {SCREEN_X + 8 * map->getTileSize(), SCREEN_Y + 9 * map->getTileSize() + 7}, &texProgram);
+	// gem = new Gem(tileset, {SCREEN_X + 8 * map->getTileSize(), SCREEN_Y + 9 * map->getTileSize() + 7}, &texProgram);
 
 	// Clock
-	clock = new Clock(tileset, {SCREEN_X + 10 * map->getTileSize(), SCREEN_Y + 9 * map->getTileSize() + 7}, &texProgram);
+	// clock = new Clock(tileset, {SCREEN_X + 10 * map->getTileSize(), SCREEN_Y + 9 * map->getTileSize() + 7}, &texProgram);
 }
 
 SceneStatus Scene::update(int deltaTime)
 {
 	currentTime += deltaTime;
+	objectTimer += deltaTime;
 
 	map->update(deltaTime);
-	clock->update(deltaTime);
 
 	player->update(deltaTime);
 
@@ -121,11 +140,11 @@ SceneStatus Scene::update(int deltaTime)
 																 { return player->isColliding(*enemy); });
 
 	if (enemyCollision)
-    {
-        player->setPosition(glm::vec2(INIT_PLAYER_X_TILES * map->getTileSize(), INIT_PLAYER_Y_TILES * map->getTileSize()));
-        player->setLives(player->getLives() - 1);
-        player->makeImmune(PLAYER_IMMUNITY_MS);
-    }
+	{
+		player->setPosition(glm::vec2(INIT_PLAYER_X_TILES * map->getTileSize(), INIT_PLAYER_Y_TILES * map->getTileSize()));
+		player->setLives(player->getLives() - 1);
+		player->makeImmune(PLAYER_IMMUNITY_MS);
+	}
 
 	if (!showKey && !isDoorOpen && map->isCompleted())
 		showKey = true;
@@ -141,12 +160,32 @@ SceneStatus Scene::update(int deltaTime)
 	}
 
 	if (player->getLives() == 0)
-	{
 		return SceneStatus::PlayerDead;
-	}
 
 	if (isDoorOpen && player->isColliding(*door))
 		return SceneStatus::LevelComplete;
+
+	// Object spawn logic
+	if (currentObjectType != ObjectType::None)
+		currentObject->update(deltaTime);
+
+	if (objectTimer >= OBJECT_PERIOD)
+	{
+		// ObjectType::None means that player should not interact with object, but existance or not is controlled
+		// by currentObject == nullptr or not
+		objectTimer = 0;
+
+		if (currentObject == nullptr)
+		{
+			spawnRandomObject();
+		}
+		else
+		{
+			delete currentObject;
+			currentObject = nullptr;
+			currentObjectType = ObjectType::None;
+		}
+	}
 
 	return SceneStatus::Continue;
 }
@@ -178,8 +217,8 @@ void Scene::render()
 	if (showKey)
 		key->render();
 
-	gem->render();
-	clock->render();
+	if (currentObjectType != ObjectType::None)
+		currentObject->render();
 
 	player->render();
 }
@@ -215,4 +254,36 @@ void Scene::initShaders()
 	texProgram.bindFragmentOutput("outColor");
 	vShader.free();
 	fShader.free();
+}
+
+void Scene::spawnRandomObject()
+{
+	if (remainingObjectTypes.size() == 0)
+		return;
+
+	std::random_device r;
+	std::default_random_engine engine(r());
+
+	constexpr glm::vec2 offset = {0, 7};
+
+	// Select platform
+	const auto platforms = map->getPlatforms();
+	std::uniform_int_distribution<int> platform_random(0, platforms.size() - 1);
+	const int platformIdx = platform_random(engine);
+
+	const auto platform = platforms[platformIdx];
+	const auto pos = TILE_POS(platform.x, platform.y - 2) + offset;
+
+	// Get Object
+	currentObjectType = remainingObjectTypes.front();
+	remainingObjectTypes.pop();
+	switch (currentObjectType)
+	{
+	case ObjectType::Gem:
+		currentObject = new Gem(tileset, pos, &texProgram);
+		break;
+	case ObjectType::Clock:
+		currentObject = new Clock(tileset, pos, &texProgram);
+		break;
+	}
 }

@@ -11,6 +11,7 @@ public:
     virtual ~Object() {}
 
     virtual void render() const = 0;
+    virtual void update(int deltaTime) {}
     glm::ivec2 getPosition() const override { return position; }
 
 protected:
@@ -67,7 +68,7 @@ public:
     ~Clock();
 
     void render() const override;
-    void update(int deltaTime);
+    void update(int deltaTime) override;
 
     BoundingBoxInfo getBoundingBoxInfo() const override;
 

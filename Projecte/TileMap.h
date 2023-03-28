@@ -39,10 +39,12 @@ public:
 	bool collisionMoveUp(const glm::ivec2 &pos, const glm::ivec2 &size, const bool bJumping, const bool ghost = false) const;
 	bool collisionMoveDown(const glm::ivec2 &pos, const glm::ivec2 &size, int *posY, bool tileChanger, const bool ghost = false);
 
-    bool collisionSpikes(const glm::ivec2 &pos, const glm::ivec2 &size);
+	bool collisionSpikes(const glm::ivec2 &pos, const glm::ivec2 &size);
 
 	bool isTileWithCollision(const glm::ivec2 &tile);
 	bool isPlatform(const glm::ivec2 &tile);
+
+	std::vector<glm::ivec2> getPlatforms() const;
 
 	bool isCompleted() const;
 
