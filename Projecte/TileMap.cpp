@@ -23,9 +23,12 @@ inline bool isChangeableTile(int x)
 
 constexpr int WALL = 0 + 1;
 
-inline bool isCollisionTile(int x)
+inline bool isCollisionTile(const int x, const bool internalWalls = false)
 {
-	return x == WALL || (x >= (23 + 1) && x <= (26 + 1)) || (x >= (34 + 1) && x <= (37 + 1)) || x == SPIKES;
+	return x == WALL 
+	|| (internalWalls && x >= (23 + 1) && x <= (26 + 1)) 
+	|| (internalWalls && x >= (34 + 1) && x <= (37 + 1)) 
+	|| x == SPIKES;
 }
 
 constexpr int TORCH = 42 + 1;
@@ -274,7 +277,7 @@ void TileMap::prepareArrays(const glm::vec2 &minCoords, ShaderProgram &program)
 // Method collisionMoveDown also corrects Y coordinate if the box is
 // already intersecting a tile below.
 
-bool TileMap::collisionMoveLeft(const glm::ivec2 &pos, const glm::ivec2 &size, const bool &bJumping) const
+bool TileMap::collisionMoveLeft(const glm::ivec2 &pos, const glm::ivec2 &size, const bool &bJumping, const bool ghost) const
 {
 	int x, y0, y1;
 
@@ -284,14 +287,14 @@ bool TileMap::collisionMoveLeft(const glm::ivec2 &pos, const glm::ivec2 &size, c
 	for (int y = y0; y <= y1; y++)
 	{
 		const int tile = map[y * mapSize.x + x];
-		if (isCollisionTile(tile) or (not bJumping and isChangeableTile(tile)))
+		if (isCollisionTile(tile, !ghost) or (not bJumping and isChangeableTile(tile)))
 			return true;
 	}
 
 	return false;
 }
 
-bool TileMap::collisionMoveRight(const glm::ivec2 &pos, const glm::ivec2 &size, const bool &bJumping) const
+bool TileMap::collisionMoveRight(const glm::ivec2 &pos, const glm::ivec2 &size, const bool &bJumping, const bool ghost) const
 {
 	int x, y0, y1;
 
@@ -301,14 +304,14 @@ bool TileMap::collisionMoveRight(const glm::ivec2 &pos, const glm::ivec2 &size, 
 	for (int y = y0; y <= y1; y++)
 	{
 		const int tile = map[y * mapSize.x + x];
-		if (isCollisionTile(tile) or (not bJumping and isChangeableTile(tile)))
+		if (isCollisionTile(tile, !ghost) or (not bJumping and isChangeableTile(tile)))
 			return true;
 	}
 
 	return false;
 }
 
-bool TileMap::collisionMoveUp(const glm::ivec2 &pos, const glm::ivec2 &size, const bool bJumping) const
+bool TileMap::collisionMoveUp(const glm::ivec2 &pos, const glm::ivec2 &size, const bool bJumping, const bool ghost) const
 {
 	int x0, x1, y;
 
@@ -318,7 +321,7 @@ bool TileMap::collisionMoveUp(const glm::ivec2 &pos, const glm::ivec2 &size, con
 	for (int x = x0; x <= x1; x++)
 	{
 		const int tile = map[y * mapSize.x + x];
-		if (isCollisionTile(tile) || (!bJumping && isChangeableTile(tile)))
+		if (isCollisionTile(tile, !ghost) || (!bJumping && isChangeableTile(tile)))
 		{
 			return true;
 		}
@@ -327,7 +330,7 @@ bool TileMap::collisionMoveUp(const glm::ivec2 &pos, const glm::ivec2 &size, con
 	return false;
 }
 
-bool TileMap::collisionMoveDown(const glm::ivec2 &pos, const glm::ivec2 &size, int *posY, bool tileChanger)
+bool TileMap::collisionMoveDown(const glm::ivec2 &pos, const glm::ivec2 &size, int *posY, bool tileChanger, const bool ghost)
 {
 	int x0, x1, y;
 
@@ -341,7 +344,7 @@ bool TileMap::collisionMoveDown(const glm::ivec2 &pos, const glm::ivec2 &size, i
 	for (int x = x0; x <= x1; x++)
 	{
 		const int tile = map[y * mapSize.x + x];
-		if (isCollisionTile(tile) or isChangeableTile(tile) or tile == SPIKES)
+		if (isCollisionTile(tile, !ghost) or isChangeableTile(tile) or tile == SPIKES)
 		{
 			if (*posY - tileSize * y + size.y <= 4)
 			{

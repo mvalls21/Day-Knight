@@ -13,7 +13,7 @@ void Enemy::defaultMovement(int deltaTime)
     position.x += movementSpeed;
     position.y += FALL_STEP;
 
-    map->collisionMoveDown(position, glm::ivec2(32), &position.y);
+    map->collisionMoveDown(position, glm::ivec2(32), &position.y, false);
 
     const int nextYTile = position.y / map->getTileSize() + 2;
     const int nextXTile = currentDirection == MOVE_RIGHT

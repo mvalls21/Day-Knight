@@ -34,10 +34,11 @@ public:
 
 	int getTileSize() const { return tileSize; }
 
-	bool collisionMoveLeft(const glm::ivec2 &pos, const glm::ivec2 &size, const bool &bJumping) const;
-	bool collisionMoveRight(const glm::ivec2 &pos, const glm::ivec2 &size, const bool &bJumping) const;
-	bool collisionMoveUp(const glm::ivec2 &pos, const glm::ivec2 &size, const bool bJumping = true) const;
-	bool collisionMoveDown(const glm::ivec2 &pos, const glm::ivec2 &size, int *posY, bool tileChanger = false);
+	bool collisionMoveLeft(const glm::ivec2 &pos, const glm::ivec2 &size, const bool &bJumping, const bool ghost = false) const;
+	bool collisionMoveRight(const glm::ivec2 &pos, const glm::ivec2 &size, const bool &bJumping, const bool ghost = false) const;
+	bool collisionMoveUp(const glm::ivec2 &pos, const glm::ivec2 &size, const bool bJumping, const bool ghost = false) const;
+	bool collisionMoveDown(const glm::ivec2 &pos, const glm::ivec2 &size, int *posY, bool tileChanger, const bool ghost = false);
+
     bool collisionSpikes(const glm::ivec2 &pos, const glm::ivec2 &size);
 
 	bool isTileWithCollision(const glm::ivec2 &tile);

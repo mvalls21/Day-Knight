@@ -31,7 +31,7 @@ void Ghost::init(const glm::ivec2 &tileMapPos, ShaderProgram &shaderProgram)
     sprite->setPosition(glm::vec2(float(tileMapDispl.x + position.x), float(tileMapDispl.y + position.y)));
 }
 
-constexpr glm::vec2 GHOST_SIZE = glm::vec2(30.0f);
+constexpr glm::vec2 GHOST_SIZE = glm::vec2(28.0f);
 
 void Ghost::update(int deltaTime)
 {
@@ -39,8 +39,8 @@ void Ghost::update(int deltaTime)
 
     position += flyingMovement;
 
-    const bool collisionRight = map->collisionMoveRight(position, GHOST_SIZE, true);
-    const bool collisionLeft = map->collisionMoveLeft(position, GHOST_SIZE, true);
+    const bool collisionRight = map->collisionMoveRight(position, GHOST_SIZE, true, true);
+    const bool collisionLeft = map->collisionMoveLeft(position, GHOST_SIZE, true, true);
 
     const bool collisionHorizontal = collisionRight || collisionLeft;
 
@@ -54,13 +54,13 @@ void Ghost::update(int deltaTime)
     bool collisionUp = false;
     if (flyingMovement.y < 0)
     {
-        collisionUp = map->collisionMoveUp({position.x, position.y - 1}, GHOST_SIZE, false);
+        collisionUp = map->collisionMoveUp({position.x, position.y - 1}, GHOST_SIZE, false, true);
     }
 
     bool collisionDown = false;
     if (flyingMovement.y > 0)
     {
-        collisionDown = map->collisionMoveDown({position.x, position.y}, GHOST_SIZE, &position.y, false);
+        collisionDown = map->collisionMoveDown({position.x, position.y}, GHOST_SIZE, &position.y, false, true);
     }
 
     const bool collisionVertical = collisionUp || collisionDown;
