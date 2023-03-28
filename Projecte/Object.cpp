@@ -22,11 +22,20 @@ Door::Door(Texture *tileset, const glm::ivec2 &positionTop, const glm::ivec2 &po
     sprite->setAnimationSpeed(0, 8);
     sprite->addKeyframe(0, glm::vec2(0.0f / 4.0f, 0.0f));
 
-    // TODO: Opening
-    sprite->setAnimationSpeed(1, 4);
+    constexpr int openingDoorKeyframesPerSecond = 2;
+    // milliseconds for the door to open
+    openingTimeout = (1.0f / float(openingDoorKeyframesPerSecond)) * 4.0f * 1000.0f;
 
-    // TODO: Opened
-    sprite->setAnimationSpeed(2, 4);
+    sprite->setAnimationSpeed(1, openingDoorKeyframesPerSecond);
+    sprite->addKeyframe(1, glm::vec2(0.0f / 4.0f, 0.0f));
+    sprite->addKeyframe(1, glm::vec2(1.0f / 4.0f, 0.0f));
+    sprite->addKeyframe(1, glm::vec2(2.0f / 4.0f, 0.0f));
+    sprite->addKeyframe(1, glm::vec2(3.0f / 4.0f, 0.0f));
+
+    sprite->setAnimationSpeed(2, 8);
+    sprite->addKeyframe(2, glm::vec2(3.0f / 4.0f, 0.0f));
+
+    sprite->changeAnimation(0);
 }
 
 Door::~Door()
@@ -42,13 +51,18 @@ void Door::render() const
 
 void Door::update(int deltaTime)
 {
+    if (sprite->animation() == 1)
+        timeOpening += deltaTime;
+
+    if (sprite->animation() == 1 && timeOpening >= openingTimeout)
+        sprite->changeAnimation(2);
+
     sprite->update(deltaTime);
 }
 
 void Door::open() const
 {
-    // for (const auto &sprite : sprites)
-    // sprite->changeAnimation(1);
+    sprite->changeAnimation(1);
 }
 
 BoundingBoxInfo Door::getBoundingBoxInfo() const

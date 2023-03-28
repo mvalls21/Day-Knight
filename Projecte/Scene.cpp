@@ -122,6 +122,8 @@ void Scene::init(const Description &description)
 
 SceneStatus Scene::update(int deltaTime)
 {
+    detectCheatKeys();
+
     currentTime += deltaTime;
     objectTimer += deltaTime;
 
@@ -157,6 +159,8 @@ SceneStatus Scene::update(int deltaTime)
             door->open();
         }
     }
+
+    door->update(deltaTime);
 
     if (player->getLives() == 0)
         return SceneStatus::PlayerDead;
@@ -315,4 +319,10 @@ void Scene::spawnRandomObject()
         currentObject = new Shield(tileset, pos, &texProgram);
         break;
     }
+}
+
+void Scene::detectCheatKeys()
+{
+    if (Game::instance().getKey('k'))
+        showKey = true;
 }

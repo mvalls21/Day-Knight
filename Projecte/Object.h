@@ -31,10 +31,11 @@ public:
     BoundingBoxInfo getBoundingBoxInfo() const override;
 
 private:
-    // std::vector<AnimatedSprite *> sprites;
   AnimatedSprite* sprite;
   Texture* texture;
 
+  int timeOpening = 0;
+  int openingTimeout;
 };
 
 class Key : public Object

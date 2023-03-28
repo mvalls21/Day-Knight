@@ -104,4 +104,5 @@ private:
         Shield* shield;
 
 	void spawnRandomObject();
+        void detectCheatKeys();
 };
