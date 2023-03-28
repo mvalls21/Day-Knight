@@ -20,6 +20,8 @@
 // Scene contains all the entities of our game.
 // It is responsible for updating and render them.
 
+#define PLAYER_IMMUNITY_MS 1500
+
 enum class SceneStatus
 {
 	Continue,
