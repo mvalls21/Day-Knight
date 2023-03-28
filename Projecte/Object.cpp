@@ -128,19 +128,36 @@ BoundingBoxInfo Gem::getBoundingBoxInfo() const
 Clock::Clock(Texture *tileset, const glm::ivec2 &pos, ShaderProgram *program)
 {
     position = pos;
-    sprite = StaticSprite::createSprite(glm::vec2(20.0f), glm::vec2(1.0f / 10.0f, 1.0f / 10.0f), tileset, program);
+
+    texture = new Texture();
+    texture->loadFromFile("images/clock.png", PixelFormat::TEXTURE_PIXEL_FORMAT_RGBA);
+
+    sprite = AnimatedSprite::createSprite(glm::vec2(16.0f, 20.0f), glm::vec2(1.0f / 4.0f, 1.0f), texture, program);
     sprite->setPosition(position);
-    sprite->setSpritesheetCoords(glm::vec2(0.0f / 10.0f, 0.0f / 10.0f));
+
+    sprite->setNumberAnimations(1);
+    sprite->setAnimationSpeed(0, 4);
+    sprite->addKeyframe(0, glm::vec2(0.0f / 4.0f, 0.0f));
+    sprite->addKeyframe(0, glm::vec2(1.0f / 4.0f, 0.0f));
+    sprite->addKeyframe(0, glm::vec2(2.0f / 4.0f, 0.0f));
+    sprite->addKeyframe(0, glm::vec2(3.0f / 4.0f, 0.0f));
+
+    sprite->changeAnimation(0);
 }
 
 Clock::~Clock()
 {
+    delete texture;
     delete sprite;
 }
 
 void Clock::render() const
 {
     sprite->render();
+}
+
+void Clock::update(int deltaTime) {
+    sprite->update(deltaTime);
 }
 
 BoundingBoxInfo Clock::getBoundingBoxInfo() const

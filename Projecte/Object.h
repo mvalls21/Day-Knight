@@ -67,9 +67,12 @@ public:
     ~Clock();
 
     void render() const override;
+    void update(int deltaTime);
 
     BoundingBoxInfo getBoundingBoxInfo() const override;
 
 private:
-    StaticSprite *sprite;
+    // StaticSprite *sprite;
+    AnimatedSprite *sprite;
+    Texture *texture;
 };

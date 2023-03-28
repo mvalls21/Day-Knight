@@ -110,6 +110,7 @@ SceneStatus Scene::update(int deltaTime)
 	currentTime += deltaTime;
 
 	map->update(deltaTime);
+	clock->update(deltaTime);
 
 	player->update(deltaTime);
 
