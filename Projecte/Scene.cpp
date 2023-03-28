@@ -105,9 +105,7 @@ void Scene::init(const Description &description)
 	const glm::ivec2 doorPositionBottom = TILE_POS(description.doorPositionTile.x, description.doorPositionTile.y);
 	door = new Door(tileset, doorPositionTop, doorPositionBottom, &texProgram);
 
-	// Create objects randomly
-	const int numberObjects = 2;
-
+	// Create objects with random order
 	std::random_device r;
 	std::default_random_engine engine(r());
 
@@ -116,12 +114,6 @@ void Scene::init(const Description &description)
 
 	for (const auto &object : objects)
 		remainingObjectTypes.push(object);
-
-	// Gem
-	// gem = new Gem(tileset, {SCREEN_X + 8 * map->getTileSize(), SCREEN_Y + 9 * map->getTileSize() + 7}, &texProgram);
-
-	// Clock
-	// clock = new Clock(tileset, {SCREEN_X + 10 * map->getTileSize(), SCREEN_Y + 9 * map->getTileSize() + 7}, &texProgram);
 }
 
 SceneStatus Scene::update(int deltaTime)
