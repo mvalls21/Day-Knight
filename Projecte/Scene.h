@@ -48,6 +48,7 @@ public:
 		glm::ivec2 playerPositionStartTile;
 		std::vector<EnemyDescription> skeletonDescriptions;
 		std::vector<EnemyDescription> vampireDescriptions;
+		std::vector<EnemyDescription> ghostDescriptions;
 		// More enemy types...
 
 		glm::ivec2 keyPositionTile;

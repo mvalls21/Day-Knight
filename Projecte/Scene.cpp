@@ -65,13 +65,25 @@ void Scene::init(const Description &description)
 	// Create vampires
 	for (const auto &desc : description.vampireDescriptions)
 	{
-		auto *vampire = new Ghost();
+		auto *vampire = new Vampire();
 		vampire->init(glm::ivec2(SCREEN_X, SCREEN_Y), texProgram);
 		vampire->setTileMap(map);
 		vampire->setPosition({desc.tileX * map->getTileSize(), desc.tileY * map->getTileSize()});
 		vampire->setDirection(desc.startingDirection);
 
 		enemies.push_back(vampire);
+	}
+
+	// Create ghosts
+	for (const auto &desc : description.ghostDescriptions)
+	{
+		auto *ghost = new Ghost();
+		ghost->init(glm::ivec2(SCREEN_X, SCREEN_Y), texProgram);
+		ghost->setTileMap(map);
+		ghost->setPosition({desc.tileX * map->getTileSize(), desc.tileY * map->getTileSize()});
+		ghost->setDirection(desc.startingDirection);
+
+		enemies.push_back(ghost);
 	}
 
 	Texture *tileset = new Texture();
