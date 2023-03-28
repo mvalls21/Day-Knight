@@ -24,7 +24,7 @@ Door::Door(Texture *tileset, const glm::ivec2 &positionTop, const glm::ivec2 &po
 
     constexpr int openingDoorKeyframesPerSecond = 2;
     // milliseconds for the door to open
-    openingTimeout = (1.0f / float(openingDoorKeyframesPerSecond)) * 4.0f * 1000.0f;
+    timeToOpenDoor_ms = (1.0f / float(openingDoorKeyframesPerSecond)) * 4.0f * 1000.0f;
 
     sprite->setAnimationSpeed(1, openingDoorKeyframesPerSecond);
     sprite->addKeyframe(1, glm::vec2(0.0f / 4.0f, 0.0f));
@@ -54,7 +54,7 @@ void Door::update(int deltaTime)
     if (sprite->animation() == 1)
         timeOpening += deltaTime;
 
-    if (sprite->animation() == 1 && timeOpening >= openingTimeout)
+    if (sprite->animation() == 1 && timeOpening >= timeToOpenDoor_ms)
         sprite->changeAnimation(2);
 
     sprite->update(deltaTime);

@@ -35,7 +35,7 @@ private:
   Texture* texture;
 
   int timeOpening = 0;
-  int openingTimeout;
+  int timeToOpenDoor_ms;
 };
 
 class Key : public Object
