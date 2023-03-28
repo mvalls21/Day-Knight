@@ -100,5 +100,8 @@ private:
 
 	std::queue<ObjectType> remainingObjectTypes;
 
+	bool shieldProtection = false;
+        Shield* shield;
+
 	void spawnRandomObject();
 };

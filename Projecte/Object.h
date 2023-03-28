@@ -85,6 +85,11 @@ public:
 
     void render() const override;
     void update(int deltaTime) override;
+    void setPosition(const glm::ivec2 &pos)
+    {
+        position = pos;
+        sprite->setPosition(pos);
+    }
 
     BoundingBoxInfo getBoundingBoxInfo() const override;
 
