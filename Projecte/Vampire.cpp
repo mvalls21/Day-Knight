@@ -11,9 +11,10 @@ constexpr glm::ivec2 BAT_SIZE = glm::ivec2(24, 16);
 
 void Vampire::init(const glm::ivec2 &tileMapPos, ShaderProgram &shaderProgram)
 {
-    spritesheet.loadFromFile("images/vampire.png", TEXTURE_PIXEL_FORMAT_RGBA);
+    vampireTexture = new Texture();
+    vampireTexture->loadFromFile("images/vampire.png", TEXTURE_PIXEL_FORMAT_RGBA);
 
-    vampireSprite = AnimatedSprite::createSprite(glm::ivec2(32), glm::vec2(1.0f / 4.0f, 1.0f), &spritesheet, &shaderProgram);
+    vampireSprite = AnimatedSprite::createSprite(glm::ivec2(32), glm::vec2(1.0f / 4.0f, 1.0f), vampireTexture, &shaderProgram);
     vampireSprite->setNumberAnimations(4);
 
     vampireSprite->setAnimationSpeed(STAND_LEFT, 8);
@@ -30,8 +31,7 @@ void Vampire::init(const glm::ivec2 &tileMapPos, ShaderProgram &shaderProgram)
     vampireSprite->addKeyframe(MOVE_RIGHT, glm::vec2(0.0f / 4.0f, 0.f));
     vampireSprite->addKeyframe(MOVE_RIGHT, glm::vec2(1.0f / 4.0f, 0.0f));
 
-    // TODO: Cleanup
-    Texture *batTexture = new Texture();
+    batTexture = new Texture();
     batTexture->loadFromFile("images/bat.png", TEXTURE_PIXEL_FORMAT_RGBA);
 
     batSprite = AnimatedSprite::createSprite(BAT_SIZE, glm::vec2(1.0f / 3.0f, 1.0f), batTexture, &shaderProgram);
@@ -51,6 +51,17 @@ void Vampire::init(const glm::ivec2 &tileMapPos, ShaderProgram &shaderProgram)
 
     tileMapDispl = tileMapPos;
     sprite->setPosition(glm::vec2(float(tileMapDispl.x + position.x), float(tileMapDispl.y + position.y)));
+}
+
+Vampire::~Vampire()
+{
+    delete batTexture;
+    delete vampireTexture;
+
+    delete batSprite;
+    delete vampireSprite;
+
+    sprite = nullptr;
 }
 
 void Vampire::update(int deltaTime)

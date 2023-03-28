@@ -7,8 +7,6 @@
 class Enemy : public Character
 {
 public:
-    virtual ~Enemy() {}
-
     virtual void init(const glm::ivec2 &tileMapPos, ShaderProgram &shaderProgram) = 0;
     virtual void update(int deltaTime) override;
 

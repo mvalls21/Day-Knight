@@ -18,6 +18,8 @@ enum CharacterAnims
 class Character : public Collidable
 {
 public:
+    virtual ~Character() { delete sprite; }
+
     virtual void init(const glm::ivec2 &tileMapPos, ShaderProgram &shaderProgram) = 0;
     virtual void update(int deltaTime) = 0;
     virtual void render() const { sprite->render(); }
