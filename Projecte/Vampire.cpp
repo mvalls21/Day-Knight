@@ -98,7 +98,7 @@ void Vampire::updateFlying(int deltaTime)
     bool collisionDown = false;
     if (flyingMovement.y > 0)
     {
-        collisionDown = map->collisionMoveDown({position.x, position.y}, BAT_SIZE, &position.y);
+        collisionDown = map->collisionMoveDown({position.x, position.y}, BAT_SIZE, &position.y, false);
     }
 
     const bool collisionVertical = collisionUp || collisionDown;
@@ -133,7 +133,7 @@ void Vampire::updateWalking(int deltaTime)
 
 void Vampire::updateLanding(int deltaTime)
 {
-    if (map->collisionMoveDown(position, glm::ivec2(BAT_SIZE.x, 32), &position.y))
+    if (map->collisionMoveDown(position, glm::ivec2(BAT_SIZE.x, 32), &position.y, false))
     {
         landing = false;
         assert(!flying);

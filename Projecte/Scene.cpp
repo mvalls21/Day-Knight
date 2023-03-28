@@ -74,6 +74,18 @@ void Scene::init(const Description &description)
 		enemies.push_back(vampire);
 	}
 
+	// Create ghosts
+	for (const auto &desc : description.ghostDescriptions)
+	{
+		auto *ghost = new Ghost();
+		ghost->init(glm::ivec2(SCREEN_X, SCREEN_Y), texProgram);
+		ghost->setTileMap(map);
+		ghost->setPosition({desc.tileX * map->getTileSize(), desc.tileY * map->getTileSize()});
+		ghost->setDirection(desc.startingDirection);
+
+		enemies.push_back(ghost);
+	}
+
 	Texture *tileset = new Texture();
 	tileset->loadFromFile("images/nuevo_tileset.png", PixelFormat::TEXTURE_PIXEL_FORMAT_RGBA);
 

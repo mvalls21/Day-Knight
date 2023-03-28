@@ -20,6 +20,7 @@ target_sources(${PROJECT_NAME} PRIVATE
         Projecte/Enemy.cpp
         Projecte/Skeleton.cpp
         Projecte/Vampire.cpp
+        Projecte/Ghost.cpp
         
         Projecte/Object.cpp
 
