@@ -137,7 +137,7 @@ int Player::getLives() const
 
 bool Player::isImmune() const
 {
-    return remainingImmunityMilliseconds > 0;
+    return remainingImmunityMilliseconds > 0 || invulnerability;
 }
 
 void Player::setLives(int lives)
@@ -151,6 +151,11 @@ void Player::setLives(int lives)
 void Player::makeImmune(int milliseconds)
 {
     remainingImmunityMilliseconds = milliseconds;
+}
+
+void Player::setInvulnerabilityStatus(bool status)
+{
+	invulnerability = status;
 }
 
 void Player::render() const {

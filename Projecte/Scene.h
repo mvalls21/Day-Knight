@@ -101,8 +101,11 @@ private:
 	std::queue<ObjectType> remainingObjectTypes;
 
 	bool shieldProtection = false;
-        Shield* shield;
+    Shield* shield;
 
 	void spawnRandomObject();
-        void detectCheatKeys();
+
+	// Cheat keys
+	bool invulnerability = false;
+    void detectCheatKeys();
 };

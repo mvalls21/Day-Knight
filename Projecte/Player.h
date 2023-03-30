@@ -17,6 +17,7 @@ public:
     int getLives() const;
     void setLives(int lives);
     void makeImmune(int milliseconds);
+    void setInvulnerabilityStatus(bool status);
     bool isImmune() const;
     void render() const override;
 
@@ -27,4 +28,6 @@ private:
     int lives = MAX_LIVES;
     int remainingImmunityMilliseconds = 0;
     ShaderProgram* texProgram;
+
+    bool invulnerability = false;
 };

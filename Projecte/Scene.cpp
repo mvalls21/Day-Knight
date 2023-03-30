@@ -134,10 +134,10 @@ SceneStatus Scene::update(int deltaTime)
     for (auto *enemy : enemies)
         enemy->update(deltaTime);
 
-    bool enemyCollision = not player->isImmune() and std::any_of(enemies.begin(), enemies.end(), [&](const Enemy *enemy)
-                                                                 { return player->isColliding(*enemy); });
+    bool enemyCollision = !player->isImmune() && std::any_of(enemies.begin(), enemies.end(), [&](const Enemy *enemy)
+                                                             { return player->isColliding(*enemy); });
 
-    if (enemyCollision)
+    if (enemyCollision && !invulnerability)
     {
         if (shieldProtection)
             shieldProtection = false;
@@ -323,6 +323,17 @@ void Scene::spawnRandomObject()
 
 void Scene::detectCheatKeys()
 {
+    static bool gPressed = false;
+
     if (Game::instance().getKey('k'))
         showKey = true;
+
+    if (Game::instance().getKey('g') && !gPressed)
+    {
+        std::cout << "g pressed\n";
+        invulnerability = !invulnerability;
+        player->setInvulnerabilityStatus(invulnerability);
+    }
+
+    gPressed = Game::instance().getKey('g');
 }
