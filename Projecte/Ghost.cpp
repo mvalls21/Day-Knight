@@ -1,10 +1,12 @@
 #include "Ghost.h"
 
+constexpr glm::vec2 GHOST_SIZE = glm::vec2(26.0f);
+
 void Ghost::init(const glm::ivec2 &tileMapPos, ShaderProgram &shaderProgram)
 {
     spritesheet.loadFromFile("images/ghost.png", TEXTURE_PIXEL_FORMAT_RGBA);
 
-    sprite = AnimatedSprite::createSprite(glm::ivec2(32), glm::vec2(1.0f / 4.0f, 1.0f / 2.0f), &spritesheet, &shaderProgram);
+    sprite = AnimatedSprite::createSprite(GHOST_SIZE, glm::vec2(1.0f / 4.0f, 1.0f / 2.0f), &spritesheet, &shaderProgram);
     sprite->setNumberAnimations(4);
 
     sprite->setAnimationSpeed(STAND_LEFT, 8);
@@ -30,8 +32,6 @@ void Ghost::init(const glm::ivec2 &tileMapPos, ShaderProgram &shaderProgram)
     tileMapDispl = tileMapPos;
     sprite->setPosition(glm::vec2(float(tileMapDispl.x + position.x), float(tileMapDispl.y + position.y)));
 }
-
-constexpr glm::vec2 GHOST_SIZE = glm::vec2(32.0f);
 
 void Ghost::update(int deltaTime)
 {
