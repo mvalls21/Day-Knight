@@ -52,11 +52,8 @@ static Scene::Description sceneLevel02()
 
 Game::Game()
 {
-	Scene::Description level01 = sceneLevel01();
-	Scene::Description level02 = sceneLevel02();
-
-	levelDescriptions.push_back(level02);
-	levelDescriptions.push_back(level01);
+	levelDescriptions.push_back(sceneLevel01());
+	levelDescriptions.push_back(sceneLevel02());
 
 	currentLevelIdx = 0;
 	currentSceneType = SceneType::MainMenu;
@@ -139,7 +136,16 @@ void Game::keyPressed(int key)
 		paused = !paused;
 
 	if (currentSceneType == SceneType::Play && key >= '1' && key <= '9')
-		changeToLevel(key - '1');
+	{
+		const int newLevel = key - '1';
+		if (newLevel == currentLevelIdx) return;
+
+		currentLevelIdx = newLevel;
+		changeToLevel(newLevel);
+	}
+
+	if (currentSceneType == SceneType::Play && key == 'r')
+		changeToLevel(currentLevelIdx); // basically means restart
 
 	keys[key] = true;
 }
