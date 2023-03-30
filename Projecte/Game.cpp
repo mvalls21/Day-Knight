@@ -138,10 +138,8 @@ void Game::keyPressed(int key)
 	if (currentSceneType == SceneType::Play && key == 'p')
 		paused = !paused;
 
-	if (currentSceneType == SceneType::Play && key >= '1' && key <= '3')
-	{
+	if (currentSceneType == SceneType::Play && key >= '1' && key <= '9')
 		changeToLevel(key - '1');
-	}
 
 	keys[key] = true;
 }

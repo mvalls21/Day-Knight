@@ -330,7 +330,6 @@ void Scene::detectCheatKeys()
 
     if (Game::instance().getKey('g') && !gPressed)
     {
-        std::cout << "g pressed\n";
         invulnerability = !invulnerability;
         player->setInvulnerabilityStatus(invulnerability);
     }
