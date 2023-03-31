@@ -107,4 +107,6 @@ private:
 	// Cheat keys
 	bool invulnerability = false;
 	void detectCheatKeys();
+
+	Text* text;
 };

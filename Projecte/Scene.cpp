@@ -20,6 +20,10 @@ Scene::Scene()
 {
     map = NULL;
     player = NULL;
+
+    text = new Text();
+    if (!text->init("/home/david/.fonts/OldLondon.ttf"))
+        assert(false && "tonto");
 }
 
 Scene::~Scene()
@@ -262,6 +266,16 @@ void Scene::render()
     if (currentTime < TIME_TO_START)
     {
         // TODO: Render start text
+        int dimensions[4];
+        glGetIntegerv(GL_VIEWPORT, dimensions);
+
+        constexpr float size = 70.0f;
+
+        float middleX = (float)dimensions[2] / 2.0f - 84.0f;
+        float middleY = (float)dimensions[3] / 2.0f;
+
+        const std::string content("Ready?");
+        text->render(content, glm::vec2(middleX, middleY), size, glm::vec4(1.0f));
     }
 }
 
