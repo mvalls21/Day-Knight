@@ -41,6 +41,8 @@ Scene::~Scene()
 
     if (currentObject != nullptr)
         delete currentObject;
+
+    delete text;
 }
 
 void Scene::init(const Description &description)
