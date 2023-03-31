@@ -1,6 +1,9 @@
 #include <GL/glew.h>
 #include <GL/glut.h>
+
 #include "Game.h"
+
+#include "ShaderSystem.h"
 
 static Scene::Description sceneLevel01()
 {
@@ -57,6 +60,8 @@ Game::Game()
 
 	currentLevelIdx = 0;
 	currentSceneType = SceneType::MainMenu;
+
+	ShaderSystem::init();
 }
 
 void Game::init()
