@@ -174,7 +174,7 @@ void Player::setLives(int lives)
 void Player::makeImmune(int milliseconds)
 {
 	if (dying) return;
-	
+
 	remainingImmunityMilliseconds = milliseconds;
 }
 
