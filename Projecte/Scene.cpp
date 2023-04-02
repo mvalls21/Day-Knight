@@ -4,6 +4,7 @@
 #include <algorithm>
 #include "Scene.h"
 #include "Game.h"
+#include "ShaderSystem.h"
 
 #include <random>
 
@@ -19,6 +20,10 @@ Scene::Scene()
 {
     map = NULL;
     player = NULL;
+
+    text = new Text();
+    if (!text->init("/home/david/.fonts/OldLondon.ttf"))
+        assert(false && "tonto");
 }
 
 Scene::~Scene()
@@ -36,11 +41,13 @@ Scene::~Scene()
 
     if (currentObject != nullptr)
         delete currentObject;
+
+    delete text;
 }
 
 void Scene::init(const Description &description)
 {
-    initShaders();
+    texProgram = ShaderSystem::acquire("texture");
 
     projection = glm::ortho(0.f, float(SCREEN_WIDTH - 1), float(SCREEN_HEIGHT - 1), 0.f);
     projection = glm::ortho(0.f, float(SCREEN_WIDTH - 1) / 2.4f, float(SCREEN_HEIGHT - 1) / 2.4f, 0.f);
@@ -48,11 +55,11 @@ void Scene::init(const Description &description)
 
     // 	Load level
     std::string levelPath = "levels/" + description.levelName;
-    map = TileMap::createTileMap(levelPath, {SCREEN_X, SCREEN_Y}, texProgram);
+    map = TileMap::createTileMap(levelPath, {SCREEN_X, SCREEN_Y}, *texProgram);
 
     // Create player
     player = new Player();
-    player->init(glm::ivec2(SCREEN_X, SCREEN_Y), texProgram);
+    player->init(glm::ivec2(SCREEN_X, SCREEN_Y), *texProgram);
     player->setPosition(glm::vec2(description.playerPositionStartTile.x * map->getTileSize(), description.playerPositionStartTile.y * map->getTileSize()));
     player->setTileMap(map);
 
@@ -60,7 +67,7 @@ void Scene::init(const Description &description)
     for (const auto &desc : description.skeletonDescriptions)
     {
         auto *skeleton = new Skeleton();
-        skeleton->init(glm::ivec2(SCREEN_X, SCREEN_Y), texProgram);
+        skeleton->init(glm::ivec2(SCREEN_X, SCREEN_Y), *texProgram);
         skeleton->setTileMap(map);
         skeleton->setPosition({desc.tileX * map->getTileSize(), desc.tileY * map->getTileSize()});
         skeleton->setDirection(desc.startingDirection);
@@ -72,7 +79,7 @@ void Scene::init(const Description &description)
     for (const auto &desc : description.vampireDescriptions)
     {
         auto *vampire = new Vampire();
-        vampire->init(glm::ivec2(SCREEN_X, SCREEN_Y), texProgram);
+        vampire->init(glm::ivec2(SCREEN_X, SCREEN_Y), *texProgram);
         vampire->setTileMap(map);
         vampire->setPosition({desc.tileX * map->getTileSize(), desc.tileY * map->getTileSize()});
         vampire->setDirection(desc.startingDirection);
@@ -84,7 +91,7 @@ void Scene::init(const Description &description)
     for (const auto &desc : description.ghostDescriptions)
     {
         auto *ghost = new Ghost();
-        ghost->init(glm::ivec2(SCREEN_X, SCREEN_Y), texProgram);
+        ghost->init(glm::ivec2(SCREEN_X, SCREEN_Y), *texProgram);
         ghost->setTileMap(map);
         ghost->setPosition({desc.tileX * map->getTileSize(), desc.tileY * map->getTileSize()});
         ghost->setDirection(desc.startingDirection);
@@ -95,16 +102,16 @@ void Scene::init(const Description &description)
     tileset = new Texture();
     tileset->loadFromFile("images/nuevo_tileset.png", PixelFormat::TEXTURE_PIXEL_FORMAT_RGBA);
 
-    heart = StaticSprite::createSprite(glm::vec2(20.f), glm::vec2(1.f / 10.f), tileset, &texProgram);
+    heart = StaticSprite::createSprite(glm::vec2(20.f), glm::vec2(1.f / 10.f), tileset, texProgram);
     heart->setSpritesheetCoords(glm::vec2(5.f / 10.f, 4.f / 10.f));
 
-    key = new Key(tileset, {SCREEN_X + description.keyPositionTile.x * map->getTileSize(), SCREEN_Y + description.keyPositionTile.y * map->getTileSize()}, &texProgram);
+    key = new Key(tileset, {SCREEN_X + description.keyPositionTile.x * map->getTileSize(), SCREEN_Y + description.keyPositionTile.y * map->getTileSize()}, texProgram);
 
     // const glm::ivec2 doorPositionTop = TILE_POS(description.doorPositionTile.x, description.doorPositionTile.y - 1);
     const glm::ivec2 doorPositionTop = TILE_POS(description.doorPositionTile.x, description.doorPositionTile.y - 2);
 
     const glm::ivec2 doorPositionBottom = TILE_POS(description.doorPositionTile.x, description.doorPositionTile.y);
-    door = new Door(tileset, doorPositionTop, doorPositionBottom, &texProgram);
+    door = new Door(tileset, doorPositionTop, doorPositionBottom, texProgram);
 
     // Create objects with random order
     std::random_device r;
@@ -117,14 +124,20 @@ void Scene::init(const Description &description)
         remainingObjectTypes.push(object);
 
     // Shield sprite for hearts
-    shield = new Shield(tileset, TILE_POS(0, 0), &texProgram);
+    shield = new Shield(tileset, TILE_POS(0, 0), texProgram);
+
+    // First update to position everything in its place
+    update(-1);
 }
 
 SceneStatus Scene::update(int deltaTime)
 {
-    detectCheatKeys();
-
     currentTime += deltaTime;
+
+    if (deltaTime != -1 && currentTime < TIME_TO_START)
+        return SceneStatus::Continue;
+
+    detectCheatKeys();
     objectTimer += deltaTime;
 
     map->update(deltaTime);
@@ -134,18 +147,30 @@ SceneStatus Scene::update(int deltaTime)
     for (auto *enemy : enemies)
         enemy->update(deltaTime);
 
-    bool enemyCollision = not player->isImmune() and std::any_of(enemies.begin(), enemies.end(), [&](const Enemy *enemy)
-                                                                 { return player->isColliding(*enemy); });
+    bool enemyCollision = !player->isImmune() && std::any_of(enemies.begin(), enemies.end(), [&](const Enemy *enemy)
+                                                             { return player->isColliding(*enemy); });
 
-    if (enemyCollision)
+    if (enemyCollision && !invulnerability)
     {
         if (shieldProtection)
             shieldProtection = false;
         else
             player->setLives(player->getLives() - 1);
 
-        player->makeImmune(PLAYER_IMMUNITY_MS);
+        if (player->getLives() != 0)
+            player->makeImmune(PLAYER_IMMUNITY_MS);
     }
+
+    if (player->getLives() == 0 && player->finishedDeath())
+    {
+        return SceneStatus::PlayerDead;
+    }
+    else if (player->getLives() == 0)
+    {
+        return SceneStatus::Continue;
+    }
+
+    // Object stuff (key, door, powerups...)
 
     if (!showKey && !isDoorOpen && map->isCompleted())
         showKey = true;
@@ -161,9 +186,6 @@ SceneStatus Scene::update(int deltaTime)
     }
 
     door->update(deltaTime);
-
-    if (player->getLives() == 0)
-        return SceneStatus::PlayerDead;
 
     if (isDoorOpen && player->isColliding(*door))
         return SceneStatus::LevelComplete;
@@ -217,13 +239,13 @@ void Scene::render()
 {
     glm::mat4 modelview;
 
-    texProgram.use();
+    texProgram->use();
 
-    texProgram.setUniformMatrix4f("projection", projection);
-    texProgram.setUniform4f("color", 1.0f, 1.0f, 1.0f, 1.0f);
+    texProgram->setUniformMatrix4f("projection", projection);
+    texProgram->setUniform4f("color", 1.0f, 1.0f, 1.0f, 1.0f);
     modelview = glm::mat4(1.0f);
-    texProgram.setUniformMatrix4f("modelview", modelview);
-    texProgram.setUniform2f("texCoordDispl", 0.f, 0.f);
+    texProgram->setUniformMatrix4f("modelview", modelview);
+    texProgram->setUniform2f("texCoordDispl", 0.f, 0.f);
 
     map->render();
     door->render();
@@ -251,39 +273,21 @@ void Scene::render()
         currentObject->render();
 
     player->render();
-}
 
-void Scene::initShaders()
-{
-    Shader vShader, fShader;
+    if (currentTime < TIME_TO_START)
+    {
+        // TODO: Render start text
+        int dimensions[4];
+        glGetIntegerv(GL_VIEWPORT, dimensions);
 
-    vShader.initFromFile(VERTEX_SHADER, "shaders/texture.vert");
-    if (!vShader.isCompiled())
-    {
-        cout << "Vertex Shader Error" << endl;
-        cout << "" << vShader.log() << endl
-             << endl;
+        constexpr float size = 70.0f;
+
+        float middleX = (float)dimensions[2] / 2.0f - 84.0f;
+        float middleY = (float)dimensions[3] / 2.0f;
+
+        const std::string content("Ready?");
+        text->render(content, glm::vec2(middleX, middleY), size, glm::vec4(1.0f));
     }
-    fShader.initFromFile(FRAGMENT_SHADER, "shaders/texture.frag");
-    if (!fShader.isCompiled())
-    {
-        cout << "Fragment Shader Error" << endl;
-        cout << "" << fShader.log() << endl
-             << endl;
-    }
-    texProgram.init();
-    texProgram.addShader(vShader);
-    texProgram.addShader(fShader);
-    texProgram.link();
-    if (!texProgram.isLinked())
-    {
-        cout << "Shader Linking Error" << endl;
-        cout << "" << texProgram.log() << endl
-             << endl;
-    }
-    texProgram.bindFragmentOutput("outColor");
-    vShader.free();
-    fShader.free();
 }
 
 void Scene::spawnRandomObject()
@@ -310,19 +314,29 @@ void Scene::spawnRandomObject()
     switch (currentObjectType)
     {
     case ObjectType::Gem:
-        currentObject = new Gem(tileset, pos, &texProgram);
+        currentObject = new Gem(tileset, pos, texProgram);
         break;
     case ObjectType::Clock:
-        currentObject = new Clock(tileset, pos, &texProgram);
+        currentObject = new Clock(tileset, pos, texProgram);
         break;
     case ObjectType::Shield:
-        currentObject = new Shield(tileset, pos, &texProgram);
+        currentObject = new Shield(tileset, pos, texProgram);
         break;
     }
 }
 
 void Scene::detectCheatKeys()
 {
+    static bool gPressed = false;
+
     if (Game::instance().getKey('k'))
         showKey = true;
+
+    if (Game::instance().getKey('g') && !gPressed)
+    {
+        invulnerability = !invulnerability;
+        player->setInvulnerabilityStatus(invulnerability);
+    }
+
+    gPressed = Game::instance().getKey('g');
 }

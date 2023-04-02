@@ -1,8 +1,8 @@
 cmake_minimum_required(VERSION 3.8)
 
-project(day-knight)
-
 set(CMAKE_CXX_STANDARD 17)
+
+project(day-knight)
 
 add_executable(${PROJECT_NAME})
 
@@ -15,6 +15,7 @@ target_sources(${PROJECT_NAME} PRIVATE
 
         Projecte/Text.cpp
         Projecte/TexturedQuad.cpp
+        Projecte/ShaderSystem.cpp
 
         Projecte/Player.cpp
         Projecte/Enemy.cpp

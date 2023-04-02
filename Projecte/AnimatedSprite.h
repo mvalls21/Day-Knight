@@ -19,6 +19,8 @@ public:
     void changeAnimation(int animId);
     int animation() const;
 
+    int computeAnimationTime(int animId) const;
+
 private:
     int currentAnimation;
     int currentKeyframe;

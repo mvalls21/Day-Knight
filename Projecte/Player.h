@@ -17,9 +17,11 @@ public:
     int getLives() const;
     void setLives(int lives);
     void makeImmune(int milliseconds);
+    void setInvulnerabilityStatus(bool status);
     bool isImmune() const;
     void render() const override;
 
+    bool finishedDeath() const;
 
 private:
 	bool bJumping;
@@ -27,4 +29,10 @@ private:
     int lives = MAX_LIVES;
     int remainingImmunityMilliseconds = 0;
     ShaderProgram* texProgram;
+
+    bool invulnerability = false;
+    bool dying = false;
+
+    int deathTotalTime = 0;
+    int deathCurrentTime = 0;
 };

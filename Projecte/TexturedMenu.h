@@ -23,6 +23,6 @@ private:
     Texture texture;
 
     TexturedQuad *quad;
-    ShaderProgram texProgram;
+    ShaderProgram* texProgram;
     glm::mat4 projection;
 };
