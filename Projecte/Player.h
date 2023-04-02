@@ -21,6 +21,7 @@ public:
     bool isImmune() const;
     void render() const override;
 
+    bool finishedDeath() const;
 
 private:
 	bool bJumping;
@@ -30,4 +31,8 @@ private:
     ShaderProgram* texProgram;
 
     bool invulnerability = false;
+    bool dying = false;
+
+    int deathTotalTime = 0;
+    int deathCurrentTime = 0;
 };

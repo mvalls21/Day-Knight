@@ -8,24 +8,26 @@
 #define JUMP_ANGLE_STEP 4
 #define JUMP_HEIGHT 72
 
+constexpr int DEATH = 4;
+
 void Player::init(const glm::ivec2 &tileMapPos, ShaderProgram &shaderProgram)
 {
 	bJumping = false;
-    texProgram = &shaderProgram;
+	texProgram = &shaderProgram;
 	spritesheet.loadFromFile("images/main_player.png", TEXTURE_PIXEL_FORMAT_RGBA);
 
-	sprite = AnimatedSprite::createSprite(glm::ivec2(32, 32), glm::vec2(1.0f/6.0f, 1.0f/5.0f), &spritesheet, &shaderProgram);
-	sprite->setNumberAnimations(4);
+	sprite = AnimatedSprite::createSprite(glm::ivec2(32, 32), glm::vec2(1.0f / 6.0f, 1.0f / 5.0f), &spritesheet, &shaderProgram);
+	sprite->setNumberAnimations(5);
 
 	sprite->setAnimationSpeed(STAND_LEFT, 6);
-	sprite->addKeyframe(STAND_LEFT, glm::vec2(0.0f / 6.0f,  3.0f/5.0f));
-	sprite->addKeyframe(STAND_LEFT, glm::vec2(1.0f / 6.0f,  3.0f/5.0f));
-	sprite->addKeyframe(STAND_LEFT, glm::vec2(2.0f / 6.0f,  3.0f/5.0f));
+	sprite->addKeyframe(STAND_LEFT, glm::vec2(0.0f / 6.0f, 3.0f / 5.0f));
+	sprite->addKeyframe(STAND_LEFT, glm::vec2(1.0f / 6.0f, 3.0f / 5.0f));
+	sprite->addKeyframe(STAND_LEFT, glm::vec2(2.0f / 6.0f, 3.0f / 5.0f));
 
 	sprite->setAnimationSpeed(STAND_RIGHT, 6);
-	sprite->addKeyframe(STAND_RIGHT, glm::vec2(0.0f / 6.0f,  1.0f/5.0f));
-	sprite->addKeyframe(STAND_RIGHT, glm::vec2(1.0f / 6.0f,  1.0f/5.0f));
-	sprite->addKeyframe(STAND_RIGHT, glm::vec2(2.0f / 6.0f,  1.0f/5.0f));
+	sprite->addKeyframe(STAND_RIGHT, glm::vec2(0.0f / 6.0f, 1.0f / 5.0f));
+	sprite->addKeyframe(STAND_RIGHT, glm::vec2(1.0f / 6.0f, 1.0f / 5.0f));
+	sprite->addKeyframe(STAND_RIGHT, glm::vec2(2.0f / 6.0f, 1.0f / 5.0f));
 
 	sprite->setAnimationSpeed(MOVE_LEFT, 8);
 	sprite->addKeyframe(MOVE_LEFT, glm::vec2(0.0f / 6.0f, 2.0f / 5.0f));
@@ -43,19 +45,34 @@ void Player::init(const glm::ivec2 &tileMapPos, ShaderProgram &shaderProgram)
 	sprite->addKeyframe(MOVE_RIGHT, glm::vec2(4.0f / 6.0f, 0.0f));
 	sprite->addKeyframe(MOVE_RIGHT, glm::vec2(5.0f / 6.0f, 0.0f));
 
+	sprite->setAnimationSpeed(DEATH, 2);
+	sprite->addKeyframe(DEATH, glm::vec2(0.0f / 6.0f, 4.0f / 5.0f));
+	sprite->addKeyframe(DEATH, glm::vec2(1.0f / 6.0f, 4.0f / 5.0f));
+	sprite->addKeyframe(DEATH, glm::vec2(2.0f / 6.0f, 4.0f / 5.0f));
+	sprite->addKeyframe(DEATH, glm::vec2(3.0f / 6.0f, 4.0f / 5.0f));
+
+	deathTotalTime = sprite->computeAnimationTime(DEATH);
+
 	sprite->changeAnimation(0);
 	tileMapDispl = tileMapPos;
-    sprite->setPosition(glm::vec2(float(tileMapDispl.x + position.x), float(tileMapDispl.y + position.y)));
+	sprite->setPosition(glm::vec2(float(tileMapDispl.x + position.x), float(tileMapDispl.y + position.y)));
 }
 
 void Player::update(int deltaTime)
 {
-    if (remainingImmunityMilliseconds > 0)
-    {
-        remainingImmunityMilliseconds -= deltaTime;
-    }
+	if (remainingImmunityMilliseconds > 0)
+	{
+		remainingImmunityMilliseconds -= deltaTime;
+	}
 
 	sprite->update(deltaTime);
+
+	if (dying)
+	{
+		deathCurrentTime += deltaTime;
+		return;
+	}
+
 	if (Game::instance().getSpecialKey(GLUT_KEY_LEFT))
 	{
 		if (sprite->animation() != MOVE_LEFT)
@@ -97,7 +114,7 @@ void Player::update(int deltaTime)
 		else
 		{
 			position.y = int(startY - JUMP_HEIGHT * sin(3.14159f * jumpAngle / 180.f));
-			if(jumpAngle > 90)
+			if (jumpAngle > 90)
 			{
 				bJumping = !map->collisionMoveDown(position, glm::ivec2(24, 32), &position.y, true);
 			}
@@ -110,11 +127,11 @@ void Player::update(int deltaTime)
 	else
 	{
 		position.y += FALL_STEP;
-        if (map->collisionSpikes(position, glm::ivec2(24, 32)) and not isImmune())
-        {
-            setLives(getLives() - 1);
-            makeImmune(PLAYER_IMMUNITY_MS);
-        }
+		if (map->collisionSpikes(position, glm::ivec2(24, 32)) and not isImmune())
+		{
+			setLives(getLives() - 1);
+			makeImmune(PLAYER_IMMUNITY_MS);
+		}
 
 		if (map->collisionMoveDown(position, glm::ivec2(24, 32), &position.y, true))
 		{
@@ -132,25 +149,33 @@ void Player::update(int deltaTime)
 
 int Player::getLives() const
 {
-    return lives;
+	return lives;
 }
 
 bool Player::isImmune() const
 {
-    return remainingImmunityMilliseconds > 0 || invulnerability;
+	return remainingImmunityMilliseconds > 0 || invulnerability || dying;
 }
 
 void Player::setLives(int lives)
 {
-    if (lives >= this->lives or remainingImmunityMilliseconds <= 0)
-    {
-        this->lives = max(min(lives, MAX_LIVES), 0);
-    }
+	if (lives >= this->lives or remainingImmunityMilliseconds <= 0)
+	{
+		this->lives = max(min(lives, MAX_LIVES), 0);
+
+		if (this->lives == 0)
+		{
+			dying = true;
+			sprite->changeAnimation(DEATH);
+		}
+	}
 }
 
 void Player::makeImmune(int milliseconds)
 {
-    remainingImmunityMilliseconds = milliseconds;
+	if (dying) return;
+	
+	remainingImmunityMilliseconds = milliseconds;
 }
 
 void Player::setInvulnerabilityStatus(bool status)
@@ -158,9 +183,15 @@ void Player::setInvulnerabilityStatus(bool status)
 	invulnerability = status;
 }
 
-void Player::render() const {
-    float val = cos(remainingImmunityMilliseconds/50.f);
-    texProgram->setUniform4f("color", val, val, val, 1.0f);
-    Character::render();
-    texProgram->setUniform4f("color", 1.0f, 1.0f, 1.0f, 1.0f);
+void Player::render() const
+{
+	float val = cos(remainingImmunityMilliseconds / 50.f);
+	texProgram->setUniform4f("color", val, val, val, 1.0f);
+	Character::render();
+	texProgram->setUniform4f("color", 1.0f, 1.0f, 1.0f, 1.0f);
+}
+
+bool Player::finishedDeath() const
+{
+	return dying && deathCurrentTime >= deathTotalTime;
 }

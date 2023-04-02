@@ -157,8 +157,20 @@ SceneStatus Scene::update(int deltaTime)
         else
             player->setLives(player->getLives() - 1);
 
-        player->makeImmune(PLAYER_IMMUNITY_MS);
+        if (player->getLives() != 0)
+            player->makeImmune(PLAYER_IMMUNITY_MS);
     }
+
+    if (player->getLives() == 0 && player->finishedDeath())
+    {
+        return SceneStatus::PlayerDead;
+    }
+    else if (player->getLives() == 0)
+    {
+        return SceneStatus::Continue;
+    }
+
+    // Object stuff (key, door, powerups...)
 
     if (!showKey && !isDoorOpen && map->isCompleted())
         showKey = true;
@@ -174,9 +186,6 @@ SceneStatus Scene::update(int deltaTime)
     }
 
     door->update(deltaTime);
-
-    if (player->getLives() == 0)
-        return SceneStatus::PlayerDead;
 
     if (isDoorOpen && player->isColliding(*door))
         return SceneStatus::LevelComplete;
