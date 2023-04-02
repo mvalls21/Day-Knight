@@ -57,6 +57,12 @@ add_custom_command(
         ${CMAKE_SOURCE_DIR}/Projecte/images/
         ${CMAKE_BINARY_DIR}/images/)
 
+add_custom_command(
+        TARGET ${PROJECT_NAME} PRE_BUILD
+        COMMAND ${CMAKE_COMMAND} -E copy_directory
+        ${CMAKE_SOURCE_DIR}/Projecte/sounds/
+        ${CMAKE_BINARY_DIR}/sounds/)
+
 add_subdirectory(vendor/soil/)
 target_include_directories(${PROJECT_NAME} PUBLIC vendor/soil/src/)
 target_link_libraries(${PROJECT_NAME} PUBLIC SOIL)
@@ -72,3 +78,6 @@ target_link_libraries(${PROJECT_NAME} PUBLIC glut)
 
 add_subdirectory(vendor/freetype/)
 target_link_libraries(${PROJECT_NAME} PUBLIC freetype)
+
+target_link_libraries(${PROJECT_NAME} PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/vendor/irrKlang/bin/linux-gcc-64/libIrrKlang.so)
+target_include_directories(${PROJECT_NAME} PUBLIC vendor/irrKlang/include/)

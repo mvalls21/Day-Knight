@@ -1,8 +1,9 @@
 #include <GL/glew.h>
 #include <GL/glut.h>
 
-#include "Game.h"
+#include <irrKlang.h>
 
+#include "Game.h"
 #include "ShaderSystem.h"
 
 static Scene::Description sceneLevel01()
@@ -73,6 +74,13 @@ void Game::init()
 	mainMenu = new MainMenu(SCREEN_WIDTH, SCREEN_HEIGHT);
 	instructionsMenu = new TexturedMenu(SCREEN_WIDTH, SCREEN_HEIGHT, "images/main_menu/instructions_menu.png");
 	creditsMenu = new TexturedMenu(SCREEN_WIDTH, SCREEN_HEIGHT, "images/main_menu/credits_menu.png");
+
+	irrklang::ISoundEngine *engine = irrklang::createIrrKlangDevice();
+
+	if (engine == nullptr)
+		abort();
+
+	engine->play2D("sounds/explosion.wav", true);
 }
 
 bool Game::update(int deltaTime)
@@ -143,7 +151,8 @@ void Game::keyPressed(int key)
 	if (currentSceneType == SceneType::Play && key >= '1' && key <= '9')
 	{
 		const int newLevel = key - '1';
-		if (newLevel == currentLevelIdx) return;
+		if (newLevel == currentLevelIdx)
+			return;
 
 		currentLevelIdx = newLevel;
 		changeToLevel(newLevel);
