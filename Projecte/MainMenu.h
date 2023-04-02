@@ -30,7 +30,7 @@ private:
     Texture selectedExit;
 
     TexturedQuad *quad;
-    ShaderProgram texProgram;
+    ShaderProgram* texProgram;
     glm::mat4 projection;
 
     int selection;

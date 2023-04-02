@@ -3,6 +3,8 @@
 #include "Shader.h"
 #include <iostream>
 
+#include "ShaderSystem.h"
+
 #include "Game.h"
 #include <GL/glew.h>
 #include <GL/glut.h>
@@ -20,39 +22,7 @@ MainMenu::MainMenu(int width, int height)
 
     selection = MainMenuSelection::Play;
 
-    {
-        Shader vShader, fShader;
-
-        vShader.initFromFile(VERTEX_SHADER, "shaders/texture.vert");
-        if (!vShader.isCompiled())
-        {
-            cout << "Vertex Shader Error" << endl;
-            cout << "" << vShader.log() << endl
-                 << endl;
-        }
-        fShader.initFromFile(FRAGMENT_SHADER, "shaders/texture.frag");
-        if (!fShader.isCompiled())
-        {
-            cout << "Fragment Shader Error" << endl;
-            cout << "" << fShader.log() << endl
-                 << endl;
-        }
-        texProgram.init();
-        texProgram.addShader(vShader);
-        texProgram.addShader(fShader);
-        texProgram.link();
-        if (!texProgram.isLinked())
-        {
-            cout << "Shader Linking Error" << endl;
-            cout << "" << texProgram.log() << endl
-                 << endl;
-        }
-        texProgram.bindFragmentOutput("outColor");
-        vShader.free();
-        fShader.free();
-    }
-
-    // quad = StaticSprite::createSprite({width, height}, {1.0f, 1.0f}, &selectedPlay, &texProgram);
+    texProgram = ShaderSystem::acquire("texture");
 
     glm::vec2 geom[] = {
         {0.0f, 0.0f},
@@ -62,7 +32,7 @@ MainMenu::MainMenu(int width, int height)
         {0.0f, 0.0f},
         {1.0f, 1.0f}};
 
-    quad = TexturedQuad::createTexturedQuad(geom, texCoords, texProgram);
+    quad = TexturedQuad::createTexturedQuad(geom, texCoords, *texProgram);
 }
 
 MainMenu::~MainMenu()
@@ -71,12 +41,12 @@ MainMenu::~MainMenu()
 
 void MainMenu::render()
 {
-    texProgram.use();
-    texProgram.setUniformMatrix4f("projection", projection);
-    texProgram.setUniform4f("color", 1.0f, 1.0f, 1.0f, 1.0f);
+    texProgram->use();
+    texProgram->setUniformMatrix4f("projection", projection);
+    texProgram->setUniform4f("color", 1.0f, 1.0f, 1.0f, 1.0f);
     glm::mat4 modelview(1.0f);
-    texProgram.setUniformMatrix4f("modelview", modelview);
-    texProgram.setUniform2f("texCoordDispl", 0.f, 0.f);
+    texProgram->setUniformMatrix4f("modelview", modelview);
+    texProgram->setUniform2f("texCoordDispl", 0.f, 0.f);
 
     switch (selection)
     {
