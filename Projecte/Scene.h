@@ -25,7 +25,9 @@
 
 #define PLAYER_IMMUNITY_MS 1500
 
-#define OBJECT_PERIOD 10'000
+constexpr int OBJECT_PERIOD = 10'000;
+
+constexpr int TIME_TO_START = 2'000;
 
 enum class SceneStatus
 {
@@ -73,16 +75,13 @@ public:
 	void render();
 
 private:
-	void initShaders();
-
-private:
 	TileMap *map;
 	Texture *tileset;
 
 	Player *player;
 	std::vector<Enemy *> enemies;
 
-	ShaderProgram texProgram;
+	ShaderProgram* texProgram;
 	float currentTime;
 	glm::mat4 projection;
 
@@ -101,11 +100,13 @@ private:
 	std::queue<ObjectType> remainingObjectTypes;
 
 	bool shieldProtection = false;
-    Shield* shield;
+	Shield *shield;
 
 	void spawnRandomObject();
 
 	// Cheat keys
 	bool invulnerability = false;
-    void detectCheatKeys();
+	void detectCheatKeys();
+
+	Text* text;
 };

@@ -5,6 +5,7 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include "Text.h"
 
+#include "ShaderSystem.h"
 
 #define ATLAS_FONT_SIZE 64
 
@@ -57,12 +58,12 @@ bool Text::init(const char *filename)
 	if(floor(float(textureSize) / maxCharWidth) * floor(float(textureSize) / maxCharHeight) < (128 - 32))
 		return false;
 	createTextureAtlas();
-	initShaders();
+	program = ShaderSystem::acquire("text");
 	
 	glm::vec2 geom[2] = {glm::vec2(0.0f, 0.0f), glm::vec2(1.0f, 1.0f)};
 	glm::vec2 texCoords[2] = {glm::vec2(0.0f, 0.0f), glm::vec2(1.0f, 1.0f)};
 	
-	quad = TexturedQuad::createTexturedQuad(geom, texCoords, program);
+	quad = TexturedQuad::createTexturedQuad(geom, texCoords, *program);
 	
 	return true;
 }
@@ -72,7 +73,7 @@ void Text::destroy()
 	FT_Done_Face(face);
 }
 
-ShaderProgram &Text::getProgram()
+ShaderProgram* Text::getProgram()
 {
 	return program;
 }
@@ -90,19 +91,19 @@ void Text::render(char c, const glm::vec2 &pixel, int size, const glm::vec4 &col
 
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	glEnable(GL_BLEND);
-	program.use();
+	program->use();
 	glGetIntegerv(GL_VIEWPORT, vp);
 	projection = glm::ortho(0.f, float(vp[2] - 1), float(vp[3] - 1), 0.f);
-	program.setUniformMatrix4f("projection", projection);
-	program.setUniform4f("color", color.r, color.g, color.b, color.a);
+	program->setUniformMatrix4f("projection", projection);
+	program->setUniform4f("color", color.r, color.g, color.b, color.a);
 	modelview = glm::mat4(1.0f);
 	modelview = glm::translate(modelview, glm::vec3(pixel.x, pixel.y - size, 0.f));
 	modelview = glm::scale(modelview, (float(size) / fontSize) * glm::vec3(chars[c-32].sx, chars[c-32].sy, 0.f));
-	program.setUniformMatrix4f("modelview", modelview);
+	program->setUniformMatrix4f("modelview", modelview);
 	minTexCoord = glm::vec2(float(chars[c-32].tx) / textureSize, float(chars[c-32].ty) / textureSize);
 	maxTexCoord = glm::vec2(float(chars[c-32].tx + chars[c-32].sx) / textureSize, float(chars[c-32].ty + chars[c-32].sy) / textureSize);
-	program.setUniform2f("minTexCoord", minTexCoord.s, minTexCoord.t);
-	program.setUniform2f("maxTexCoord", maxTexCoord.s, maxTexCoord.t);
+	program->setUniform2f("minTexCoord", minTexCoord.s, minTexCoord.t);
+	program->setUniform2f("maxTexCoord", maxTexCoord.s, maxTexCoord.t);
 	quad->render(textureAtlas);
 	glDisable(GL_BLEND);
 }
@@ -115,57 +116,27 @@ void Text::render(const string &str, const glm::vec2 &pixel, int size, const glm
 
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	glEnable(GL_BLEND);
-	program.use();
+	program->use();
 	glGetIntegerv(GL_VIEWPORT, vp);
 	projection = glm::ortho(0.f, float(vp[2] - 1), float(vp[3] - 1), 0.f);
-	program.setUniformMatrix4f("projection", projection);
-	program.setUniform4f("color", color.r, color.g, color.b, color.a);
+	program->setUniformMatrix4f("projection", projection);
+	program->setUniform4f("color", color.r, color.g, color.b, color.a);
 
 	for(unsigned int i=0; i<str.length(); i++)
 	{
 		modelview = glm::mat4(1.0f);
 		modelview = glm::translate(modelview, glm::vec3(pos.x + (float(size) / fontSize) * chars[str[i]-32].bl, pos.y - (float(size) / fontSize) * chars[str[i]-32].bt, 0.f));
 		modelview = glm::scale(modelview, (float(size) / fontSize) * glm::vec3(chars[str[i]-32].sx, chars[str[i]-32].sy, 0.f));
-		program.setUniformMatrix4f("modelview", modelview);
+		program->setUniformMatrix4f("modelview", modelview);
 		minTexCoord = glm::vec2(float(chars[str[i]-32].tx) / textureSize, float(chars[str[i]-32].ty) / textureSize);
 		maxTexCoord = glm::vec2(float(chars[str[i]-32].tx + chars[str[i]-32].sx) / textureSize, float(chars[str[i]-32].ty + chars[str[i]-32].sy) / textureSize);
-		program.setUniform2f("minTexCoord", minTexCoord.s, minTexCoord.t);
-		program.setUniform2f("maxTexCoord", maxTexCoord.s, maxTexCoord.t);
+		program->setUniform2f("minTexCoord", minTexCoord.s, minTexCoord.t);
+		program->setUniform2f("maxTexCoord", maxTexCoord.s, maxTexCoord.t);
 		quad->render(textureAtlas);
 		pos.x += (float(size) / fontSize) * chars[str[i]-32].ax;
 	}
 
 	glDisable(GL_BLEND);
-}
-
-void Text::initShaders()
-{
-	Shader vShader, fShader;
-
-	vShader.free();
-	fShader.free();
-	vShader.initFromFile(VERTEX_SHADER, "shaders/text.vert");
-	if(!vShader.isCompiled())
-	{
-		cout << "Vertex Shader Error" << endl;
-		cout << "" << vShader.log() << endl << endl;
-	}
-	fShader.initFromFile(FRAGMENT_SHADER, "shaders/text.frag");
-	if(!fShader.isCompiled())
-	{
-		cout << "Fragment Shader Error" << endl;
-		cout << "" << fShader.log() << endl << endl;
-	}
-	program.init();
-	program.addShader(vShader);
-	program.addShader(fShader);
-	program.link();
-	if(!program.isLinked())
-	{
-		cout << "Shader Linking Error" << endl;
-		cout << "" << program.log() << endl << endl;
-	}
-	program.bindFragmentOutput("outColor");
 }
 
 bool Text::extractCharSizes(int *maxCharWidth, int *maxCharHeight)

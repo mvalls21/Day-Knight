@@ -60,3 +60,16 @@ int AnimatedSprite::animation() const
 {
     return currentAnimation;
 }
+
+#include <iostream>
+
+int AnimatedSprite::computeAnimationTime(int animId) const
+{
+    if (animId >= int(animations.size()))
+        assert(false && "Id does not exit");
+
+    int numKeyFrames = animations[animId].keyframeDispl.size();
+    float keyFramesPerMs = animations[animId].millisecsPerKeyframe;
+
+    return keyFramesPerMs * numKeyFrames;
+}

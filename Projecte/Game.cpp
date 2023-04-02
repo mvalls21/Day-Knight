@@ -1,6 +1,9 @@
 #include <GL/glew.h>
 #include <GL/glut.h>
+
 #include "Game.h"
+
+#include "ShaderSystem.h"
 
 static Scene::Description sceneLevel01()
 {
@@ -23,16 +26,42 @@ static Scene::Description sceneLevel01()
 	return description;
 }
 
+static Scene::Description sceneLevel02()
+{
+	Scene::Description description{};
+
+	description.levelName = "level02.txt";
+	description.playerPositionStartTile = {4, 18};
+
+	description.skeletonDescriptions = {
+		Scene::EnemyDescription{16, 12, MOVE_LEFT},
+	};
+
+	description.vampireDescriptions = {
+		Scene::EnemyDescription{12, 6, MOVE_LEFT},
+		Scene::EnemyDescription{18, 6, MOVE_RIGHT},
+	};
+
+	description.ghostDescriptions = {
+		Scene::EnemyDescription{4, 6, MOVE_RIGHT},
+		Scene::EnemyDescription{26, 6, MOVE_LEFT},
+	};
+
+	description.keyPositionTile = {12, 18};
+	description.doorPositionTile = {20, 4};
+
+	return description;
+}
+
 Game::Game()
 {
-	Scene::Description level01 = sceneLevel01();
-	Scene::Description level02 = sceneLevel01();
-
-	levelDescriptions.push_back(level01);
-	levelDescriptions.push_back(level02);
+	levelDescriptions.push_back(sceneLevel01());
+	levelDescriptions.push_back(sceneLevel02());
 
 	currentLevelIdx = 0;
 	currentSceneType = SceneType::MainMenu;
+
+	ShaderSystem::init();
 }
 
 void Game::init()
@@ -111,10 +140,17 @@ void Game::keyPressed(int key)
 	if (currentSceneType == SceneType::Play && key == 'p')
 		paused = !paused;
 
-	if (currentSceneType == SceneType::Play && key >= '1' && key <= '3')
+	if (currentSceneType == SceneType::Play && key >= '1' && key <= '9')
 	{
-		changeToLevel(key - '1');
+		const int newLevel = key - '1';
+		if (newLevel == currentLevelIdx) return;
+
+		currentLevelIdx = newLevel;
+		changeToLevel(newLevel);
 	}
+
+	if (currentSceneType == SceneType::Play && key == 'r')
+		changeToLevel(currentLevelIdx); // basically means restart
 
 	keys[key] = true;
 }

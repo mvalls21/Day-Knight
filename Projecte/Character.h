@@ -36,7 +36,7 @@ public:
 
 protected:
     glm::ivec2 tileMapDispl;
-    glm::ivec2 position;
+    glm::vec2 position;
     BoundingBoxInfo boundingBoxInfo{
         .xoffset = 3,
         .yoffset = 3,
