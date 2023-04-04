@@ -55,7 +55,7 @@ void Scene::init(const Description &description)
 
     // 	Load level
     std::string levelPath = "levels/" + description.levelName;
-    map = TileMap::createTileMap(levelPath, {SCREEN_X, SCREEN_Y}, *texProgram);
+    map = TileMap::createTileMap(levelPath, {SCREEN_X, SCREEN_Y}, *texProgram, description.score);
 
     // Create player
     player = new Player();
@@ -125,6 +125,9 @@ void Scene::init(const Description &description)
 
     // Shield sprite for hearts
     shield = new Shield(tileset, TILE_POS(0, 0), texProgram);
+
+    stageNum = description.stageNumber;
+    score = description.score;
 
     // First update to position everything in its place
     update(-1);
@@ -204,7 +207,7 @@ SceneStatus Scene::update(int deltaTime)
         switch (currentObjectType)
         {
         case ObjectType::Gem:
-            // TODO: Give points
+            *score += GEM_SCORE_BONUS;
             break;
         case ObjectType::Clock:
             levelTimer += TIME_PRIZE_CLOCK_OBJ;
@@ -284,6 +287,13 @@ void Scene::render()
     player->render();
 
     text->render(std::to_string(levelTimer/1000), glm::vec2(SCREEN_X + 625, SCREEN_Y + 35), 60.0f, glm::vec4(1.0f));
+
+    string stageNumString = string(1, '0' + (stageNum / 10) % 10) + string(1, '0' + (stageNum % 10));
+    text->render("Stage " + stageNumString, glm::vec2(SCREEN_X + 1050, SCREEN_Y + 35), 60.0f, glm::vec4(1.0f));
+
+    string scoreString = string(1, '0' + (*score / 10000) % 10) + string(1, '0' + (*score / 1000) % 10) +
+            string(1, '0' + (*score / 100) % 10) + string(1, '0' + (*score / 10) % 10) + string(1, '0' + (*score) % 10);
+    text->render(scoreString, glm::vec2(SCREEN_X + 325, SCREEN_Y + 35), 60.0f, glm::vec4(1.0f));
 
     if (currentTime < TIME_TO_START)
     {

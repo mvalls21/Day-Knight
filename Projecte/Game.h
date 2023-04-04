@@ -49,6 +49,7 @@ public:
 	bool getKey(int key) const;
 	bool getSpecialKey(int key) const;
 
+    static int score;
 private:
 	bool bPlay;						  // Continue to play game?
 	bool keys[256], specialKeys[256]; // Store key states so that we can have access at any time
@@ -67,7 +68,7 @@ private:
 	std::vector<Scene::Description> levelDescriptions;
 	int currentLevelIdx;
 
-	void startPlay();
+    void startPlay();
 	void nextLevel();
 	void changeToLevel(int levelIdx);
 	void stopPlay();
