@@ -33,6 +33,8 @@ constexpr int MAX_TIME_FOR_LEVEL = 60'000;
 
 constexpr int TIME_PRIZE_CLOCK_OBJ = 10'000;
 
+constexpr int GEM_SCORE_BONUS = 500;
+
 enum class SceneStatus
 {
 	Continue,
@@ -69,6 +71,9 @@ public:
 
 		glm::ivec2 keyPositionTile;
 		glm::ivec2 doorPositionTile;
+
+        int stageNumber;
+        int* score;
 	};
 
 	Scene();
@@ -100,7 +105,11 @@ private:
 	Object *currentObject = nullptr;
 	ObjectType currentObjectType = ObjectType::None;
 	int objectTimer = 0;
+
     int levelTimer = MAX_TIME_FOR_LEVEL;
+    int* score;
+
+    int stageNum;
 
 	std::queue<ObjectType> remainingObjectTypes;
 

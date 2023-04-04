@@ -6,6 +6,8 @@
 #include "Game.h"
 #include "ShaderSystem.h"
 
+int Game::score = 0;
+
 static Scene::Description sceneLevel01()
 {
 	Scene::Description description{};
@@ -23,6 +25,9 @@ static Scene::Description sceneLevel01()
 
 	description.keyPositionTile = {8, 18};
 	description.doorPositionTile = {19, 4};
+
+    description.score = &Game::score;
+    description.stageNumber = 1;
 
 	return description;
 }
@@ -50,6 +55,9 @@ static Scene::Description sceneLevel02()
 
 	description.keyPositionTile = {12, 18};
 	description.doorPositionTile = {20, 4};
+
+    description.score = &Game::score;
+    description.stageNumber = 2;
 
 	return description;
 }

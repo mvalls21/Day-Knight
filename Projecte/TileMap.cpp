@@ -32,14 +32,14 @@ constexpr int TORCH = 42 + 1;
 
 // ================
 
-TileMap *TileMap::createTileMap(const string &levelFile, const glm::vec2 &minCoords, ShaderProgram &program)
+TileMap *TileMap::createTileMap(const string &levelFile, const glm::vec2 &minCoords, ShaderProgram &program, int* score)
 {
-	TileMap *map = new TileMap(levelFile, minCoords, program);
+	TileMap *map = new TileMap(levelFile, minCoords, program, score);
 
 	return map;
 }
 
-TileMap::TileMap(const string &levelFile, const glm::vec2 &minCoords, ShaderProgram &program)
+TileMap::TileMap(const string &levelFile, const glm::vec2 &minCoords, ShaderProgram &program, int* score)
 {
 	loadLevel(levelFile);
 	prepareArrays(minCoords, program);
@@ -78,6 +78,8 @@ TileMap::TileMap(const string &levelFile, const glm::vec2 &minCoords, ShaderProg
 	torchSprite->addKeyframe(0, glm::vec2(4.0f / 10.0f, 4.0f / 10.0f));
 
 	torchSprite->changeAnimation(0);
+
+    this->score = score;
 }
 
 TileMap::~TileMap()
@@ -377,7 +379,11 @@ void TileMap::checkCollisionChangeableTile(int tileX, int tileY)
 	auto it = changeableTiles.find({tileY, tileX});
 	if (it != changeableTiles.end())
 	{
-		it->second = true;
+		if (not it->second)
+        {
+            *score += TILE_CHANGED_SCORE_BONUS;
+            it->second = true;
+        }
 	}
 }
 
