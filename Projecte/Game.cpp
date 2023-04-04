@@ -62,10 +62,42 @@ static Scene::Description sceneLevel02()
 	return description;
 }
 
+static Scene::Description sceneLevel03()
+{
+	Scene::Description description{};
+
+	description.levelName = "level03.txt";
+	description.playerPositionStartTile = {24, 18};
+
+    description.skeletonDescriptions = {
+            Scene::EnemyDescription{18, 6, MOVE_RIGHT},
+            Scene::EnemyDescription{12, 6, MOVE_LEFT},
+    };
+
+    description.vampireDescriptions = {
+            Scene::EnemyDescription{2, 15, MOVE_RIGHT},
+            Scene::EnemyDescription{18, 3, MOVE_RIGHT},
+    };
+
+    description.ghostDescriptions = {
+            Scene::EnemyDescription{15, 8, MOVE_RIGHT},
+    };
+
+	description.keyPositionTile = {24, 18
+    };
+	description.doorPositionTile = {7, 4};
+
+    description.score = &Game::score;
+    description.stageNumber = 3;
+
+	return description;
+}
+
 Game::Game()
 {
 	levelDescriptions.push_back(sceneLevel01());
 	levelDescriptions.push_back(sceneLevel02());
+    levelDescriptions.push_back(sceneLevel03());
 
 	currentLevelIdx = 0;
 	currentSceneType = SceneType::MainMenu;
@@ -135,6 +167,7 @@ bool Game::update(int deltaTime)
 
 			if (player_dead_status == PlayerDeadSelection::StartAgain)
 			{
+                Game::score = 0;
 				playerDead = false;
 				currentSceneType = SceneType::Play;
 				changeToLevel(0);

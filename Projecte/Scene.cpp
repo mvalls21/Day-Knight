@@ -286,7 +286,8 @@ void Scene::render()
 
     player->render();
 
-    text->render(std::to_string(levelTimer/1000), glm::vec2(SCREEN_X + 625, SCREEN_Y + 35), 60.0f, glm::vec4(1.0f));
+    text->render(std::to_string((levelTimer/1000)/10) + std::to_string((levelTimer/1000)%10), glm::vec2(SCREEN_X +625, SCREEN_Y + 35), 60.0f,
+                 levelTimer >= 10000 ? glm::vec4(1.0f) : glm::vec4(1.0f, 0.0f, 0.0f, 1.0f));
 
     string stageNumString = string(1, '0' + (stageNum / 10) % 10) + string(1, '0' + (stageNum % 10));
     text->render("Stage " + stageNumString, glm::vec2(SCREEN_X + 1050, SCREEN_Y + 35), 60.0f, glm::vec4(1.0f));
