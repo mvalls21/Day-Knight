@@ -22,7 +22,7 @@ Scene::Scene()
     player = NULL;
 
     text = new Text();
-    if (!text->init("/home/david/.fonts/OldLondon.ttf"))
+    if (!text->init("../Projecte/fonts/OldLondon.ttf"))
         assert(false && "tonto");
 }
 
@@ -135,7 +135,16 @@ SceneStatus Scene::update(int deltaTime)
     currentTime += deltaTime;
 
     if (deltaTime != -1 && currentTime < TIME_TO_START)
+    {
         return SceneStatus::Continue;
+    }
+
+    levelTimer -= deltaTime;
+    if (levelTimer <= 0)
+    {
+        return SceneStatus::PlayerDead;
+    }
+
 
     detectCheatKeys();
     objectTimer += deltaTime;
@@ -198,7 +207,7 @@ SceneStatus Scene::update(int deltaTime)
             // TODO: Give points
             break;
         case ObjectType::Clock:
-            // TODO: Give time
+            levelTimer += TIME_PRIZE_CLOCK_OBJ;
             break;
         case ObjectType::Shield:
             // TODO: Should also give immunity for some time for player, but without effect...
@@ -274,6 +283,8 @@ void Scene::render()
 
     player->render();
 
+    text->render(std::to_string(levelTimer/1000), glm::vec2(SCREEN_X + 625, SCREEN_Y + 35), 60.0f, glm::vec4(1.0f));
+
     if (currentTime < TIME_TO_START)
     {
         // TODO: Render start text
@@ -286,7 +297,7 @@ void Scene::render()
         float middleY = (float)dimensions[3] / 2.0f;
 
         const std::string content("Ready?");
-        text->render(content, glm::vec2(middleX, middleY), size, glm::vec4(1.0f));
+        text->render(content, glm::vec2(middleX, middleY), size, glm::vec4(1.0f, 1.0f, 1.0f, 0.8f));
     }
 }
 

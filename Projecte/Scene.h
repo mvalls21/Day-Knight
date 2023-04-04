@@ -29,6 +29,10 @@ constexpr int OBJECT_PERIOD = 10'000;
 
 constexpr int TIME_TO_START = 2'000;
 
+constexpr int MAX_TIME_FOR_LEVEL = 60'000;
+
+constexpr int TIME_PRIZE_CLOCK_OBJ = 10'000;
+
 enum class SceneStatus
 {
 	Continue,
@@ -96,6 +100,7 @@ private:
 	Object *currentObject = nullptr;
 	ObjectType currentObjectType = ObjectType::None;
 	int objectTimer = 0;
+    int levelTimer = MAX_TIME_FOR_LEVEL;
 
 	std::queue<ObjectType> remainingObjectTypes;
 
