@@ -4,6 +4,7 @@
 
 #include "LevelSelection.h"
 #include "MainMenu.h"
+#include "PlayerDeadScreen.h"
 #include "TexturedMenu.h"
 
 constexpr int SCREEN_WIDTH = 40 * (32 + 2);
@@ -53,13 +54,15 @@ private:
 	bool keys[256], specialKeys[256]; // Store key states so that we can have access at any time
 
 	bool paused = false;
+	bool playerDead = false;
 
 	SceneType currentSceneType;
 
 	MainMenu *mainMenu;
 	Scene *currentPlayScene;
 	TexturedMenu *instructionsMenu;
-	TexturedMenu * creditsMenu;
+	TexturedMenu *creditsMenu;
+	PlayerDeadScreen *playerDeadScreen;
 
 	std::vector<Scene::Description> levelDescriptions;
 	int currentLevelIdx;

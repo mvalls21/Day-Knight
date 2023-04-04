@@ -9,6 +9,7 @@
 #define JUMP_HEIGHT 72
 
 constexpr int DEATH = 4;
+constexpr int PERMANENT_DEATH = 5;
 
 void Player::init(const glm::ivec2 &tileMapPos, ShaderProgram &shaderProgram)
 {
@@ -17,7 +18,7 @@ void Player::init(const glm::ivec2 &tileMapPos, ShaderProgram &shaderProgram)
 	spritesheet.loadFromFile("images/main_player.png", TEXTURE_PIXEL_FORMAT_RGBA);
 
 	sprite = AnimatedSprite::createSprite(glm::ivec2(32, 32), glm::vec2(1.0f / 6.0f, 1.0f / 5.0f), &spritesheet, &shaderProgram);
-	sprite->setNumberAnimations(5);
+	sprite->setNumberAnimations(6);
 
 	sprite->setAnimationSpeed(STAND_LEFT, 6);
 	sprite->addKeyframe(STAND_LEFT, glm::vec2(0.0f / 6.0f, 3.0f / 5.0f));
@@ -50,6 +51,9 @@ void Player::init(const glm::ivec2 &tileMapPos, ShaderProgram &shaderProgram)
 	sprite->addKeyframe(DEATH, glm::vec2(1.0f / 6.0f, 4.0f / 5.0f));
 	sprite->addKeyframe(DEATH, glm::vec2(2.0f / 6.0f, 4.0f / 5.0f));
 	sprite->addKeyframe(DEATH, glm::vec2(3.0f / 6.0f, 4.0f / 5.0f));
+
+	sprite->setAnimationSpeed(PERMANENT_DEATH, 8);
+	sprite->addKeyframe(PERMANENT_DEATH, glm::vec2(3.0f / 6.0f, 4.0f / 5.0f));
 
 	deathTotalTime = sprite->computeAnimationTime(DEATH);
 
@@ -173,7 +177,8 @@ void Player::setLives(int lives)
 
 void Player::makeImmune(int milliseconds)
 {
-	if (dying) return;
+	if (dying)
+		return;
 
 	remainingImmunityMilliseconds = milliseconds;
 }
@@ -193,5 +198,9 @@ void Player::render() const
 
 bool Player::finishedDeath() const
 {
-	return dying && deathCurrentTime >= deathTotalTime;
+	const bool finished = dying && deathCurrentTime >= deathTotalTime;
+	if (finished)
+		sprite->changeAnimation(PERMANENT_DEATH);
+
+	return finished;
 }

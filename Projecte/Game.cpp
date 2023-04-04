@@ -74,13 +74,14 @@ void Game::init()
 	mainMenu = new MainMenu(SCREEN_WIDTH, SCREEN_HEIGHT);
 	instructionsMenu = new TexturedMenu(SCREEN_WIDTH, SCREEN_HEIGHT, "images/main_menu/instructions_menu.png");
 	creditsMenu = new TexturedMenu(SCREEN_WIDTH, SCREEN_HEIGHT, "images/main_menu/credits_menu.png");
+	playerDeadScreen = new PlayerDeadScreen(SCREEN_WIDTH, SCREEN_HEIGHT);
 
 	irrklang::ISoundEngine *engine = irrklang::createIrrKlangDevice();
 
 	if (engine == nullptr)
 		abort();
 
-	engine->play2D("sounds/explosion.wav", true);
+	// engine->play2D("sounds/explosion.wav", true);
 }
 
 bool Game::update(int deltaTime)
@@ -111,12 +112,36 @@ bool Game::update(int deltaTime)
 	}
 	else if (currentSceneType == SceneType::Play && !paused)
 	{
-		auto status = currentPlayScene->update(deltaTime);
+		SceneStatus status;
+		if (!playerDead)
+			status = currentPlayScene->update(deltaTime);
+		else
+			status = SceneStatus::PlayerDead;
 
 		if (status == SceneStatus::LevelComplete)
 			nextLevel();
 		else if (status == SceneStatus::PlayerDead)
-			stopPlay();
+		{
+			playerDead = true;
+			const auto player_dead_status = static_cast<PlayerDeadSelection>(playerDeadScreen->update(deltaTime));
+
+			if (player_dead_status == PlayerDeadSelection::StartAgain)
+			{
+				playerDead = false;
+				currentSceneType = SceneType::Play;
+				changeToLevel(0);
+			}
+			else if (player_dead_status == PlayerDeadSelection::ExitMainMenu)
+			{
+				playerDead = false;
+				currentSceneType = SceneType::MainMenu;
+				keys[13] = false; // Set enter to false
+			}
+			else if (player_dead_status == PlayerDeadSelection::ExitDesktop)
+			{
+				bPlay = false;
+			}
+		}
 	}
 
 	return bPlay;
@@ -138,8 +163,12 @@ void Game::render()
 		creditsMenu->render();
 		break;
 	case SceneType::Play:
+	{
 		currentPlayScene->render();
+		if (playerDead)
+			playerDeadScreen->render();
 		break;
+	}
 	}
 }
 
