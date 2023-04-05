@@ -154,6 +154,19 @@ SceneStatus Scene::update(int deltaTime)
         return SceneStatus::Continue;
     }
 
+    if (levelPassedRemainingTimeTransition > 0)
+    {
+        levelPassedRemainingTimeTransition -= deltaTime;
+        if (levelPassedRemainingTimeTransition > 0)
+        {
+            return SceneStatus::Continue;
+        }
+        else
+        {
+            return SceneStatus::LevelComplete;
+        }
+    }
+
     levelTimer -= deltaTime;
     if (levelTimer <= 0)
     {
@@ -191,6 +204,7 @@ SceneStatus Scene::update(int deltaTime)
     }
     else if (player->getLives() == 0)
     {
+        SoundManager::getManager().playSound("sounds/gameOver.wav");
         return SceneStatus::Continue;
     }
 
@@ -216,7 +230,7 @@ SceneStatus Scene::update(int deltaTime)
     {
         SoundManager::getManager().stopAllSounds();
         SoundManager::getManager().playSound("sounds/win.wav");
-        return SceneStatus::LevelComplete;
+        levelPassedRemainingTimeTransition = 5000;
     }
 
     if (currentObjectType != ObjectType::None && currentObject->isColliding(*player))
@@ -307,6 +321,11 @@ void Scene::render()
     int dimensions[4];
     glGetIntegerv(GL_VIEWPORT, dimensions);
     glm::vec2 pos;
+
+    if (levelPassedRemainingTimeTransition > 0)
+    {
+
+    }
 
     pos = glm::vec2(655.0f*dimensions[2]/SCREEN_WIDTH, 110.0f*dimensions[3]/SCREEN_HEIGHT);
     text->render(std::to_string((levelTimer/1000)/10) + std::to_string((levelTimer/1000)%10), pos, 60.0f,
