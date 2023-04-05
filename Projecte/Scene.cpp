@@ -139,14 +139,16 @@ void Scene::init(const Description &description)
     SoundManager::getManager().playSoundtrack("sounds/gameplaySoundtrack.wav");
 
     // First update to position everything in its place
-    update(-1);
+    player->update(0);
+    for (const auto& enemy : enemies)
+        enemy->update(0);
 }
 
 SceneStatus Scene::update(int deltaTime)
 {
     currentTime += deltaTime;
 
-    if (deltaTime != -1 && currentTime < TIME_TO_START)
+    if (currentTime < TIME_TO_START)
     {
         return SceneStatus::Continue;
     }
