@@ -59,7 +59,7 @@ void Scene::init(const Description &description)
     map = TileMap::createTileMap(levelPath, {SCREEN_X, SCREEN_Y}, *texProgram, description.score);
 
     // Create player
-    player = new Player();
+    player = new Player(description.lives);
     player->init(glm::ivec2(SCREEN_X, SCREEN_Y), *texProgram);
     player->setPosition(glm::vec2(description.playerPositionStartTile.x * map->getTileSize(), description.playerPositionStartTile.y * map->getTileSize()));
     player->setTileMap(map);
@@ -135,6 +135,7 @@ void Scene::init(const Description &description)
 
     stageNum = description.stageNumber;
     score = description.score;
+    lives = description.lives;
 
     SoundManager::getManager().playSoundtrack("sounds/gameplaySoundtrack.wav");
 
@@ -202,6 +203,7 @@ SceneStatus Scene::update(int deltaTime)
     {
         if (player->isColliding(*key))
         {
+            SoundManager::getManager().playSound("sounds/doorOpen.wav");
             isDoorOpen = true;
             showKey = false;
             door->open();
@@ -215,6 +217,7 @@ SceneStatus Scene::update(int deltaTime)
 
     if (currentObjectType != ObjectType::None && currentObject->isColliding(*player))
     {
+        SoundManager::getManager().playSound("sounds/objectCollect.wav");
         switch (currentObjectType)
         {
         case ObjectType::Gem:

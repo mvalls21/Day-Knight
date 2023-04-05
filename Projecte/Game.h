@@ -50,6 +50,7 @@ public:
 	bool getSpecialKey(int key) const;
 
     static int score;
+    static int lives;
 private:
 	bool bPlay;						  // Continue to play game?
 	bool keys[256], specialKeys[256]; // Store key states so that we can have access at any time

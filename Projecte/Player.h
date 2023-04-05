@@ -12,6 +12,7 @@
 class Player : public Character
 {
 public:
+    Player (int* lives);
 	void init(const glm::ivec2 &tileMapPos, ShaderProgram &shaderProgram) override;
 	void update(int deltaTime) override;
     int getLives() const;
@@ -26,7 +27,7 @@ public:
 private:
 	bool bJumping;
 	int jumpAngle, startY;
-    int lives = MAX_LIVES;
+    int* lives;
     int remainingImmunityMilliseconds = 0;
     ShaderProgram* texProgram;
 

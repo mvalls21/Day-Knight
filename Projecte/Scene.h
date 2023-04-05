@@ -74,6 +74,7 @@ public:
 
         int stageNumber;
         int* score;
+        int* lives;
 	};
 
 	Scene();
@@ -110,6 +111,7 @@ private:
 
     int levelTimer = MAX_TIME_FOR_LEVEL;
     int* score;
+    int* lives;
 
     int stageNum;
 

@@ -5,6 +5,7 @@
 #include "ShaderSystem.h"
 
 int Game::score = 0;
+int Game::lives = MAX_LIVES;
 
 static Scene::Description sceneLevel01()
 {
@@ -26,6 +27,8 @@ static Scene::Description sceneLevel01()
 
     description.score = &Game::score;
     description.stageNumber = 1;
+
+    description.lives = &Game::lives;
 
 	return description;
 }
@@ -57,6 +60,8 @@ static Scene::Description sceneLevel02()
     description.score = &Game::score;
     description.stageNumber = 2;
 
+    description.lives = &Game::lives;
+
 	return description;
 }
 
@@ -87,6 +92,8 @@ static Scene::Description sceneLevel03()
 
     description.score = &Game::score;
     description.stageNumber = 3;
+
+    description.lives = &Game::lives;
 
 	return description;
 }
@@ -216,6 +223,7 @@ void Game::keyPressed(int key)
 			return;
 
         score = 0;
+        lives = MAX_LIVES;
 		currentLevelIdx = newLevel;
 		changeToLevel(newLevel);
 	}

@@ -153,7 +153,7 @@ void Player::update(int deltaTime)
 
 int Player::getLives() const
 {
-	return lives;
+	return *lives;
 }
 
 bool Player::isImmune() const
@@ -163,11 +163,11 @@ bool Player::isImmune() const
 
 void Player::setLives(int lives)
 {
-	if (lives >= this->lives or remainingImmunityMilliseconds <= 0)
+	if (lives >= *(this->lives) or remainingImmunityMilliseconds <= 0)
 	{
-		this->lives = max(min(lives, MAX_LIVES), 0);
+		*(this->lives) = max(min(lives, MAX_LIVES), 0);
 
-		if (this->lives == 0)
+		if (*(this->lives) == 0)
 		{
 			dying = true;
 			sprite->changeAnimation(DEATH);
@@ -203,4 +203,8 @@ bool Player::finishedDeath() const
 		sprite->changeAnimation(PERMANENT_DEATH);
 
 	return finished;
+}
+
+Player::Player(int *lives) {
+    this->lives = lives;
 }
