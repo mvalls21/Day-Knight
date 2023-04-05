@@ -31,13 +31,13 @@ constexpr int TIME_TO_START = 2'000;
 
 constexpr int MAX_TIME_FOR_LEVEL = 60'000;
 
-constexpr int TIME_PRIZE_CLOCK_OBJ = 10'000;
+constexpr int TIME_PRIZE_CLOCK_OBJ = 20'000;
 
 constexpr int GEM_SCORE_BONUS = 500;
 
 enum class SceneStatus
 {
-	Continue,
+    Continue,
 	PlayerDead,
 	LevelComplete
 };
@@ -86,6 +86,7 @@ public:
 private:
 	TileMap *map;
 	Texture *tileset;
+    Texture *topBarTex;
 
 	Player *player;
 	std::vector<Enemy *> enemies;
@@ -101,6 +102,7 @@ private:
 	Door *door;
 
 	StaticSprite *heart;
+    StaticSprite *topBar;
 
 	Object *currentObject = nullptr;
 	ObjectType currentObjectType = ObjectType::None;

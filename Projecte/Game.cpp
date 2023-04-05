@@ -224,6 +224,7 @@ void Game::keyPressed(int key)
 		if (newLevel == currentLevelIdx)
 			return;
 
+        score = 0;
 		currentLevelIdx = newLevel;
 		changeToLevel(newLevel);
 	}

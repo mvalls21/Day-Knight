@@ -14,7 +14,7 @@ constexpr int SCREEN_HEIGHT = 40 * (22 + 2) + 40;
 
 enum class SceneType
 {
-	MainMenu,
+    MainMenu,
 	Play,
 	Instructions,
 	Credits,

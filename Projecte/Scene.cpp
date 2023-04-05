@@ -9,7 +9,7 @@
 #include <random>
 
 #define SCREEN_X 26
-#define SCREEN_Y 46
+#define SCREEN_Y 54
 
 #define INIT_PLAYER_X_TILES 8
 #define INIT_PLAYER_Y_TILES 3
@@ -104,6 +104,12 @@ void Scene::init(const Description &description)
 
     heart = StaticSprite::createSprite(glm::vec2(20.f), glm::vec2(1.f / 10.f), tileset, texProgram);
     heart->setSpritesheetCoords(glm::vec2(5.f / 10.f, 4.f / 10.f));
+
+    topBarTex = new Texture();
+    topBarTex->loadFromFile("images/top_bar.png", PixelFormat::TEXTURE_PIXEL_FORMAT_RGBA);
+    topBar = StaticSprite::createSprite(glm::vec2(16.0f * 32, 16.0f * 3), glm::vec2(1.0f), topBarTex, texProgram);
+    topBar->setSpritesheetCoords(glm::vec2(0.0f));
+    topBar->setPosition(glm::vec2(SCREEN_X, SCREEN_Y - 16.0f * 3));
 
     key = new Key(tileset, {SCREEN_X + description.keyPositionTile.x * map->getTileSize(), SCREEN_Y + description.keyPositionTile.y * map->getTileSize()}, texProgram);
 
@@ -260,18 +266,19 @@ void Scene::render()
     texProgram->setUniform2f("texCoordDispl", 0.f, 0.f);
 
     map->render();
+    topBar->render();
     door->render();
 
     for (int i = 0; i < player->getLives(); ++i)
     {
         if (i == player->getLives() - 1 && shieldProtection)
         {
-            shield->setPosition(glm::vec2(SCREEN_X + 20 * i, SCREEN_Y - 30));
+            shield->setPosition(glm::vec2(SCREEN_X + 25 + 20 * i, SCREEN_Y - 24));
             shield->render();
             continue;
         }
 
-        heart->setPosition(glm::vec2(SCREEN_X + 20 * i, SCREEN_Y - 30));
+        heart->setPosition(glm::vec2(SCREEN_X + 25 + 20 * i, SCREEN_Y - 25));
         heart->render();
     }
 
@@ -286,15 +293,15 @@ void Scene::render()
 
     player->render();
 
-    text->render(std::to_string((levelTimer/1000)/10) + std::to_string((levelTimer/1000)%10), glm::vec2(SCREEN_X +625, SCREEN_Y + 35), 60.0f,
+    text->render(std::to_string((levelTimer/1000)/10) + std::to_string((levelTimer/1000)%10), glm::vec2(SCREEN_X +625, SCREEN_Y + 55), 60.0f,
                  levelTimer >= 10000 ? glm::vec4(1.0f) : glm::vec4(1.0f, 0.0f, 0.0f, 1.0f));
 
     string stageNumString = string(1, '0' + (stageNum / 10) % 10) + string(1, '0' + (stageNum % 10));
-    text->render("Stage " + stageNumString, glm::vec2(SCREEN_X + 1050, SCREEN_Y + 35), 60.0f, glm::vec4(1.0f));
+    text->render("Stage " + stageNumString, glm::vec2(SCREEN_X + 1050, SCREEN_Y + 55), 60.0f, glm::vec4(1.0f));
 
     string scoreString = string(1, '0' + (*score / 10000) % 10) + string(1, '0' + (*score / 1000) % 10) +
             string(1, '0' + (*score / 100) % 10) + string(1, '0' + (*score / 10) % 10) + string(1, '0' + (*score) % 10);
-    text->render(scoreString, glm::vec2(SCREEN_X + 325, SCREEN_Y + 35), 60.0f, glm::vec4(1.0f));
+    text->render(scoreString, glm::vec2(SCREEN_X + 325, SCREEN_Y + 55), 60.0f, glm::vec4(1.0f));
 
     if (currentTime < TIME_TO_START)
     {
