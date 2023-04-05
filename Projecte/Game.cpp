@@ -1,8 +1,6 @@
 #include <GL/glew.h>
 #include <GL/glut.h>
 
-#include <irrKlang.h>
-
 #include "Game.h"
 #include "ShaderSystem.h"
 
@@ -115,13 +113,6 @@ void Game::init()
 	instructionsMenu = new TexturedMenu(SCREEN_WIDTH, SCREEN_HEIGHT, "images/main_menu/instructions_menu.png");
 	creditsMenu = new TexturedMenu(SCREEN_WIDTH, SCREEN_HEIGHT, "images/main_menu/credits_menu.png");
 	playerDeadScreen = new PlayerDeadScreen(SCREEN_WIDTH, SCREEN_HEIGHT);
-
-	irrklang::ISoundEngine *engine = irrklang::createIrrKlangDevice();
-
-	if (engine == nullptr)
-		abort();
-
-	// engine->play2D("sounds/explosion.wav", true);
 }
 
 bool Game::update(int deltaTime)

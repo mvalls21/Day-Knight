@@ -4,7 +4,7 @@ set(CMAKE_CXX_STANDARD 17)
 
 project(day-knight)
 
-add_executable(${PROJECT_NAME})
+add_executable(${PROJECT_NAME} Projecte/SoundManager.cpp Projecte/SoundManager.h)
 
 target_sources(${PROJECT_NAME} PRIVATE
         Projecte/Game.cpp

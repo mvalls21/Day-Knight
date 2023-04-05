@@ -3,6 +3,7 @@
 #include <sstream>
 #include <vector>
 #include "TileMap.h"
+#include "SoundManager.h"
 
 #include <glm/gtc/matrix_transform.hpp>
 
@@ -381,6 +382,7 @@ void TileMap::checkCollisionChangeableTile(int tileX, int tileY)
 	{
 		if (not it->second)
         {
+            SoundManager::getManager().playSound("sounds/score.wav");
             *score += TILE_CHANGED_SCORE_BONUS;
             it->second = true;
         }

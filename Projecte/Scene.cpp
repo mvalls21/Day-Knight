@@ -5,6 +5,7 @@
 #include "Scene.h"
 #include "Game.h"
 #include "ShaderSystem.h"
+#include "SoundManager.h"
 
 #include <random>
 
@@ -134,6 +135,8 @@ void Scene::init(const Description &description)
 
     stageNum = description.stageNumber;
     score = description.score;
+
+    SoundManager::getManager().playSoundtrack("sounds/gameplaySoundtrack.wav");
 
     // First update to position everything in its place
     update(-1);
