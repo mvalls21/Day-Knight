@@ -231,7 +231,6 @@ SceneStatus Scene::update(int deltaTime)
             levelTimer += TIME_PRIZE_CLOCK_OBJ;
             break;
         case ObjectType::Shield:
-            // TODO: Should also give immunity for some time for player, but without effect...
             shieldProtection = true;
             break;
         default:

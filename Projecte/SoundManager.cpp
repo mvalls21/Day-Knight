@@ -29,8 +29,11 @@ void SoundManager::playSound(const char* path)
 
 void SoundManager::playSoundtrack(const char* path)
 {
-    stopAllSounds();
-    engine->play2D(path, true);
+    if (not engine->isCurrentlyPlaying(path))
+    {
+        stopAllSounds();
+        engine->play2D(path, true);
+    }
 }
 
 void SoundManager::stopAllSounds()

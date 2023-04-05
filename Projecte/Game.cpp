@@ -3,6 +3,7 @@
 
 #include "Game.h"
 #include "ShaderSystem.h"
+#include "SoundManager.h"
 
 int Game::score = 0;
 int Game::lives = MAX_LIVES;
@@ -160,12 +161,14 @@ bool Game::update(int deltaTime)
 			nextLevel();
 		else if (status == SceneStatus::PlayerDead)
 		{
+            SoundManager::getManager().playSoundtrack("sounds/menus.wav");
 			playerDead = true;
 			const auto player_dead_status = static_cast<PlayerDeadSelection>(playerDeadScreen->update(deltaTime));
 
 			if (player_dead_status == PlayerDeadSelection::StartAgain)
 			{
                 Game::score = 0;
+                Game::lives = MAX_LIVES;
 				playerDead = false;
 				currentSceneType = SceneType::Play;
 				changeToLevel(0);
@@ -214,7 +217,11 @@ void Game::render()
 void Game::keyPressed(int key)
 {
 	if (currentSceneType == SceneType::Play && key == 'p')
-		paused = !paused;
+    {
+        paused = !paused;
+        if (paused) SoundManager::getManager().playSoundtrack("sounds/menus.wav");
+        else SoundManager::getManager().playSoundtrack("sounds/gameplaySoundtrack.wav");
+    }
 
 	if (currentSceneType == SceneType::Play && key >= '1' && key <= '9')
 	{
