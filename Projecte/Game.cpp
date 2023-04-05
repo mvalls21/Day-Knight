@@ -291,7 +291,10 @@ void Game::nextLevel()
 void Game::changeToLevel(int levelIdx)
 {
 	if (levelIdx < 0 || levelIdx >= levelDescriptions.size())
-		return;
+    {
+        stopPlay();
+        return;
+    }
 
 	if (currentPlayScene != nullptr)
 		delete currentPlayScene;

@@ -10,6 +10,7 @@
 #include <GL/glut.h>
 
 #include <glm/gtc/matrix_transform.hpp>
+#include "SoundManager.h"
 
 MainMenu::MainMenu(int width, int height)
 {
@@ -33,6 +34,8 @@ MainMenu::MainMenu(int width, int height)
         {1.0f, 1.0f}};
 
     quad = TexturedQuad::createTexturedQuad(geom, texCoords, *texProgram);
+
+    SoundManager::getManager().playSoundtrack("sounds/menus.wav");
 }
 
 MainMenu::~MainMenu()

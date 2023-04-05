@@ -382,7 +382,7 @@ void TileMap::checkCollisionChangeableTile(int tileX, int tileY)
 	{
 		if (not it->second)
         {
-            SoundManager::getManager().playSound("sounds/scoreUp.wav");
+            SoundManager::getManager().playStackableSound("sounds/scoreUp.wav");
             *score += TILE_CHANGED_SCORE_BONUS;
             it->second = true;
         }

@@ -4,6 +4,7 @@
 #include <GL/glut.h>
 #include "Player.h"
 #include "Game.h"
+#include "SoundManager.h"
 
 #define JUMP_ANGLE_STEP 4
 #define JUMP_HEIGHT 72
@@ -141,6 +142,7 @@ void Player::update(int deltaTime)
 		{
 			if (Game::instance().getSpecialKey(GLUT_KEY_UP))
 			{
+                SoundManager::getManager().playStackableSound("sounds/jump.wav");
 				bJumping = true;
 				jumpAngle = 0;
 				startY = position.y;

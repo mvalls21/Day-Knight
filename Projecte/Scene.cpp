@@ -213,7 +213,11 @@ SceneStatus Scene::update(int deltaTime)
     door->update(deltaTime);
 
     if (isDoorOpen && player->isColliding(*door))
+    {
+        SoundManager::getManager().stopAllSounds();
+        SoundManager::getManager().playSound("sounds/win.wav");
         return SceneStatus::LevelComplete;
+    }
 
     if (currentObjectType != ObjectType::None && currentObject->isColliding(*player))
     {
