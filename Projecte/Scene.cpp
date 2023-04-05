@@ -16,6 +16,7 @@
 #define INIT_PLAYER_Y_TILES 3
 
 #define TILE_POS(x, y) glm::vec2(SCREEN_X + (x)*map->getTileSize(), SCREEN_Y + (y)*map->getTileSize())
+#define LVL_TRANSITION_TIME 10000
 
 Scene::Scene()
 {
@@ -230,7 +231,7 @@ SceneStatus Scene::update(int deltaTime)
     {
         SoundManager::getManager().stopAllSounds();
         SoundManager::getManager().playSound("sounds/win.wav");
-        levelPassedRemainingTimeTransition = 5000;
+        levelPassedRemainingTimeTransition = LVL_TRANSITION_TIME;
     }
 
     if (currentObjectType != ObjectType::None && currentObject->isColliding(*player))

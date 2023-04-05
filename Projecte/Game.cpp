@@ -287,6 +287,8 @@ void Game::startPlay()
 {
 	currentSceneType = SceneType::Play;
 	currentLevelIdx = 0;
+    score = 0;
+    lives = MAX_LIVES;
 
 	if (currentPlayScene != nullptr)
 		delete currentPlayScene;
