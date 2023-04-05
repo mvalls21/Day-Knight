@@ -7,6 +7,7 @@ public:
     static SoundManager getManager();
 
     void playSound(const char* path);
+    void playStackableSound(const char* path);
     void playSoundtrack(const char* path);
     void stopAllSounds();
 
