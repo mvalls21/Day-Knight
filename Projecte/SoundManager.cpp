@@ -21,6 +21,7 @@ void SoundManager::playSound(const char* path)
 
 void SoundManager::playSoundtrack(const char* path)
 {
+    stopAllSounds();
     engine->play2D(path, true);
 }
 
