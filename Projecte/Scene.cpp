@@ -293,22 +293,25 @@ void Scene::render()
 
     player->render();
 
-    text->render(std::to_string((levelTimer/1000)/10) + std::to_string((levelTimer/1000)%10), glm::vec2(SCREEN_X +625, SCREEN_Y + 55), 60.0f,
+    int dimensions[4];
+    glGetIntegerv(GL_VIEWPORT, dimensions);
+    glm::vec2 pos;
+
+    pos = glm::vec2(655.0f*dimensions[2]/SCREEN_WIDTH, 110.0f*dimensions[3]/SCREEN_HEIGHT);
+    text->render(std::to_string((levelTimer/1000)/10) + std::to_string((levelTimer/1000)%10), pos, 60.0f,
                  levelTimer >= 10000 ? glm::vec4(1.0f) : glm::vec4(1.0f, 0.0f, 0.0f, 1.0f));
 
     string stageNumString = string(1, '0' + (stageNum / 10) % 10) + string(1, '0' + (stageNum % 10));
-    text->render("Stage " + stageNumString, glm::vec2(SCREEN_X + 1050, SCREEN_Y + 55), 60.0f, glm::vec4(1.0f));
+    pos = glm::vec2(1075.0f*dimensions[2]/SCREEN_WIDTH, 110.0f*dimensions[3]/SCREEN_HEIGHT);
+    text->render("Stage " + stageNumString, pos, 60.0f, glm::vec4(1.0f));
 
     string scoreString = string(1, '0' + (*score / 10000) % 10) + string(1, '0' + (*score / 1000) % 10) +
             string(1, '0' + (*score / 100) % 10) + string(1, '0' + (*score / 10) % 10) + string(1, '0' + (*score) % 10);
-    text->render(scoreString, glm::vec2(SCREEN_X + 325, SCREEN_Y + 55), 60.0f, glm::vec4(1.0f));
+    pos = glm::vec2(350.0f*dimensions[2]/SCREEN_WIDTH, 110.0f*dimensions[3]/SCREEN_HEIGHT);
+    text->render(scoreString, pos, 60.0f, glm::vec4(1.0f));
 
     if (currentTime < TIME_TO_START)
     {
-        // TODO: Render start text
-        int dimensions[4];
-        glGetIntegerv(GL_VIEWPORT, dimensions);
-
         constexpr float size = 70.0f;
 
         float middleX = (float)dimensions[2] / 2.0f - 84.0f;
