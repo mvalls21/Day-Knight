@@ -229,7 +229,12 @@ void Game::keyPressed(int key)
 	}
 
 	if (currentSceneType == SceneType::Play && key == 'r')
-		changeToLevel(currentLevelIdx); // basically means restart
+    {
+        lives = MAX_LIVES;
+        score = 0;
+        changeToLevel(currentLevelIdx); // basically means restart
+    }
+
 
 	keys[key] = true;
 }
