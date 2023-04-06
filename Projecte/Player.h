@@ -26,6 +26,7 @@ public:
 
 private:
 	bool bJumping;
+    int ceilingHeight;
 	int jumpAngle, startY;
     int* lives;
     int remainingImmunityMilliseconds = 0;

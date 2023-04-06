@@ -7,7 +7,7 @@
 #include "SoundManager.h"
 
 #define JUMP_ANGLE_STEP 4
-#define JUMP_HEIGHT 72
+#define JUMP_HEIGHT 60
 
 constexpr int DEATH = 4;
 constexpr int PERMANENT_DEATH = 5;
@@ -118,14 +118,23 @@ void Player::update(int deltaTime)
 		}
 		else
 		{
-			position.y = int(startY - JUMP_HEIGHT * sin(3.14159f * jumpAngle / 180.f));
+            if (ceilingHeight == -1 and map->collisionMoveUp(position, glm::ivec2(24, 32),bJumping))
+            {
+                ceilingHeight = position.y;
+                jumpAngle = 104;
+            }
+
+            if (ceilingHeight != -1)
+            {
+                position.y = max(int(startY - JUMP_HEIGHT * sin(3.14159f * jumpAngle / 180.f)), ceilingHeight+4);
+            } else
+            {
+                position.y = int(startY - JUMP_HEIGHT * sin(3.14159f * jumpAngle / 180.f));
+            }
+
 			if (jumpAngle > 90)
 			{
 				bJumping = !map->collisionMoveDown(position, glm::ivec2(24, 32), &position.y, true);
-			}
-			else if (map->collisionMoveUp(position, glm::ivec2(32, 32), bJumping))
-			{
-				jumpAngle = 180 - jumpAngle;
 			}
 		}
 	}
@@ -145,6 +154,7 @@ void Player::update(int deltaTime)
                 SoundManager::getManager().playStackableSound("sounds/jump.wav");
 				bJumping = true;
 				jumpAngle = 0;
+                ceilingHeight = -1;
 				startY = position.y;
 			}
 		}
