@@ -200,7 +200,16 @@ SceneStatus Scene::update(int deltaTime)
         }
     }
 
-    levelTimer -= deltaTime;
+    if (hasStopwatch)
+    {
+        timeSinceLastStopwatch_ms += deltaTime;
+        if (timeSinceLastStopwatch_ms >= totalStopwatchTime_ms)
+            hasStopwatch = false;
+    }
+
+    if (!hasStopwatch)
+        levelTimer -= deltaTime;
+
     if (levelTimer <= 0)
     {
         SoundManager::getManager().stopAllSounds();
@@ -223,12 +232,6 @@ SceneStatus Scene::update(int deltaTime)
     {
         for (auto *enemy : enemies)
             enemy->update(deltaTime);
-    }
-    else
-    {
-        timeSinceLastStopwatch_ms += deltaTime;
-        if (timeSinceLastStopwatch_ms >= totalStopwatchTime_ms)
-            hasStopwatch = false;
     }
 
     bool enemyCollision = !player->isImmune() && std::any_of(enemies.begin(), enemies.end(), [&](const Enemy *enemy)
@@ -395,6 +398,11 @@ void Scene::render()
     glm::vec4 color = levelPassedRemainingTimeTransition > 0 ? glm::vec4(0.0f, 1.0f, 0.0f, 1.0f) : levelTimer >= 10000 ? glm::vec4(1.0f)
                                                                                                                        : glm::vec4(1.0f, 0.0f, 0.0f, 1.0f);
     pos = glm::vec2(655.0f * dimensions[2] / SCREEN_WIDTH, 110.0f * dimensions[3] / SCREEN_HEIGHT);
+
+    texProgram->use();
+
+    if (hasStopwatch && (totalStopwatchTime_ms  - timeSinceLastStopwatch_ms) <= 2000 && (int(currentTime / 200)  % 2) == 0) 
+        color = glm::vec4(0.2f, 0.2f, 0.2f, 1.0f);
 
     text->render(std::to_string(((levelTimer + 999) / 1000) / 10) + std::to_string(((levelTimer + 999) / 1000) % 10), pos, 60.0f, color);
 
