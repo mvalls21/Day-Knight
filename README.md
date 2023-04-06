@@ -1,11 +1,7 @@
-Per recompilar-ho tot si us plau feu:
+Per recompilar i executar el projecte des de la terminal de Linux:
 
-# mkdir Binari
-# cd Binari
-# cmake ..
-# make
-
-Arribats a aquest punt tindreu a Binari un executable day-knight, podeu:
-
-1. Clicar
-2. # ./day-knight
+`mkdir Binari`
+`cd Binari`
+`cmake ..`
+`make`
+`./day-knight`
