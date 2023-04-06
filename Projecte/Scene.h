@@ -111,6 +111,9 @@ private:
 	int objectTimer = 0;
     int levelPassedRemainingTimeTransition = 0;
     int timeUpRemainingTimeTransition = 0;
+	bool hasStopwatch = false;
+	int timeSinceLastStopwatch_ms = 0;
+	const int totalStopwatchTime_ms = 7000;
 
     int levelTimer = MAX_TIME_FOR_LEVEL;
     int* score;

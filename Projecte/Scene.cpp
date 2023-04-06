@@ -163,7 +163,8 @@ SceneStatus Scene::update(int deltaTime)
     else if (timeUpRemainingTimeTransition > 0)
     {
         timeUpRemainingTimeTransition -= deltaTime;
-        if (timeUpRemainingTimeTransition <= 0) return SceneStatus::TimeIsUp;
+        if (timeUpRemainingTimeTransition <= 0)
+            return SceneStatus::TimeIsUp;
         return SceneStatus::Continue;
     }
     else if (levelPassedRemainingTimeTransition > 0)
@@ -218,8 +219,17 @@ SceneStatus Scene::update(int deltaTime)
 
     player->update(deltaTime);
 
-    for (auto *enemy : enemies)
-        enemy->update(deltaTime);
+    if (!hasStopwatch)
+    {
+        for (auto *enemy : enemies)
+            enemy->update(deltaTime);
+    }
+    else
+    {
+        timeSinceLastStopwatch_ms += deltaTime;
+        if (timeSinceLastStopwatch_ms >= totalStopwatchTime_ms)
+            hasStopwatch = false;
+    }
 
     bool enemyCollision = !player->isImmune() && std::any_of(enemies.begin(), enemies.end(), [&](const Enemy *enemy)
                                                              { return player->isColliding(*enemy); });
@@ -283,7 +293,8 @@ SceneStatus Scene::update(int deltaTime)
             *score += GEM_SCORE_BONUS;
             break;
         case ObjectType::Clock:
-            levelTimer += TIME_PRIZE_CLOCK_OBJ;
+            hasStopwatch = true;
+            timeSinceLastStopwatch_ms = 0;
             break;
         case ObjectType::Shield:
             shieldProtection = true;
