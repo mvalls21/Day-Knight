@@ -5,6 +5,7 @@
 #include "LevelSelection.h"
 #include "MainMenu.h"
 #include "PlayerDeadScreen.h"
+#include "GamePausedScreen.h"
 #include "TexturedMenu.h"
 
 constexpr int SCREEN_WIDTH = 40 * (32 + 2);
@@ -65,6 +66,7 @@ private:
 	TexturedMenu *instructionsMenu;
 	TexturedMenu *creditsMenu;
 	PlayerDeadScreen *playerDeadScreen;
+	GamePausedScreen *gamePausedScreen;
 
 	std::vector<Scene::Description> levelDescriptions;
 	int currentLevelIdx;

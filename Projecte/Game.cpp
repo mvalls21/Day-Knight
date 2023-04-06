@@ -26,10 +26,10 @@ static Scene::Description sceneLevel01()
 	description.keyPositionTile = {8, 18};
 	description.doorPositionTile = {19, 4};
 
-    description.score = &Game::score;
-    description.stageNumber = 1;
+	description.score = &Game::score;
+	description.stageNumber = 1;
 
-    description.lives = &Game::lives;
+	description.lives = &Game::lives;
 
 	return description;
 }
@@ -58,10 +58,10 @@ static Scene::Description sceneLevel02()
 	description.keyPositionTile = {12, 18};
 	description.doorPositionTile = {20, 4};
 
-    description.score = &Game::score;
-    description.stageNumber = 2;
+	description.score = &Game::score;
+	description.stageNumber = 2;
 
-    description.lives = &Game::lives;
+	description.lives = &Game::lives;
 
 	return description;
 }
@@ -73,28 +73,27 @@ static Scene::Description sceneLevel03()
 	description.levelName = "level03.txt";
 	description.playerPositionStartTile = {24, 18};
 
-    description.skeletonDescriptions = {
-            Scene::EnemyDescription{18, 6, MOVE_RIGHT},
-            Scene::EnemyDescription{12, 6, MOVE_LEFT},
-    };
+	description.skeletonDescriptions = {
+		Scene::EnemyDescription{18, 6, MOVE_RIGHT},
+		Scene::EnemyDescription{12, 6, MOVE_LEFT},
+	};
 
-    description.vampireDescriptions = {
-            Scene::EnemyDescription{2, 15, MOVE_RIGHT},
-            Scene::EnemyDescription{18, 3, MOVE_RIGHT},
-    };
+	description.vampireDescriptions = {
+		Scene::EnemyDescription{2, 15, MOVE_RIGHT},
+		Scene::EnemyDescription{18, 3, MOVE_RIGHT},
+	};
 
-    description.ghostDescriptions = {
-            Scene::EnemyDescription{15, 8, MOVE_RIGHT},
-    };
+	description.ghostDescriptions = {
+		Scene::EnemyDescription{15, 8, MOVE_RIGHT},
+	};
 
-	description.keyPositionTile = {24, 18
-    };
+	description.keyPositionTile = {24, 18};
 	description.doorPositionTile = {7, 4};
 
-    description.score = &Game::score;
-    description.stageNumber = 3;
+	description.score = &Game::score;
+	description.stageNumber = 3;
 
-    description.lives = &Game::lives;
+	description.lives = &Game::lives;
 
 	return description;
 }
@@ -103,7 +102,7 @@ Game::Game()
 {
 	levelDescriptions.push_back(sceneLevel01());
 	levelDescriptions.push_back(sceneLevel02());
-    levelDescriptions.push_back(sceneLevel03());
+	levelDescriptions.push_back(sceneLevel03());
 
 	currentLevelIdx = 0;
 	currentSceneType = SceneType::MainMenu;
@@ -121,6 +120,7 @@ void Game::init()
 	instructionsMenu = new TexturedMenu(SCREEN_WIDTH, SCREEN_HEIGHT, "images/main_menu/instructions_menu.png");
 	creditsMenu = new TexturedMenu(SCREEN_WIDTH, SCREEN_HEIGHT, "images/main_menu/credits_menu.png");
 	playerDeadScreen = new PlayerDeadScreen(SCREEN_WIDTH, SCREEN_HEIGHT);
+	gamePausedScreen = new GamePausedScreen(SCREEN_WIDTH, SCREEN_HEIGHT);
 }
 
 bool Game::update(int deltaTime)
@@ -161,16 +161,18 @@ bool Game::update(int deltaTime)
 			nextLevel();
 		else if (status == SceneStatus::PlayerDead)
 		{
-            SoundManager::getManager().playSoundtrack("sounds/menus.wav");
+			SoundManager::getManager().playSoundtrack("sounds/menus.wav");
 			playerDead = true;
 			const auto player_dead_status = static_cast<PlayerDeadSelection>(playerDeadScreen->update(deltaTime));
 
 			if (player_dead_status == PlayerDeadSelection::StartAgain)
 			{
-                Game::score = 0;
-                Game::lives = MAX_LIVES;
+				Game::score = 0;
+				Game::lives = MAX_LIVES;
 				playerDead = false;
 				currentSceneType = SceneType::Play;
+
+				currentLevelIdx = 0;
 				changeToLevel(0);
 			}
 			else if (player_dead_status == PlayerDeadSelection::ExitMainMenu)
@@ -183,6 +185,31 @@ bool Game::update(int deltaTime)
 			{
 				bPlay = false;
 			}
+		}
+	}
+	else if (currentSceneType == SceneType::Play && paused)
+	{
+		const auto status = gamePausedScreen->update(deltaTime);
+		if (status == (int)GamePausedSelection::Continue)
+		{
+			paused = false;
+			SoundManager::getManager().playSoundtrack("sounds/gameplaySoundtrack.wav");
+		}
+		else if (status == (int)GamePausedSelection::Restart)
+		{
+			Game::score = 0;
+			Game::lives = MAX_LIVES;
+			playerDead = false;
+			paused = false;
+			currentLevelIdx = 0;
+
+			changeToLevel(currentLevelIdx);
+		}
+		else if (status == (int)GamePausedSelection::ExitMainMenu)
+		{
+			currentSceneType = SceneType::MainMenu;
+			paused = false;
+			keys[13] = false; // Set enter to false
 		}
 	}
 
@@ -209,6 +236,8 @@ void Game::render()
 		currentPlayScene->render();
 		if (playerDead)
 			playerDeadScreen->render();
+		if (paused)
+			gamePausedScreen->render();
 		break;
 	}
 	}
@@ -217,11 +246,13 @@ void Game::render()
 void Game::keyPressed(int key)
 {
 	if (currentSceneType == SceneType::Play && key == 'p')
-    {
-        paused = !paused;
-        if (paused) SoundManager::getManager().playSoundtrack("sounds/menus.wav");
-        else SoundManager::getManager().playSoundtrack("sounds/gameplaySoundtrack.wav");
-    }
+	{
+		paused = !paused;
+		if (paused)
+			SoundManager::getManager().playSoundtrack("sounds/menus.wav");
+		else
+			SoundManager::getManager().playSoundtrack("sounds/gameplaySoundtrack.wav");
+	}
 
 	if (currentSceneType == SceneType::Play && key >= '1' && key <= '9')
 	{
@@ -229,19 +260,18 @@ void Game::keyPressed(int key)
 		if (newLevel == currentLevelIdx)
 			return;
 
-        score = 0;
-        lives = MAX_LIVES;
+		score = 0;
+		lives = MAX_LIVES;
 		currentLevelIdx = newLevel;
 		changeToLevel(newLevel);
 	}
 
 	if (currentSceneType == SceneType::Play && key == 'r')
-    {
-        lives = MAX_LIVES;
-        score = 0;
-        changeToLevel(currentLevelIdx); // basically means restart
-    }
-
+	{
+		lives = MAX_LIVES;
+		score = 0;
+		changeToLevel(currentLevelIdx); // basically means restart
+	}
 
 	keys[key] = true;
 }
@@ -287,8 +317,8 @@ void Game::startPlay()
 {
 	currentSceneType = SceneType::Play;
 	currentLevelIdx = 0;
-    score = 0;
-    lives = MAX_LIVES;
+	score = 0;
+	lives = MAX_LIVES;
 
 	if (currentPlayScene != nullptr)
 		delete currentPlayScene;
@@ -305,10 +335,10 @@ void Game::nextLevel()
 void Game::changeToLevel(int levelIdx)
 {
 	if (levelIdx < 0 || levelIdx >= levelDescriptions.size())
-    {
-        stopPlay();
-        return;
-    }
+	{
+		stopPlay();
+		return;
+	}
 
 	if (currentPlayScene != nullptr)
 		delete currentPlayScene;
