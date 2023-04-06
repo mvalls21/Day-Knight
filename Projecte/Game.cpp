@@ -105,7 +105,8 @@ Game::Game()
 	levelDescriptions.push_back(sceneLevel03());
 
 	currentLevelIdx = 0;
-	currentSceneType = SceneType::MainMenu;
+	// currentSceneType = SceneType::MainMenu;
+	currentSceneType = SceneType::GameFinished;
 
 	ShaderSystem::init();
 }
@@ -121,6 +122,7 @@ void Game::init()
 	creditsMenu = new TexturedMenu(SCREEN_WIDTH, SCREEN_HEIGHT, "images/main_menu/credits_menu.png");
 	playerDeadScreen = new PlayerDeadScreen(SCREEN_WIDTH, SCREEN_HEIGHT);
 	gamePausedScreen = new GamePausedScreen(SCREEN_WIDTH, SCREEN_HEIGHT);
+	gameFinishedScreen = new GameFinishedScreen(SCREEN_WIDTH, SCREEN_HEIGHT, &Game::score);
 }
 
 bool Game::update(int deltaTime)
@@ -149,6 +151,16 @@ bool Game::update(int deltaTime)
 		if (status == (int)TexturedMenuSelection::Back)
 			currentSceneType = SceneType::MainMenu;
 	}
+	else if (currentSceneType == SceneType::GameFinished)
+	{
+		const auto status = gameFinishedScreen->update(deltaTime);
+		if (status == (int)GameFinishedSelection::Credits)
+			currentSceneType = SceneType::Credits;
+		else if (status == (int)GameFinishedSelection::MainMenu)
+			currentSceneType = SceneType::MainMenu;
+
+		keys[13] = false;
+	}
 	else if (currentSceneType == SceneType::Play && !paused)
 	{
 		SceneStatus status;
@@ -158,7 +170,16 @@ bool Game::update(int deltaTime)
 			status = SceneStatus::PlayerDead;
 
 		if (status == SceneStatus::LevelComplete)
-			nextLevel();
+		{
+			if (currentLevelIdx == levelDescriptions.size() - 1)
+			{
+				currentSceneType == SceneType::GameFinished;
+			}
+			else
+			{
+				nextLevel();
+			}
+		}
 		else if (status == SceneStatus::PlayerDead)
 		{
 			SoundManager::getManager().playSoundtrack("sounds/menus.wav");
@@ -230,6 +251,9 @@ void Game::render()
 		break;
 	case SceneType::Credits:
 		creditsMenu->render();
+		break;
+	case SceneType::GameFinished:
+		gameFinishedScreen->render();
 		break;
 	case SceneType::Play:
 	{

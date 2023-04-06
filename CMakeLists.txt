@@ -14,6 +14,7 @@ target_sources(${PROJECT_NAME} PRIVATE
         Projecte/TexturedMenu.cpp
         Projecte/PlayerDeadScreen.cpp
         Projecte/GamePausedScreen.cpp
+        Projecte/GameFinishedScreen.cpp
 
         Projecte/Text.cpp
         Projecte/TexturedQuad.cpp

@@ -6,6 +6,7 @@
 #include "MainMenu.h"
 #include "PlayerDeadScreen.h"
 #include "GamePausedScreen.h"
+#include "GameFinishedScreen.h"
 #include "TexturedMenu.h"
 
 constexpr int SCREEN_WIDTH = 40 * (32 + 2);
@@ -19,6 +20,7 @@ enum class SceneType
 	Play,
 	Instructions,
 	Credits,
+	GameFinished,
 };
 
 class Game
@@ -67,6 +69,7 @@ private:
 	TexturedMenu *creditsMenu;
 	PlayerDeadScreen *playerDeadScreen;
 	GamePausedScreen *gamePausedScreen;
+	GameFinishedScreen *gameFinishedScreen;
 
 	std::vector<Scene::Description> levelDescriptions;
 	int currentLevelIdx;
