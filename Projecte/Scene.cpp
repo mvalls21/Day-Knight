@@ -68,7 +68,7 @@ void Scene::init(const Description &description)
     // Create player
     player = new Player(description.lives);
     player->init(glm::ivec2(SCREEN_X, SCREEN_Y), *texProgram);
-    player->setPosition(glm::vec2(description.playerPositionStartTile.x * map->getTileSize(), description.playerPositionStartTile.y * map->getTileSize()));
+    player->setPosition(glm::vec2(description.playerPositionStartTile.x * map->getTileSize(), description.playerPositionStartTile.y * map->getTileSize() - 4));
     player->setTileMap(map);
 
     // Create skeletons
