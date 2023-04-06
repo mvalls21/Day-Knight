@@ -29,9 +29,6 @@ GameFinishedScreen::GameFinishedScreen(int width, int height, int *score)
 
     texProgram = ShaderSystem::acquire("texture");
 
-    SoundManager::getManager().stopAllSounds();
-    SoundManager::getManager().playSoundtrack("sounds/game_complete.wav");
-
     glm::vec2 geom[] = {
         {0.0f, 0.0f},
         {width, height}};
@@ -107,7 +104,7 @@ void GameFinishedScreen::render()
     }
 
     const std::string scoreText = "You finished with a score of:   " + std::to_string(static_cast<int>(*score));
-    
+
     text->render(scoreText, glm::vec2(SCREEN_WIDTH / 2 - 450, SCREEN_HEIGHT / 2 - 75), 70, glm::vec4(1.0f, 1.0f, 1.0f, 1.0f));
 
     sprite->render();

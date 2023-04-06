@@ -148,7 +148,7 @@ void Scene::init(const Description &description)
 
     // First update to position everything in its place
     player->update(0);
-    for (const auto& enemy : enemies)
+    for (const auto &enemy : enemies)
         enemy->update(0);
 }
 
@@ -162,15 +162,20 @@ SceneStatus Scene::update(int deltaTime)
     }
     else if (levelPassedRemainingTimeTransition > 0)
     {
-        if (levelPassedRemainingTimeTransition >= SCORE_UP_LVL_PASSED_END and levelPassedRemainingTimeTransition <= SCORE_UP_LVL_PASSED_START) {
+        if (levelPassedRemainingTimeTransition >= SCORE_UP_LVL_PASSED_END and levelPassedRemainingTimeTransition <= SCORE_UP_LVL_PASSED_START)
+        {
             int remainingScoreUpTicks = (levelPassedRemainingTimeTransition - SCORE_UP_LVL_PASSED_END) / SCORE_UP_LVL_PASSED_PERIOD;
-            if (remainingScoreUpTicks != (levelPassedRemainingTimeTransition - deltaTime - SCORE_UP_LVL_PASSED_END) / SCORE_UP_LVL_PASSED_PERIOD) {
+            if (remainingScoreUpTicks != (levelPassedRemainingTimeTransition - deltaTime - SCORE_UP_LVL_PASSED_END) / SCORE_UP_LVL_PASSED_PERIOD)
+            {
                 SoundManager::getManager().playStackableSound("sounds/scoreUp.wav");
-                if (remainingScoreUpTicks == 1) {
+                if (remainingScoreUpTicks == 1)
+                {
                     *score += (levelTimer / 100) * (EXTRA_POINTS_FOR_SECOND / 10);
                     levelTimer = 0;
                     SoundManager::getManager().playSound("sounds/timeToPointsEnd.wav");
-                } else {
+                }
+                else
+                {
                     *score += ((levelTimer / 100) / remainingScoreUpTicks) * (EXTRA_POINTS_FOR_SECOND / 10);
                     levelTimer -= ((levelTimer / 100) / remainingScoreUpTicks) * 100;
                 }
@@ -193,11 +198,10 @@ SceneStatus Scene::update(int deltaTime)
     {
         return SceneStatus::PlayerDead;
     }
-    else if (levelTimer/1000 < 10 and levelTimer/1000 != (levelTimer + deltaTime)/1000)
+    else if (levelTimer / 1000 < 10 and levelTimer / 1000 != (levelTimer + deltaTime) / 1000)
     {
         SoundManager::getManager().playStackableSound("sounds/timeLow.wav");
     }
-
 
     detectCheatKeys();
     objectTimer += deltaTime;
@@ -369,19 +373,19 @@ void Scene::render()
         text->render(content, glm::vec2(middleX - 84.0f, middleY), size, glm::vec4(1.0f, 1.0f, 1.0f, 0.8f));
     }
 
-    glm::vec4 color = levelPassedRemainingTimeTransition > 0 ? glm::vec4(0.0f, 1.0f, 0.0f, 1.0f) :
-            levelTimer >= 10000 ? glm::vec4(1.0f) : glm::vec4(1.0f, 0.0f, 0.0f, 1.0f);
-    pos = glm::vec2(655.0f*dimensions[2]/SCREEN_WIDTH, 110.0f*dimensions[3]/SCREEN_HEIGHT);
+    glm::vec4 color = levelPassedRemainingTimeTransition > 0 ? glm::vec4(0.0f, 1.0f, 0.0f, 1.0f) : levelTimer >= 10000 ? glm::vec4(1.0f)
+                                                                                                                       : glm::vec4(1.0f, 0.0f, 0.0f, 1.0f);
+    pos = glm::vec2(655.0f * dimensions[2] / SCREEN_WIDTH, 110.0f * dimensions[3] / SCREEN_HEIGHT);
 
-    text->render(std::to_string(((levelTimer+999)/1000)/10) + std::to_string(((levelTimer+999)/1000)%10), pos, 60.0f, color);
+    text->render(std::to_string(((levelTimer + 999) / 1000) / 10) + std::to_string(((levelTimer + 999) / 1000) % 10), pos, 60.0f, color);
 
     string stageNumString = string(1, '0' + (stageNum / 10) % 10) + string(1, '0' + (stageNum % 10));
-    pos = glm::vec2(1075.0f*dimensions[2]/SCREEN_WIDTH, 110.0f*dimensions[3]/SCREEN_HEIGHT);
+    pos = glm::vec2(1075.0f * dimensions[2] / SCREEN_WIDTH, 110.0f * dimensions[3] / SCREEN_HEIGHT);
     text->render("Stage " + stageNumString, pos, 60.0f, glm::vec4(1.0f));
 
     string scoreString = string(1, '0' + (*score / 10000) % 10) + string(1, '0' + (*score / 1000) % 10) +
-            string(1, '0' + (*score / 100) % 10) + string(1, '0' + (*score / 10) % 10) + string(1, '0' + (*score) % 10);
-    pos = glm::vec2(350.0f*dimensions[2]/SCREEN_WIDTH, 110.0f*dimensions[3]/SCREEN_HEIGHT);
+                         string(1, '0' + (*score / 100) % 10) + string(1, '0' + (*score / 10) % 10) + string(1, '0' + (*score) % 10);
+    pos = glm::vec2(350.0f * dimensions[2] / SCREEN_WIDTH, 110.0f * dimensions[3] / SCREEN_HEIGHT);
     text->render(scoreString, pos, 60.0f, glm::vec4(1.0f));
 }
 
@@ -424,7 +428,7 @@ void Scene::detectCheatKeys()
 {
     static bool gPressed = false;
 
-    if (Game::instance().getKey('k'))
+    if (Game::instance().getKey('k') && !isDoorOpen)
         showKey = true;
 
     if (Game::instance().getKey('g') && !gPressed)

@@ -178,7 +178,8 @@ bool Game::update(int deltaTime)
 		{
 			if (currentLevelIdx == levelDescriptions.size() - 1)
 			{
-				currentSceneType == SceneType::GameFinished;
+				currentSceneType = SceneType::GameFinished;
+				SoundManager::getManager().playSoundtrack("sounds/game_complete.wav");
 			}
 			else
 			{
