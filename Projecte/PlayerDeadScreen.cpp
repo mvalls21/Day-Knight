@@ -40,9 +40,11 @@ PlayerDeadScreen::~PlayerDeadScreen()
 
 void PlayerDeadScreen::render()
 {
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    glEnable(GL_BLEND);
     texProgram->use();
     texProgram->setUniformMatrix4f("projection", projection);
-    texProgram->setUniform4f("color", 1.0f, 1.0f, 1.0f, 1.0f);
+    texProgram->setUniform4f("color", 1.0f, 1.0f, 1.0f, 0.7f);
     glm::mat4 modelview(1.0f);
     texProgram->setUniformMatrix4f("modelview", modelview);
     texProgram->setUniform2f("texCoordDispl", 0.f, 0.f);
@@ -59,6 +61,7 @@ void PlayerDeadScreen::render()
         quad->render(selectedExitDesktop);
         break;
     }
+    glDisable(GL_BLEND);
 }
 
 int PlayerDeadScreen::update(int deltaTime)
