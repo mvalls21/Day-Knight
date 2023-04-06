@@ -169,6 +169,7 @@ SceneStatus Scene::update(int deltaTime)
                 if (remainingScoreUpTicks == 1) {
                     *score += (levelTimer / 1000) * EXTRA_POINTS_FOR_SECOND;
                     levelTimer = 0;
+                    SoundManager::getManager().playSound("sounds/timeToPointsEnd.wav");
                 } else {
                     *score += ((levelTimer / 1000) / remainingScoreUpTicks) * EXTRA_POINTS_FOR_SECOND;
                     levelTimer -= ((levelTimer / 1000) / remainingScoreUpTicks) * 1000;
@@ -212,10 +213,14 @@ SceneStatus Scene::update(int deltaTime)
         if (shieldProtection)
             shieldProtection = false;
         else
+        {
             player->setLives(player->getLives() - 1);
+        }
 
         if (player->getLives() != 0)
+        {
             player->makeImmune(PLAYER_IMMUNITY_MS);
+        }
     }
 
     if (player->getLives() == 0 && player->finishedDeath())

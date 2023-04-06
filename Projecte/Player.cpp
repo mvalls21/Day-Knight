@@ -174,6 +174,10 @@ void Player::setLives(int lives)
 			dying = true;
 			sprite->changeAnimation(DEATH);
 		}
+        else
+        {
+            SoundManager::getManager().playSound("sounds/lifeLost.wav");
+        }
 	}
 }
 
