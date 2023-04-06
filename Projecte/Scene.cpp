@@ -16,7 +16,13 @@
 #define INIT_PLAYER_Y_TILES 3
 
 #define TILE_POS(x, y) glm::vec2(SCREEN_X + (x)*map->getTileSize(), SCREEN_Y + (y)*map->getTileSize())
-#define LVL_TRANSITION_TIME 10000
+
+// the following defines tweak everything related to the conversion from remaining time to extra points when the lvl is passed
+#define LVL_TRANSITION_TIME 3500
+#define SCORE_UP_LVL_PASSED_PERIOD 50
+#define SCORE_UP_LVL_PASSED_END 1000
+#define SCORE_UP_LVL_PASSED_START LVL_TRANSITION_TIME - 1500
+#define EXTRA_POINTS_FOR_SECOND 20
 
 Scene::Scene()
 {
@@ -154,9 +160,22 @@ SceneStatus Scene::update(int deltaTime)
     {
         return SceneStatus::Continue;
     }
-
-    if (levelPassedRemainingTimeTransition > 0)
+    else if (levelPassedRemainingTimeTransition > 0)
     {
+        if (levelPassedRemainingTimeTransition >= SCORE_UP_LVL_PASSED_END and levelPassedRemainingTimeTransition <= SCORE_UP_LVL_PASSED_START) {
+            int remainingScoreUpTicks = (levelPassedRemainingTimeTransition - SCORE_UP_LVL_PASSED_END) / SCORE_UP_LVL_PASSED_PERIOD;
+            if (remainingScoreUpTicks != (levelPassedRemainingTimeTransition - deltaTime - SCORE_UP_LVL_PASSED_END) / SCORE_UP_LVL_PASSED_PERIOD) {
+                SoundManager::getManager().playStackableSound("sounds/scoreUp.wav");
+                if (remainingScoreUpTicks == 1) {
+                    *score += (levelTimer / 1000) * EXTRA_POINTS_FOR_SECOND;
+                    levelTimer = 0;
+                } else {
+                    *score += ((levelTimer / 1000) / remainingScoreUpTicks) * EXTRA_POINTS_FOR_SECOND;
+                    levelTimer -= ((levelTimer / 1000) / remainingScoreUpTicks) * 1000;
+                }
+            }
+        }
+
         levelPassedRemainingTimeTransition -= deltaTime;
         if (levelPassedRemainingTimeTransition > 0)
         {
@@ -319,18 +338,33 @@ void Scene::render()
 
     player->render();
 
+    // TEXT
+
     int dimensions[4];
     glGetIntegerv(GL_VIEWPORT, dimensions);
     glm::vec2 pos;
 
+    constexpr float size = 70.0f;
+
+    float middleX = (float)dimensions[2] / 2.0f;
+    float middleY = (float)dimensions[3] / 2.0f;
+
     if (levelPassedRemainingTimeTransition > 0)
     {
-
+        const std::string content("Stage Cleared!");
+        text->render(content, glm::vec2(middleX - 176.0f, middleY), size, glm::vec4(1.0f, 1.0f, 1.0f, 0.8f));
+    }
+    else if (currentTime < TIME_TO_START)
+    {
+        const std::string content("Ready?");
+        text->render(content, glm::vec2(middleX - 84.0f, middleY), size, glm::vec4(1.0f, 1.0f, 1.0f, 0.8f));
     }
 
+    glm::vec4 color = levelPassedRemainingTimeTransition > 0 ? glm::vec4(0.0f, 1.0f, 0.0f, 1.0f) :
+            levelTimer >= 10000 ? glm::vec4(1.0f) : glm::vec4(1.0f, 0.0f, 0.0f, 1.0f);
     pos = glm::vec2(655.0f*dimensions[2]/SCREEN_WIDTH, 110.0f*dimensions[3]/SCREEN_HEIGHT);
-    text->render(std::to_string((levelTimer/1000)/10) + std::to_string((levelTimer/1000)%10), pos, 60.0f,
-                 levelTimer >= 10000 ? glm::vec4(1.0f) : glm::vec4(1.0f, 0.0f, 0.0f, 1.0f));
+
+    text->render(std::to_string(((levelTimer+999)/1000)/10) + std::to_string(((levelTimer+999)/1000)%10), pos, 60.0f, color);
 
     string stageNumString = string(1, '0' + (stageNum / 10) % 10) + string(1, '0' + (stageNum % 10));
     pos = glm::vec2(1075.0f*dimensions[2]/SCREEN_WIDTH, 110.0f*dimensions[3]/SCREEN_HEIGHT);
@@ -340,17 +374,6 @@ void Scene::render()
             string(1, '0' + (*score / 100) % 10) + string(1, '0' + (*score / 10) % 10) + string(1, '0' + (*score) % 10);
     pos = glm::vec2(350.0f*dimensions[2]/SCREEN_WIDTH, 110.0f*dimensions[3]/SCREEN_HEIGHT);
     text->render(scoreString, pos, 60.0f, glm::vec4(1.0f));
-
-    if (currentTime < TIME_TO_START)
-    {
-        constexpr float size = 70.0f;
-
-        float middleX = (float)dimensions[2] / 2.0f - 84.0f;
-        float middleY = (float)dimensions[3] / 2.0f;
-
-        const std::string content("Ready?");
-        text->render(content, glm::vec2(middleX, middleY), size, glm::vec4(1.0f, 1.0f, 1.0f, 0.8f));
-    }
 }
 
 void Scene::spawnRandomObject()
