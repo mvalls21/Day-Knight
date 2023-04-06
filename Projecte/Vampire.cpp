@@ -58,6 +58,8 @@ void Vampire::init(const glm::ivec2 &tileMapPos, ShaderProgram &shaderProgram)
 
     tileMapDispl = tileMapPos;
     sprite->setPosition(glm::vec2(float(tileMapDispl.x + position.x), float(tileMapDispl.y + position.y)));
+
+    texProgram = &shaderProgram;
 }
 
 Vampire::~Vampire()

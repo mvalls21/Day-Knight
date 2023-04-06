@@ -203,8 +203,20 @@ SceneStatus Scene::update(int deltaTime)
     if (hasStopwatch)
     {
         timeSinceLastStopwatch_ms += deltaTime;
+
+        if ((totalStopwatchTime_ms - timeSinceLastStopwatch_ms) <= 2000 && (int(currentTime / 200) % 2) == 0)
+        {
+            for (const auto& enemy : enemies)
+                enemy->toggleDark();
+        }
+
         if (timeSinceLastStopwatch_ms >= totalStopwatchTime_ms)
+        {
+            for (const auto& enemy : enemies)
+                enemy->disableDark();
+
             hasStopwatch = false;
+        }
     }
 
     if (!hasStopwatch)

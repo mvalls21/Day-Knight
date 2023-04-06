@@ -8,6 +8,18 @@ void Enemy::update(int deltaTime)
     sprite->setPosition(glm::vec2(float(tileMapDispl.x + position.x), float(tileMapDispl.y + position.y)));
 }
 
+void Enemy::render() const
+{
+    texProgram->use();
+
+    if (isDark)
+	    texProgram->setUniform4f("color", 0.2, 0.2, 0.2, 1.0f);
+
+	Character::render();
+
+	texProgram->setUniform4f("color", 1.0f, 1.0f, 1.0f, 1.0f);
+}
+
 void Enemy::defaultMovement(int deltaTime)
 {
     position.x += movementSpeed;
