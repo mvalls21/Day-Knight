@@ -66,6 +66,12 @@ add_custom_command(
         ${CMAKE_SOURCE_DIR}/Projecte/sounds/
         ${CMAKE_BINARY_DIR}/sounds/)
 
+add_custom_command(
+        TARGET ${PROJECT_NAME} PRE_BUILD
+        COMMAND ${CMAKE_COMMAND} -E copy_directory
+        ${CMAKE_SOURCE_DIR}/Projecte/fonts/
+        ${CMAKE_BINARY_DIR}/fonts/)
+
 add_subdirectory(vendor/soil/)
 target_include_directories(${PROJECT_NAME} PUBLIC vendor/soil/src/)
 target_link_libraries(${PROJECT_NAME} PUBLIC SOIL)

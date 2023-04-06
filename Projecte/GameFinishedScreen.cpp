@@ -20,7 +20,7 @@ GameFinishedScreen::GameFinishedScreen(int width, int height, int *score)
     this->score = score;
 
     text = new Text();
-    if (!text->init("../Projecte/fonts/OldLondon.ttf"))
+    if (!text->init("fonts//OldLondon.ttf"))
         abort();
 
     projection = glm::ortho(0.f, float(width - 1), float(height - 1), 0.f);

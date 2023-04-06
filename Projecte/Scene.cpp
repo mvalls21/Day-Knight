@@ -30,7 +30,7 @@ Scene::Scene()
     player = NULL;
 
     text = new Text();
-    if (!text->init("../Projecte/fonts/OldLondon.ttf"))
+    if (!text->init("fonts//OldLondon.ttf"))
         assert(false && "tonto");
 }
 
