@@ -1,7 +1,7 @@
 Per recompilar i executar el projecte des de la terminal de Linux:
 
-* `mkdir Binari`
 * `cd Binari`
+* `rm -r *`
 * `cmake ..`
 * `make`
 * `./day-knight`

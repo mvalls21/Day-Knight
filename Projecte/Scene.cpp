@@ -308,6 +308,7 @@ SceneStatus Scene::update(int deltaTime)
             *score += GEM_SCORE_BONUS;
             break;
         case ObjectType::Clock:
+            SoundManager::getManager().playSound("sounds/timeFrozen.wav");
             hasStopwatch = true;
             timeSinceLastStopwatch_ms = 0;
             break;
