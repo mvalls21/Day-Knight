@@ -171,7 +171,8 @@ bool Game::update(int deltaTime)
                 Game::lives = MAX_LIVES;
 				playerDead = false;
 				currentSceneType = SceneType::Play;
-				changeToLevel(0);
+                currentLevelIdx = 0;
+				changeToLevel(currentLevelIdx);
 			}
 			else if (player_dead_status == PlayerDeadSelection::ExitMainMenu)
 			{
