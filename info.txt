@@ -24,7 +24,7 @@ se convierte en un murciélago y rebota sobre las paredes y plataformas
 - 4 objetos o "powerups":
     - La llave, que permite abrir la puerta una vez se han tocado todas las plataformas
     - La gema, que aporta puntuación adicional
-    - El reloj de arena, que aporta tiempo adicional
+    - El reloj de arena, que para el tiempo y a los enemigos.
     - El escudo, que protege al personaje por un golpe, evitando que le dañen las colisiones con enemigos
 - Animaciones para los diferentes powerups (movimiento del escudo y animación de la caída de arena en el reloj)
 - Animación de apertura de la puerta, acompañada de un efecto de sonido
@@ -69,7 +69,8 @@ todas, aparecerá una llave, que el jugador deberá coger para así abrir la pue
     - El fantasma, que tiene el mismo movimiento que el murciélago, pero es capaz de atravesar paredes que no delimitan el nivel
 - Hay 3 tipos de objetos o powerups que aportan ventajas adicionales al personaje:
     - La gema da puntuación adicional
-    - El reloj de arena, que da más tiempo al nivel
+    - El reloj de arena, que para el tiempo y a los enemigos durante unos segundos. El personaje aun puede ser dañado
+        por los enemigos si choca.
     - El escudo, que protege al personaje un golpe, en el que no perderá un corazón
 - Los objetos solo aparecen una vez por nivel de forma aleatoria, en intervalos de 20 segundos
 - Hay dos formas de perder la partida:
