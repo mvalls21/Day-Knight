@@ -4,6 +4,7 @@
 #include <iostream>
 
 #include "ShaderSystem.h"
+#include "SoundManager.h"
 
 #include "Game.h"
 #include <GL/glew.h>
@@ -77,12 +78,16 @@ int GamePausedScreen::update(int deltaTime)
 
     if (Game::instance().getSpecialKey(GLUT_KEY_DOWN))
     {
+        SoundManager::getManager().playStackableSound("sounds/menuItem.wav");
+
         time = 0;
         selection = (selection + 1) % 3;
     }
 
     if (Game::instance().getSpecialKey(GLUT_KEY_UP))
     {
+        SoundManager::getManager().playStackableSound("sounds/menuItem.wav");
+
         time = 0;
         selection--;
         if (selection == -1)
