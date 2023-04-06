@@ -127,6 +127,12 @@ void Game::init()
 
 bool Game::update(int deltaTime)
 {
+    if (timeToWaitForMenuSoundtrack > 0)
+    {
+        timeToWaitForMenuSoundtrack -= deltaTime;
+        if (timeToWaitForMenuSoundtrack <= 0) SoundManager::getManager().playSoundtrack("sounds/menus.wav");
+    }
+
 	if (currentSceneType == SceneType::MainMenu)
 	{
 		auto status = mainMenu->update(deltaTime);
@@ -161,8 +167,8 @@ bool Game::update(int deltaTime)
 
 		if (status != (int)GameFinishedSelection::None)
 		{
-			SoundManager::getManager().stopAllSounds();
 			SoundManager::getManager().playSoundtrack("sounds/menus.wav");
+            timeToWaitForMenuSoundtrack = 0;
 		}
 
 		keys[13] = false;
@@ -183,6 +189,7 @@ bool Game::update(int deltaTime)
 			{
 				currentSceneType = SceneType::GameFinished;
 				SoundManager::getManager().playSoundtrack("sounds/game_complete.wav");
+                timeToWaitForMenuSoundtrack = 30000;
 			}
 			else
 			{

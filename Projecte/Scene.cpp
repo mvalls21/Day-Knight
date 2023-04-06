@@ -160,6 +160,12 @@ SceneStatus Scene::update(int deltaTime)
     {
         return SceneStatus::Continue;
     }
+    else if (timeUpRemainingTimeTransition > 0)
+    {
+        timeUpRemainingTimeTransition -= deltaTime;
+        if (timeUpRemainingTimeTransition <= 0) return SceneStatus::TimeIsUp;
+        return SceneStatus::Continue;
+    }
     else if (levelPassedRemainingTimeTransition > 0)
     {
         if (levelPassedRemainingTimeTransition >= SCORE_UP_LVL_PASSED_END and levelPassedRemainingTimeTransition <= SCORE_UP_LVL_PASSED_START)
@@ -196,7 +202,9 @@ SceneStatus Scene::update(int deltaTime)
     levelTimer -= deltaTime;
     if (levelTimer <= 0)
     {
-        return SceneStatus::TimeIsUp;
+        SoundManager::getManager().stopAllSounds();
+        SoundManager::getManager().playSound("sounds/timeUp.wav");
+        timeUpRemainingTimeTransition = 4000;
     }
     else if (levelTimer / 1000 < 10 and levelTimer / 1000 != (levelTimer + deltaTime) / 1000)
     {

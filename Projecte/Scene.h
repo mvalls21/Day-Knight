@@ -110,6 +110,7 @@ private:
 	ObjectType currentObjectType = ObjectType::None;
 	int objectTimer = 0;
     int levelPassedRemainingTimeTransition = 0;
+    int timeUpRemainingTimeTransition = 0;
 
     int levelTimer = MAX_TIME_FOR_LEVEL;
     int* score;
