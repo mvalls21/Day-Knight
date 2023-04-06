@@ -4,6 +4,7 @@
 #include <iostream>
 
 #include "ShaderSystem.h"
+#include "SoundManager.h"
 
 #include "Game.h"
 #include <GL/glew.h>
@@ -27,6 +28,9 @@ GameFinishedScreen::GameFinishedScreen(int width, int height, int *score)
     selection = (int)GameFinishedSelection::Credits;
 
     texProgram = ShaderSystem::acquire("texture");
+
+    SoundManager::getManager().stopAllSounds();
+    SoundManager::getManager().playSoundtrack("sounds/game_complete.wav");
 
     glm::vec2 geom[] = {
         {0.0f, 0.0f},

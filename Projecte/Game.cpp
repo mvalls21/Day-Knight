@@ -159,6 +159,12 @@ bool Game::update(int deltaTime)
 		else if (status == (int)GameFinishedSelection::MainMenu)
 			currentSceneType = SceneType::MainMenu;
 
+		if (status != (int)GameFinishedSelection::None)
+		{
+			SoundManager::getManager().stopAllSounds();
+			SoundManager::getManager().playSoundtrack("sounds/menus.wav");
+		}
+
 		keys[13] = false;
 	}
 	else if (currentSceneType == SceneType::Play && !paused)
