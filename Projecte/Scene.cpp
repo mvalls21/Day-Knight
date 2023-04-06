@@ -167,12 +167,12 @@ SceneStatus Scene::update(int deltaTime)
             if (remainingScoreUpTicks != (levelPassedRemainingTimeTransition - deltaTime - SCORE_UP_LVL_PASSED_END) / SCORE_UP_LVL_PASSED_PERIOD) {
                 SoundManager::getManager().playStackableSound("sounds/scoreUp.wav");
                 if (remainingScoreUpTicks == 1) {
-                    *score += (levelTimer / 1000) * EXTRA_POINTS_FOR_SECOND;
+                    *score += (levelTimer / 100) * (EXTRA_POINTS_FOR_SECOND / 10);
                     levelTimer = 0;
                     SoundManager::getManager().playSound("sounds/timeToPointsEnd.wav");
                 } else {
-                    *score += ((levelTimer / 1000) / remainingScoreUpTicks) * EXTRA_POINTS_FOR_SECOND;
-                    levelTimer -= ((levelTimer / 1000) / remainingScoreUpTicks) * 1000;
+                    *score += ((levelTimer / 100) / remainingScoreUpTicks) * (EXTRA_POINTS_FOR_SECOND / 10);
+                    levelTimer -= ((levelTimer / 100) / remainingScoreUpTicks) * 100;
                 }
             }
         }

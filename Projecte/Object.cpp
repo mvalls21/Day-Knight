@@ -73,7 +73,7 @@ BoundingBoxInfo Door::getBoundingBoxInfo() const
     return {
         .xoffset = 5,
         .yoffset = 2,
-        .width = 6,
+        .width = 32,
         .height = 26};
 }
 
