@@ -105,8 +105,7 @@ Game::Game()
 	levelDescriptions.push_back(sceneLevel03());
 
 	currentLevelIdx = 0;
-	// currentSceneType = SceneType::MainMenu;
-	currentSceneType = SceneType::GameFinished;
+	currentSceneType = SceneType::MainMenu;
 
 	ShaderSystem::init();
 }
