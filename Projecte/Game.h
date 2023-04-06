@@ -62,6 +62,8 @@ private:
 	bool playerDead = false;
     bool timeIsUp = false;
 
+    int timeToWaitForMenuSoundtrack = 0;
+
 	SceneType currentSceneType;
 
 	MainMenu *mainMenu;
