@@ -32,15 +32,22 @@ void Vampire::init(const glm::ivec2 &tileMapPos, ShaderProgram &shaderProgram)
     vampireSprite->addKeyframe(MOVE_RIGHT, glm::vec2(1.0f / 4.0f, 0.0f));
 
     batTexture = new Texture();
-    batTexture->loadFromFile("images/bat.png", TEXTURE_PIXEL_FORMAT_RGBA);
+    batTexture->loadFromFile("images/bat_transition.png", TEXTURE_PIXEL_FORMAT_RGBA);
 
-    batSprite = AnimatedSprite::createSprite(BAT_SIZE, glm::vec2(1.0f / 3.0f, 1.0f), batTexture, &shaderProgram);
-    batSprite->setNumberAnimations(1);
+    batSprite = AnimatedSprite::createSprite(BAT_SIZE, glm::vec2(1.0f / 3.0f, 1.0f / 2.0f), batTexture, &shaderProgram);
+    batSprite->setNumberAnimations(2);
 
     batSprite->setAnimationSpeed(0, 8);
     batSprite->addKeyframe(0, glm::vec2(0.0f / 3.0f, 0.0f));
     batSprite->addKeyframe(0, glm::vec2(1.0f / 3.0f, 0.0f));
     batSprite->addKeyframe(0, glm::vec2(2.0f / 3.0f, 0.0f));
+
+    batSprite->setAnimationSpeed(1, 8);
+    batSprite->addKeyframe(1, glm::vec2(0.0f / 3.0f, 0.5f));
+    batSprite->addKeyframe(1, glm::vec2(1.0f / 3.0f, 0.5f));
+    batSprite->addKeyframe(1, glm::vec2(2.0f / 3.0f, 0.5f));
+
+    totalTimeTransition = batSprite->computeAnimationTime(1);
 
     batSprite->changeAnimation(0);
 
@@ -89,6 +96,17 @@ void Vampire::updateFlying(int deltaTime)
 {
     position += flyingMovement;
 
+    if (isTransitioning)
+    {
+        timeTransitioning += deltaTime;
+
+        if (timeTransitioning >= totalTimeTransition)
+        {
+            isTransitioning = false;
+            sprite->changeAnimation(0);
+        }
+    }
+
     const bool collisionRight = map->collisionMoveRight(position, BAT_SIZE, true);
     const bool collisionLeft = map->collisionMoveLeft(position, BAT_SIZE, true);
 
@@ -130,11 +148,31 @@ void Vampire::updateFlying(int deltaTime)
 
 void Vampire::updateWalking(int deltaTime)
 {
+    if (isTransitioning)
+    {
+        timeTransitioning += deltaTime;
+
+        if (timeTransitioning >= totalTimeTransition)
+        {
+            sprite->changeAnimation(0);
+            sprite = vampireSprite;
+
+            isTransitioning = false;
+
+            CharacterAnims newDirection = flyingMovement.x >= 0 ? MOVE_RIGHT : MOVE_LEFT;
+            setDirection(newDirection);
+        }
+        return;
+    }
+
     defaultMovement(deltaTime);
 
     if (timeSinceLastFly_ms / 1000 >= TIME_PER_STAGE)
     {
         sprite = batSprite;
+        sprite->changeAnimation(1);
+        isTransitioning = true;
+        timeTransitioning = 0;
 
         flying = true;
         flyingMovement = {movementSpeed, -DEFAULT_ENEMY_MOVEMENT_SPEED};
@@ -149,10 +187,10 @@ void Vampire::updateLanding(int deltaTime)
         landing = false;
         assert(!flying);
 
-        sprite = vampireSprite;
+        isTransitioning = true;
+        timeTransitioning = 0;
 
-        CharacterAnims newDirection = flyingMovement.x >= 0 ? MOVE_RIGHT : MOVE_LEFT;
-        setDirection(newDirection);
+        sprite->changeAnimation(1);
     }
 
     timeSinceLastFly_ms = 0;

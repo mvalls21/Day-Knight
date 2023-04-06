@@ -32,4 +32,8 @@ private:
     bool landing = false;
     int timeSinceLastFly_ms;
     glm::ivec2 flyingMovement;
+
+    int totalTimeTransition;
+    int timeTransitioning = 0;
+    bool isTransitioning = false;
 };
