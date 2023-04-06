@@ -193,6 +193,10 @@ SceneStatus Scene::update(int deltaTime)
     {
         return SceneStatus::PlayerDead;
     }
+    else if (levelTimer/1000 < 10 and levelTimer/1000 != (levelTimer + deltaTime)/1000)
+    {
+        SoundManager::getManager().playStackableSound("sounds/timeLow.wav");
+    }
 
 
     detectCheatKeys();
