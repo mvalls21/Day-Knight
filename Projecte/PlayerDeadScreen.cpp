@@ -12,11 +12,26 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include "SoundManager.h"
 
-PlayerDeadScreen::PlayerDeadScreen(int width, int height)
+PlayerDeadScreen::PlayerDeadScreen(int width, int height, ReasonLostGame reason)
 {
-    selectedPlayAgain.loadFromFile("images/dead_screen/dead_selected_start_again.png", PixelFormat::TEXTURE_PIXEL_FORMAT_RGBA);
-    selectedExitMainMenu.loadFromFile("images/dead_screen/dead_selected_main_menu.png", PixelFormat::TEXTURE_PIXEL_FORMAT_RGBA);
-    selectedExitDesktop.loadFromFile("images/dead_screen/dead_selected_desktop.png", PixelFormat::TEXTURE_PIXEL_FORMAT_RGBA);
+    if (reason == ReasonLostGame::PlayerDead)
+    {
+        selectedPlayAgain.loadFromFile("images/dead_screen/dead_selected_start_again.png",
+                                       PixelFormat::TEXTURE_PIXEL_FORMAT_RGBA);
+        selectedExitMainMenu.loadFromFile("images/dead_screen/dead_selected_main_menu.png",
+                                          PixelFormat::TEXTURE_PIXEL_FORMAT_RGBA);
+        selectedExitDesktop.loadFromFile("images/dead_screen/dead_selected_desktop.png",
+                                         PixelFormat::TEXTURE_PIXEL_FORMAT_RGBA);
+    }
+    else
+    {
+        selectedPlayAgain.loadFromFile("images/time_is_up/time_is_up_selected_play.png",
+                                       PixelFormat::TEXTURE_PIXEL_FORMAT_RGBA);
+        selectedExitMainMenu.loadFromFile("images/time_is_up/time_is_up_selected_main_menu.png",
+                                          PixelFormat::TEXTURE_PIXEL_FORMAT_RGBA);
+        selectedExitDesktop.loadFromFile("images/time_is_up/time_is_up_selected_desktop.png",
+                                         PixelFormat::TEXTURE_PIXEL_FORMAT_RGBA);
+    }
 
     projection = glm::ortho(0.f, float(width - 1), float(height - 1), 0.f);
 

@@ -196,7 +196,7 @@ SceneStatus Scene::update(int deltaTime)
     levelTimer -= deltaTime;
     if (levelTimer <= 0)
     {
-        return SceneStatus::PlayerDead;
+        return SceneStatus::TimeIsUp;
     }
     else if (levelTimer / 1000 < 10 and levelTimer / 1000 != (levelTimer + deltaTime) / 1000)
     {

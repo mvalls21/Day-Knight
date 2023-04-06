@@ -119,8 +119,9 @@ void Game::init()
 	mainMenu = new MainMenu(SCREEN_WIDTH, SCREEN_HEIGHT);
 	instructionsMenu = new TexturedMenu(SCREEN_WIDTH, SCREEN_HEIGHT, "images/main_menu/instructions_menu.png");
 	creditsMenu = new TexturedMenu(SCREEN_WIDTH, SCREEN_HEIGHT, "images/main_menu/credits_menu.png");
-	playerDeadScreen = new PlayerDeadScreen(SCREEN_WIDTH, SCREEN_HEIGHT);
+	playerDeadScreen = new PlayerDeadScreen(SCREEN_WIDTH, SCREEN_HEIGHT, ReasonLostGame::PlayerDead);
 	gamePausedScreen = new GamePausedScreen(SCREEN_WIDTH, SCREEN_HEIGHT);
+    timeIsUpScreen = new PlayerDeadScreen(SCREEN_WIDTH, SCREEN_HEIGHT, ReasonLostGame::TimeIsUp);
 	gameFinishedScreen = new GameFinishedScreen(SCREEN_WIDTH, SCREEN_HEIGHT, &Game::score);
 }
 
@@ -169,10 +170,12 @@ bool Game::update(int deltaTime)
 	else if (currentSceneType == SceneType::Play && !paused)
 	{
 		SceneStatus status;
-		if (!playerDead)
+		if (!playerDead and !timeIsUp)
 			status = currentPlayScene->update(deltaTime);
-		else
+		else if (playerDead)
 			status = SceneStatus::PlayerDead;
+        else
+            status = SceneStatus::TimeIsUp;
 
 		if (status == SceneStatus::LevelComplete)
 		{
@@ -186,17 +189,21 @@ bool Game::update(int deltaTime)
 				nextLevel();
 			}
 		}
-		else if (status == SceneStatus::PlayerDead)
+		else if (status == SceneStatus::PlayerDead or status == SceneStatus::TimeIsUp)
 		{
 			SoundManager::getManager().playSoundtrack("sounds/menus.wav");
-			playerDead = true;
-			const auto player_dead_status = static_cast<PlayerDeadSelection>(playerDeadScreen->update(deltaTime));
+			playerDead = status == SceneStatus::PlayerDead;
+            timeIsUp = not playerDead;
+			const auto player_dead_status = playerDead ?
+                    static_cast<PlayerDeadSelection>(playerDeadScreen->update(deltaTime)) :
+                    static_cast<PlayerDeadSelection>(timeIsUpScreen->update(deltaTime));
 
 			if (player_dead_status == PlayerDeadSelection::StartAgain)
 			{
 				Game::score = 0;
 				Game::lives = MAX_LIVES;
 				playerDead = false;
+                timeIsUp = false;
 				currentSceneType = SceneType::Play;
 
 				currentLevelIdx = 0;
@@ -205,6 +212,7 @@ bool Game::update(int deltaTime)
 			else if (player_dead_status == PlayerDeadSelection::ExitMainMenu)
 			{
 				playerDead = false;
+                timeIsUp = false;
 				currentSceneType = SceneType::MainMenu;
 				keys[13] = false; // Set enter to false
 			}
@@ -227,6 +235,7 @@ bool Game::update(int deltaTime)
 			Game::score = 0;
 			Game::lives = MAX_LIVES;
 			playerDead = false;
+            timeIsUp = false;
 			paused = false;
 			currentLevelIdx = 0;
 
@@ -268,6 +277,8 @@ void Game::render()
 			playerDeadScreen->render();
 		if (paused)
 			gamePausedScreen->render();
+        if (timeIsUp)
+            timeIsUpScreen->render();
 		break;
 	}
 	}

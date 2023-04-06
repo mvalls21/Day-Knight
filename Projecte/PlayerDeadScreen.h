@@ -13,10 +13,16 @@ enum class PlayerDeadSelection
     ExitDesktop = 2
 };
 
+enum class ReasonLostGame
+{
+    PlayerDead,
+    TimeIsUp
+};
+
 class PlayerDeadScreen : public IGameScene
 {
 public:
-    PlayerDeadScreen(int width, int height);
+    PlayerDeadScreen(int width, int height, ReasonLostGame reason);
     ~PlayerDeadScreen();
 
     int update(int deltaTime) override;

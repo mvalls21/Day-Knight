@@ -40,6 +40,7 @@ enum class SceneStatus
     Continue,
 	PlayerDead,
 	LevelComplete,
+    TimeIsUp
 };
 
 enum class ObjectType

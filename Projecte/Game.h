@@ -60,6 +60,7 @@ private:
 
 	bool paused = false;
 	bool playerDead = false;
+    bool timeIsUp = false;
 
 	SceneType currentSceneType;
 
@@ -68,6 +69,7 @@ private:
 	TexturedMenu *instructionsMenu;
 	TexturedMenu *creditsMenu;
 	PlayerDeadScreen *playerDeadScreen;
+    PlayerDeadScreen *timeIsUpScreen;
 	GamePausedScreen *gamePausedScreen;
 	GameFinishedScreen *gameFinishedScreen;
 
