@@ -293,7 +293,7 @@ void Game::render()
 
 void Game::keyPressed(int key)
 {
-	if (currentSceneType == SceneType::Play && key == 'p')
+	if (currentSceneType == SceneType::Play && key == 'p' && !playerDead && !timeIsUp)
 	{
 		paused = !paused;
 		if (paused)
